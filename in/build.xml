@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!--
+    @author Yoan Blanc <yoan.blanc@epfl.ch>
+-->
+<project name="in" default="run" basedir=".">
+    <property name="src.dir" location="src"/>
+    <property name="bin.dir" location="build"/>
+    <property name="doc.dir" location="doc"/>
+
+    <property name="repastj.dir" location="/home/yoan/soft/Repast-3.1/RepastJ"/>
+    <property name="repastj.path" location="${repastj.dir}/repast.jar"/>
+    <property name="repastj.siminit.class" value="uchicago.src.sim.engine.SimInit"/>
+
+    <target name="clean">
+        <delete includeEmptyDirs="true" failonerror="false">
+            <fileset dir="${bin.dir}"/>
+        </delete>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${bin.dir}/class"/>
+        <javac srcdir="${src.dir}"
+               destdir="${bin.dir}/class"
+               includeantruntime="false"
+               debug="on">
+            <compilerarg value="-Xlint"/>
+            <classpath>
+                <pathelement path="${java.class.path}"/>
+                <pathelement path="${repastj.path}"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="${bin.dir}/jar"/>
+        <jar destfile="${bin.dir}/jar/blanc-in.jar"
+             basedir="${bin.dir}/class" />
+    </target>
+
+    <target name="run" depends="jar">
+        <java fork="true" classname="${repastj.siminit.class}">
+            <arg value="ch.epfl.people.blanc.in.Main" />
+            <classpath>
+                <pathelement path="${java.class.path}"/>
+                <pathelement path="${repastj.path}"/>
+                <pathelement path="${bin.dir}/jar/blanc-in.jar"/>
+            </classpath>
+        </java>
+    </target>
+</project>
