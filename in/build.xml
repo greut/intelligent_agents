@@ -8,7 +8,6 @@
     <property name="doc.dir" location="doc"/>
 
     <property name="lib.dir" location="../lib"/>
-    <property name="repastj.path" location="${lib.dir}/repast.jar"/>
 
     <target name="clean">
         <delete includeEmptyDirs="true" failonerror="false">
@@ -25,7 +24,7 @@
             <compilerarg value="-Xlint"/>
             <classpath>
                 <pathelement path="${java.class.path}"/>
-                <pathelement path="${repastj.path}"/>
+                <pathelement path="${lib.dir}/repast.jar"/>
             </classpath>
         </javac>
     </target>
@@ -40,7 +39,8 @@
         <java fork="true" classname="MainRabbit">
             <classpath>
                 <pathelement path="${java.class.path}"/>
-                <pathelement path="${repastj.path}"/>
+                <pathelement path="${lib.dir}/repast.jar"/>
+                <pathelement path="${lib.dir}/colt.jar"/>
                 <pathelement path="${bin.dir}/jar/blanc-in.jar"/>
             </classpath>
         </java>
