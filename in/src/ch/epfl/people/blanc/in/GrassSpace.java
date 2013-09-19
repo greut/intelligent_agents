@@ -4,9 +4,12 @@ import uchicago.src.sim.space.Object2DGrid;
 
 public class GrassSpace {
     private Object2DGrid grass;
+    private Object2DGrid agents;
 
     public GrassSpace (int width, int height) {
         grass = new Object2DGrid(width, height);
+        agents = new Object2DGrid(width, height);
+
         for (int i=0; i<width; i++) {
             for (int j=0; j<height; j++) {
                 grass.putObjectAt(i, j, new Integer(0));
@@ -31,7 +34,25 @@ public class GrassSpace {
         return 0;
     }
 
-    public Object2DGrid getCurrentSpace() {
+    public Object2DGrid getCurrentGrassSpace() {
         return grass;
+    }
+
+    public Object2DGrid getCurrentAgentsSpace() {
+        return agents;
+    }
+
+    public boolean isCellOccupied(int x, int y) {
+        return agents.getObjectAt(x, y) != null;
+    }
+
+    public void addAgent(RabbitAgent agent) {
+        int x, y;
+        do {
+            x = (int) (Math.random() * agents.getSizeX());
+            y = (int) (Math.random() * agents.getSizeY());
+        } while(isCellOccupied(x, y));
+        agents.putObjectAt(x, y, agent);
+        agent.setPosition(x, y);
     }
 }
