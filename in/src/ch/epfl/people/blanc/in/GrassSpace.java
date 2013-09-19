@@ -54,5 +54,22 @@ public class GrassSpace {
         } while(isCellOccupied(x, y));
         agents.putObjectAt(x, y, agent);
         agent.setPosition(x, y);
+        agent.setSpace(this);
+    }
+
+    public void removeAgent(RabbitAgent agent) {
+        agents.putObjectAt(agent.getX(), agent.getY(), null);
+    }
+
+    public boolean moveAgent(int x, int y, int nx, int ny) {
+        if (isCellOccupied(nx, ny)) {
+            return false;
+        }
+
+        RabbitAgent agent = (RabbitAgent) agents.getObjectAt(x, y);
+        agents.putObjectAt(x, y, null);
+        agent.setPosition(nx, ny);
+        agents.putObjectAt(nx, ny, agent);
+        return true;
     }
 }

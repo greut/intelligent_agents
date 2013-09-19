@@ -2,6 +2,7 @@ package ch.epfl.people.blanc.in;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
@@ -62,9 +63,7 @@ public class Main extends SimModelImpl {
         for (int i=0; i<numAgents; i++) {
             addNewAgent();
         }
-        for (RabbitAgent agent : agents) {
-            agent.report();
-        }
+        
         // build schedule
         class RabbitStep extends BasicAction {
             public void execute() {
@@ -73,7 +72,12 @@ public class Main extends SimModelImpl {
                     agent.step();
                 }
 
-                displaySurface.display();
+                int deadAgents = reapDeadAgents();
+                for (int i=0; i<deadAgents; i++) {
+                    addNewAgent();
+                }
+
+                displaySurface.updateDisplay();
             }
         }
 
@@ -90,9 +94,8 @@ public class Main extends SimModelImpl {
         Object2DDisplay displayAgents = new Object2DDisplay(grassSpace.getCurrentAgentsSpace());
         displayAgents.setObjectList(agents);
 
-        displaySurface.addDisplayable(displayGrass, "Grass");
-        displaySurface.addDisplayable(displayAgents, "Agents");
-
+        displaySurface.addDisplayableProbeable(displayGrass, "Grass");
+        displaySurface.addDisplayableProbeable(displayAgents, "Agents");
 
         displaySurface.display();
     }
@@ -101,6 +104,19 @@ public class Main extends SimModelImpl {
         RabbitAgent agent = new RabbitAgent(agentMinLifespan, agentMaxLifespan);
         agents.add(agent);
         grassSpace.addAgent(agent);
+    }
+
+    private int reapDeadAgents() {
+        int counter = 0;
+        for(Iterator<RabbitAgent> iter = agents.iterator(); iter.hasNext(); ) {
+            RabbitAgent agent = iter.next();
+            if(agent.getTtl() < 1) {
+                grassSpace.removeAgent(agent);
+                iter.remove();
+                counter++;
+            }
+        }
+        return counter;
     }
 
     public Schedule getSchedule() {
