@@ -7,8 +7,9 @@
     <property name="bin.dir" location="build"/>
     <property name="doc.dir" location="doc"/>
 
-    <property name="lib.dir" location="../lib"/>
-    <property name="repastj.path" location="${lib.dir}/repast.jar"/>
+    <property name="repastj.dir" location="../lib"/>
+    <property name="repastj.path" location="${repastj.dir}/repast.jar"/>
+    <property name="repastj.siminit.class" value="uchicago.src.sim.engine.SimInit"/>
 
     <target name="clean">
         <delete includeEmptyDirs="true" failonerror="false">
@@ -37,7 +38,8 @@
     </target>
 
     <target name="run" depends="jar">
-        <java fork="true" classname="MainRabbit">
+        <java fork="true" classname="${repastj.siminit.class}">
+            <arg value="ch.epfl.people.blanc.in.Main" />
             <classpath>
                 <pathelement path="${java.class.path}"/>
                 <pathelement path="${repastj.path}"/>
