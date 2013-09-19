@@ -1,0 +1,8 @@
+# vim
+.*.sw[op]
+
+# latex
+*.aux
+*.log
+*.out
+*.pdf
