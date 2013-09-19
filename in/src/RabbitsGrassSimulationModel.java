@@ -1,11 +1,16 @@
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Iterator;
 
+import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimInit;
 import uchicago.src.sim.engine.SimModelImpl;
 import uchicago.src.sim.gui.ColorMap;
 import uchicago.src.sim.gui.DisplaySurface;
+import uchicago.src.sim.gui.Object2DDisplay;
 import uchicago.src.sim.gui.Value2DDisplay;
+import uchicago.src.sim.util.SimUtilities;
 
 /**
  * Class that implements the simulation model for the rabbits grass
@@ -23,10 +28,13 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     private int birthThreshold = 15; // 0 - 20
     private int grassGrowRate = 15; // 0 - 20
     private int grassEnergy = 5; // ?
+    private int minEnergy = 10;
+    private int maxEnergy = 20;
 
     private Schedule schedule;
     private DisplaySurface displaySurface;
     private RabbitsGrassSimulationSpace space;
+    private ArrayList<RabbitsGrassSimulationAgent> rabbits;
 
     public static void main(String[] args) {
         SimInit init = new SimInit();
@@ -39,8 +47,31 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         space = new RabbitsGrassSimulationSpace(worldWidth, worldHeight);
         space.spreadGrass(grassGrowRate);
 
+        for (int i=0; i<numberOfRabbits; i++) {
+            addNewRabbit();
+        }
+
         // build schedule
-        // TODO
+        class RabbitsGrassSimulationStep extends BasicAction {
+            public void execute() {
+                SimUtilities.shuffle(rabbits);
+                for (RabbitsGrassSimulationAgent rabbit: rabbits) {
+                    rabbit.step(space.getCurrentRabbitSpace());
+                }
+
+                for (Iterator<RabbitsGrassSimulationAgent> iter = rabbits.iterator(); iter.hasNext(); ) {
+                    RabbitsGrassSimulationAgent rabbit = iter.next();
+                    if (rabbit.isDead()) {
+                        space.removeRabbit(rabbit);
+                        iter.remove();
+                    }
+                }
+
+                displaySurface.updateDisplay();
+            }
+        }
+
+        schedule.scheduleActionBeginning(0, new RabbitsGrassSimulationStep());
 
         // build display
         ColorMap map = new ColorMap();
@@ -49,8 +80,18 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         }
         map.mapColor(0, Color.black);
         Value2DDisplay displayGrass = new Value2DDisplay(space.getCurrentGrassSpace(), map);
+        Object2DDisplay displayRabbit = new Object2DDisplay(space.getCurrentRabbitSpace());
+        displayRabbit.setObjectList(rabbits);
+
         displaySurface.addDisplayableProbeable(displayGrass, "Grass");
+        displaySurface.addDisplayableProbeable(displayRabbit, "Rabbits");
         displaySurface.display();
+    }
+
+    private void addNewRabbit() {
+        RabbitsGrassSimulationAgent rabbit = new RabbitsGrassSimulationAgent(minEnergy, maxEnergy);
+        rabbits.add(rabbit);
+        space.addRabbit(rabbit);
     }
 
     /**
@@ -105,7 +146,9 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     }
 
     public void setup() {
+        rabbits = new ArrayList<RabbitsGrassSimulationAgent>();
         schedule = new Schedule(1);
+
         if (displaySurface != null) {
             displaySurface.dispose();
         }

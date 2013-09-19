@@ -9,12 +9,15 @@ public class RabbitsGrassSimulationSpace {
     private int height;
 
     private Object2DGrid grass;
+    private Object2DGrid rabbits;
 
     public RabbitsGrassSimulationSpace(int w, int h) {
         width = w;
         height = h;
         
         grass = new Object2DGrid(width, height);
+        rabbits = new Object2DGrid(width, height);
+
         for (int i=0; i<width; i++) {
             for (int j=0; j<height; j++) {
                 grass.putObjectAt(i, j, new Integer(0));
@@ -32,7 +35,25 @@ public class RabbitsGrassSimulationSpace {
         }
     }
 
+    public void addRabbit(RabbitsGrassSimulationAgent rabbit) {
+        int x, y;
+        do {
+            x = (int) (Math.random() * width);
+            y = (int) (Math.random() * height);
+        } while (rabbits.getObjectAt(x, y) != null);
+        rabbits.putObjectAt(x, y, rabbit);
+        rabbit.setPosition(x, y);
+    }
+
+    public void removeRabbit(RabbitsGrassSimulationAgent rabbit) {
+        rabbits.putObjectAt(rabbit.getX(), rabbit.getY(), null);
+    }
+
     public Object2DGrid getCurrentGrassSpace() {
         return grass;
+    }
+
+    public Object2DGrid getCurrentRabbitSpace() {
+        return rabbits;
     }
 }
