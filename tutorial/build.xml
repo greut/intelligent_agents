@@ -43,6 +43,7 @@
             <classpath>
                 <pathelement path="${java.class.path}"/>
                 <pathelement path="${repastj.path}"/>
+                <pathelement path="${repastj.dir}/colt.jar"/>
                 <pathelement path="${bin.dir}/jar/blanc-in.jar"/>
             </classpath>
         </java>

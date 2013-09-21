@@ -5,6 +5,8 @@ import uchicago.src.sim.space.Object2DGrid;
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
  */
 public class RabbitsGrassSimulationSpace {
+    private static int MAX_GRASS = 15;
+
     private int width;
     private int height;
 
@@ -14,7 +16,7 @@ public class RabbitsGrassSimulationSpace {
     public RabbitsGrassSimulationSpace(int w, int h) {
         width = w;
         height = h;
-        
+
         grass = new Object2DGrid(width, height);
         rabbits = new Object2DGrid(width, height);
 
@@ -31,7 +33,8 @@ public class RabbitsGrassSimulationSpace {
             x = (int) (Math.random() * width);
             y = (int) (Math.random() * height);
             grass.putObjectAt(x, y,
-                    ((Integer) grass.getObjectAt(x, y)).intValue() + 1);
+                    Math.min(((Integer) grass.getObjectAt(x, y)).intValue() + 1,
+                             MAX_GRASS));
         }
     }
 

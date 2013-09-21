@@ -21,7 +21,7 @@
                destdir="${bin.dir}/class"
                includeantruntime="false"
                debug="on">
-            <compilerarg value="-Xlint"/>
+            <!--<compilerarg value="-Xlint"/>-->
             <classpath>
                 <pathelement path="${java.class.path}"/>
                 <pathelement path="${lib.dir}/repast.jar"/>

@@ -18,9 +18,9 @@ import uchicago.src.sim.util.SimUtilities;
  * order to run Repast simulation. It manages the entire RePast
  * environment and the simulation.
  *
- * @author Yoan Blanc <yoan.blanc@epfl.ch> 
+ * @author Yoan Blanc <yoan.blanc@epfl.ch>
  */
-public class RabbitsGrassSimulationModel extends SimModelImpl {		
+public class RabbitsGrassSimulationModel extends SimModelImpl {
 
     private int worldWidth = 20; // 0 - 100
     private int worldHeight = 20; // 0 - 100
@@ -54,9 +54,19 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         // build schedule
         class RabbitsGrassSimulationStep extends BasicAction {
             public void execute() {
+                // Grass grows
+                space.spreadGrass(grassGrowRate);
+
+                // Rabbits move
                 SimUtilities.shuffle(rabbits);
+                int younglings = 0;
                 for (RabbitsGrassSimulationAgent rabbit: rabbits) {
-                    rabbit.step(space.getCurrentRabbitSpace());
+                    rabbit.step(space, grassEnergy);
+
+                    if (rabbit.getEnergy() >= birthThreshold) {
+                        younglings++;
+                        rabbit.setEnergy(rabbit.getEnergy() / 2);
+                    }
                 }
 
                 for (Iterator<RabbitsGrassSimulationAgent> iter = rabbits.iterator(); iter.hasNext(); ) {
@@ -65,6 +75,10 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
                         space.removeRabbit(rabbit);
                         iter.remove();
                     }
+                }
+
+                for (int i=0; i<younglings; i++) {
+                    addNewRabbit();
                 }
 
                 displaySurface.updateDisplay();
@@ -85,6 +99,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
         displaySurface.addDisplayableProbeable(displayGrass, "Grass");
         displaySurface.addDisplayableProbeable(displayRabbit, "Rabbits");
+
         displaySurface.display();
     }
 

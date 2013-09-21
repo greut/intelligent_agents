@@ -13,16 +13,25 @@ import uchicago.src.sim.space.Object2DGrid;
 
 public class RabbitsGrassSimulationAgent implements Drawable {
 
+    private int id;
     private int energy;
     private int x;
     private int y;
     private int vx;
     private int vy;
+    private static int IDNumber = 0;
 
     public RabbitsGrassSimulationAgent(int minEnergy, int maxEnergy) {
-        x = -1;
-        y = -1;
+        synchronized(RabbitsGrassSimulationAgent.class) {
+            id = IDNumber++;
+        }
+        energy = (int) (Math.random() * (maxEnergy - minEnergy)) + minEnergy;
+        // x, y are defined later on via setPosition
         setSpeed();
+    }
+
+    public String toString() {
+        return id + " @" + x + "," + y + " (" + energy + ")";
     }
 
     private void setSpeed() {
@@ -35,7 +44,7 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 	public void draw(SimGraphics g) {
         // TODO display rabbits about to bread as well
         Color color = energy < 10 ? Color.gray : Color.white;
-	    g.drawFastRoundRect(Color.white);
+	    g.drawFastRoundRect(color);
 	}
 
     public void setPosition(int nx, int ny) {
@@ -55,23 +64,43 @@ public class RabbitsGrassSimulationAgent implements Drawable {
         return energy < 1;
     }
 
-    public void step(Object2DGrid grid) {
+    public int getEnergy() {
+        return energy;
+    }
+
+    public void setEnergy(int newEnergy) {
+        energy = newEnergy;
+    }
+
+    public void step(RabbitsGrassSimulationSpace space, int grassEnergy) {
         int newx, newy;
 
+        Object2DGrid grass = space.getCurrentGrassSpace();
+        Object2DGrid rabbits = space.getCurrentRabbitSpace();
+
+        // Move
         newx = x + vx;
         newy = y + vy;
 
-        newx = (newx + grid.getSizeX()) % grid.getSizeX();
-        newy = (newy + grid.getSizeY()) % grid.getSizeY();
+        newx = (newx + grass.getSizeX()) % grass.getSizeX();
+        newy = (newy + grass.getSizeY()) % grass.getSizeY();
 
-        if (grid.getObjectAt(newx, newy) == null) {
-            grid.putObjectAt(x, y, null);
+        // Change the direction if we meet someone else or once in a while
+        // to avoid going always in the same direction if we are alone (p=.9)
+        if (rabbits.getObjectAt(newx, newy) == null && Math.random() < .9) {
+            rabbits.putObjectAt(x, y, null);
             x = newx;
             y = newy;
-            grid.putObjectAt(newx, newy, this);
+            rabbits.putObjectAt(newx, newy, this);
         } else {
             setSpeed();
         }
+
+        // Grabbing energy
+        energy += ((Integer) grass.getObjectAt(x, y)).intValue() * grassEnergy;
+        grass.putObjectAt(x, y, new Integer(0));
+
+        // Breading is done in the space code.
 
         // Slowly dying.
         energy -= 1;
