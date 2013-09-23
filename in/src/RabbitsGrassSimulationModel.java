@@ -59,13 +59,15 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         public Object execute() {
             return new Double(getSValue());
         }
-
         public double getSValue() {
             return (double)rabbits.size();
         }
     }
 
-    class GrassInTime implements Sequence {
+    class GrassInTime implements DataSource, Sequence {
+        public Object execute() {
+            return new Double(getSValue());
+        }
         public double getSValue() {
             return (double)space.getTotalGrass();
         }
