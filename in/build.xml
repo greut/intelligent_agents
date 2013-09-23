@@ -39,6 +39,7 @@
         <java fork="true" classname="MainRabbit">
             <classpath>
                 <pathelement path="${java.class.path}"/>
+                <pathelement path="${lib.dir}/plot.jar"/>
                 <pathelement path="${lib.dir}/repast.jar"/>
                 <pathelement path="${lib.dir}/colt.jar"/>
                 <pathelement path="${bin.dir}/jar/blanc-in.jar"/>

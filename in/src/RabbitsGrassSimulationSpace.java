@@ -59,4 +59,13 @@ public class RabbitsGrassSimulationSpace {
     public Object2DGrid getCurrentRabbitSpace() {
         return rabbits;
     }
+
+    public int getTotalGrass() {
+        int total = 0;
+        for(int i = 0; i < grass.getSizeX(); i++)
+            for(int j = 0; j < grass.getSizeY(); j++)
+                if(((Integer)grass.getObjectAt(i, j)).intValue() > 0)
+                    total++;
+        return total;
+    }
 }
