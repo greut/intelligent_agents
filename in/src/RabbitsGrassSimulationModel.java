@@ -4,7 +4,6 @@ import java.util.Iterator;
 
 import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
-import uchicago.src.sim.engine.SimInit;
 import uchicago.src.sim.engine.SimModelImpl;
 import uchicago.src.sim.gui.ColorMap;
 import uchicago.src.sim.gui.DisplaySurface;
@@ -35,12 +34,6 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     private DisplaySurface displaySurface;
     private RabbitsGrassSimulationSpace space;
     private ArrayList<RabbitsGrassSimulationAgent> rabbits;
-
-    public static void main(String[] args) {
-        SimInit init = new SimInit();
-        RabbitsGrassSimulationModel model = new RabbitsGrassSimulationModel();
-        init.loadModel(model, "", false);
-    }
 
     public void begin() {
         // build model
