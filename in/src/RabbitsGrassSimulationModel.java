@@ -48,21 +48,29 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     private ArrayList<RabbitsGrassSimulationAgent> rabbits;
 
     public void begin() {
-        // build model
+        buildModel();
+        buildSchedule();
+        buildDisplay();
+
+        displaySurface.display();
+    }
+
+    public void buildModel() {
         space = new RabbitsGrassSimulationSpace(gridSize, gridSize);
         space.spreadGrass(grassGrowRate);
 
         for (int i=0; i<numberOfRabbits; i++) {
             addNewRabbit();
         }
+    }
 
-        // build schedule
+    public void buildSchedule() {
         class RabbitsGrassSimulationStep extends BasicAction {
             public void execute() {
                 // Grass grows
                 space.spreadGrass(grassGrowRate);
 
-                // Rabbits move
+                // Rabbits step (move + eat)
                 SimUtilities.shuffle(rabbits);
                 int younglings = 0;
                 for (RabbitsGrassSimulationAgent rabbit: rabbits) {
@@ -74,6 +82,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
                     }
                 }
 
+                // remove dead rabbit
                 for (Iterator<RabbitsGrassSimulationAgent> iter = rabbits.iterator(); iter.hasNext(); ) {
                     RabbitsGrassSimulationAgent rabbit = iter.next();
                     if (rabbit.isDead()) {
@@ -82,17 +91,21 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
                     }
                 }
 
+                // spawn younglings
                 for (int i=0; i<younglings; i++) {
                     addNewRabbit();
                 }
 
+                // update grid
                 displaySurface.updateDisplay();
             }
         }
 
         schedule.scheduleActionBeginning(0, new RabbitsGrassSimulationStep());
 
-        // build display
+    }
+
+    public void buildDisplay() {
         ColorMap map = new ColorMap();
         for (int i=1; i<16; i++) {
             map.mapColor(i, new Color(0, i * 8 + 127, 0));
@@ -104,8 +117,6 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
         displaySurface.addDisplayableProbeable(displayGrass, "Grass");
         displaySurface.addDisplayableProbeable(displayRabbit, "Rabbits");
-
-        displaySurface.display();
     }
 
     private void addNewRabbit() {
@@ -165,6 +176,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     }
 
     public void setup() {
+        // set parameters as sliders
         RangePropertyDescriptor pdGridSize = new RangePropertyDescriptor("GridSize", MIN_GRID_SIZE, MAX_GRID_SIZE, DEFAULT_GRID_SIZE);
         RangePropertyDescriptor pdPopulation = new RangePropertyDescriptor("Population", MIN_NUMBER_OF_RABBITS, MAX_NUMBER_OF_RABBITS, DEFAULT_NUMBER_OF_RABBITS);
         RangePropertyDescriptor pdBirthThreshold = new RangePropertyDescriptor("BirthThreshold", MIN_BIRTH_THRESHOLD, MAX_BIRTH_THRESHOLD, DEFAULT_BIRTH_THRESHOLD);
