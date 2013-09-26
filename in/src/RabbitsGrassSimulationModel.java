@@ -130,8 +130,6 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
         schedule.scheduleActionBeginning(0, new RabbitsGrassSimulationStep());
 
-
-
         class UpdatePopulationGraph extends BasicAction {
             public void execute() {
                 populationGraph.step();
@@ -187,7 +185,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     }
 
     public void setPopulation(int population) {
-        this.numberOfRabbits = population;
+        numberOfRabbits = population;
     }
 
     public int getBirthThreshold() {
@@ -195,7 +193,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     }
 
     public void setBirthThreshold(int threshold) {
-        this.birthThreshold = threshold;
+        birthThreshold = threshold;
     }
 
     public int getGrassGrowRate() {
@@ -203,7 +201,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     }
 
     public void setGrassGrowRate(int rate) {
-        this.grassGrowRate = rate;
+        grassGrowRate = rate;
     }
 
     public String getName() {
@@ -214,17 +212,23 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         return schedule;
     }
 
+    @SuppressWarnings("unchecked")
     public void setup() {
-        // set parameters as sliders
-        RangePropertyDescriptor pdGridSize = new RangePropertyDescriptor("GridSize", MIN_GRID_SIZE, MAX_GRID_SIZE, DEFAULT_GRID_SIZE);
-        RangePropertyDescriptor pdPopulation = new RangePropertyDescriptor("Population", MIN_NUMBER_OF_RABBITS, MAX_NUMBER_OF_RABBITS, DEFAULT_NUMBER_OF_RABBITS);
-        RangePropertyDescriptor pdBirthThreshold = new RangePropertyDescriptor("BirthThreshold", MIN_BIRTH_THRESHOLD, MAX_BIRTH_THRESHOLD, DEFAULT_BIRTH_THRESHOLD);
-        RangePropertyDescriptor pdGrassGrowthRate = new RangePropertyDescriptor("GrassGrowRate", MIN_GRASS_GROWTH_RATE, MAX_GRASS_GROWTH_RATE, DEFAULT_GRASS_GROWTH_RATE);
+        RangePropertyDescriptor pdGridSize = new RangePropertyDescriptor(
+                "GridSize", MIN_GRID_SIZE, MAX_GRID_SIZE, DEFAULT_GRID_SIZE);
+        RangePropertyDescriptor pdPopulation = new RangePropertyDescriptor(
+                "Population", MIN_NUMBER_OF_RABBITS, MAX_NUMBER_OF_RABBITS,
+                DEFAULT_NUMBER_OF_RABBITS);
+        RangePropertyDescriptor pdBirthThreshold = new RangePropertyDescriptor(
+                "BirthThreshold", MIN_BIRTH_THRESHOLD, MAX_BIRTH_THRESHOLD,
+                DEFAULT_BIRTH_THRESHOLD);
+        RangePropertyDescriptor pdGrassGrowthRate = new RangePropertyDescriptor(
+                "GrassGrowRate", MIN_GRASS_GROWTH_RATE, MAX_GRASS_GROWTH_RATE,
+                DEFAULT_GRASS_GROWTH_RATE);
         descriptors.put("GridSize", pdGridSize);
         descriptors.put("Population", pdPopulation);
         descriptors.put("BirthThreshold", pdBirthThreshold);
         descriptors.put("GrassGrowRate", pdGrassGrowthRate);
-
 
         rabbits = new ArrayList<RabbitsGrassSimulationAgent>();
         schedule = new Schedule(1);
