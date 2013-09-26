@@ -110,22 +110,24 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 
         // Change the direction if we meet someone else or once in a while
         // to avoid going always in the same direction if we are alone (p=.95)
+        // NB: the rabbits space has been emptied beforehand so there is no
+        // needs to remove ourselves from where we where.
         if (rabbits.getObjectAt(newx, newy) == null && Math.random() < .95) {
-            rabbits.putObjectAt(x, y, null);
             x = newx;
             y = newy;
-            rabbits.putObjectAt(newx, newy, this);
+            // Moving takes some energy
+            energy -= 1;
         } else {
             setSpeed();
         }
 
         // Grabbing energy
         energy += ((Integer) grass.getObjectAt(x, y)).intValue() * grassEnergy;
-        grass.putObjectAt(x, y, new Integer(0));
+        if (!isDead()) {
+            grass.putObjectAt(x, y, new Integer(0));
+            rabbits.putObjectAt(x, y, this);
+        }
 
         // Breading is done in the space code.
-
-        // Slowly dying.
-        energy -= 1;
     }
 }
