@@ -1,4 +1,6 @@
+bin
 build
+history.xml
 
 # vim
 .*.sw[op]
