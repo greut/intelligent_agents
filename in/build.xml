@@ -31,8 +31,14 @@
 
     <target name="jar" depends="compile">
         <mkdir dir="${bin.dir}/jar"/>
-        <jar destfile="${bin.dir}/jar/blanc-signo-in.jar"
-             basedir="${bin.dir}/class" />
+        <jar destfile="${bin.dir}/jar/blanc-signo-in.jar">
+            <fileset dir="${bin.dir}/class"/>
+            <fileset dir="${src.dir}"/>
+            <fileset dir="${doc.dir}">
+                <include name="*.tex"/>
+                <include name="*.pdf"/>
+            </fileset>
+        </jar>
     </target>
 
     <target name="run" depends="jar">
