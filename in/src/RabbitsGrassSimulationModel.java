@@ -46,6 +46,9 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     private int minEnergy = 10;
     private int maxEnergy = 20;
 
+    private int totalBirths = 0;
+    private int totalDeaths = 0;
+
     // simulation objects
     private Schedule schedule;
     private DisplaySurface displaySurface;
@@ -70,6 +73,26 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         }
         public double getSValue() {
             return (double)space.getTotalGrass();
+        }
+    }
+
+    class BirthsOverTime implements DataSource, Sequence {
+        public Object execute() {
+            return new Double(getSValue());
+        }
+
+        public double getSValue() {
+            return totalBirths;
+        }
+    }
+
+    class DeathsOverTime implements DataSource, Sequence {
+        public Object execute() {
+            return new Double(getSValue());
+        }
+
+        public double getSValue() {
+            return totalDeaths;
         }
     }
 
@@ -110,15 +133,18 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
                 }
 
                 // remove dead rabbit
+                totalDeaths = 0;
                 for (Iterator<RabbitsGrassSimulationAgent> iter = rabbits.iterator(); iter.hasNext(); ) {
                     RabbitsGrassSimulationAgent rabbit = iter.next();
                     if (rabbit.isDead()) {
                         space.removeRabbit(rabbit);
                         iter.remove();
+                        totalDeaths++;
                     }
                 }
 
                 // spawn younglings
+                totalBirths = younglings;
                 for (int i=0; i<younglings; i++) {
                     addNewRabbit();
                 }
@@ -154,22 +180,21 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
         populationGraph.addSequence("Population", new PopulationInTime());
         populationGraph.addSequence("Grass amount", new GrassInTime());
+        // Not sure if useful
+        //populationGraph.addSequence("Births", new BirthsOverTime());
+        //populationGraph.addSequence("Deaths", new DeathsOverTime());
     }
 
     private void addNewRabbit() {
-        RabbitsGrassSimulationAgent rabbit = new RabbitsGrassSimulationAgent(minEnergy, maxEnergy);
+        RabbitsGrassSimulationAgent rabbit = new RabbitsGrassSimulationAgent(
+                minEnergy, maxEnergy, birthThreshold);
         rabbits.add(rabbit);
         space.addRabbit(rabbit);
     }
 
-    /**
-     * @TODO use the parameter file: http://repast.sourceforge.net/repast_3/how-to/params.html
-     */
     public String[] getInitParam() {
-        return new String[]{ "GridSize",
-                             "Population",
-                             "BirthThreshold",
-                             "GrassGrowRate" };
+        return new String[]{ "GridSize", "Population", "BirthThreshold",
+                "GrassGrowRate" };
     }
 
     public int getGridSize() {

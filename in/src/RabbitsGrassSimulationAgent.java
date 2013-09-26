@@ -19,13 +19,15 @@ public class RabbitsGrassSimulationAgent implements Drawable {
     private int y;
     private int vx;
     private int vy;
+    private int bread;
     private static int IDNumber = 0;
 
-    public RabbitsGrassSimulationAgent(int minEnergy, int maxEnergy) {
+    public RabbitsGrassSimulationAgent(int minEnergy, int maxEnergy, int breadEnergy) {
         synchronized(RabbitsGrassSimulationAgent.class) {
             id = IDNumber++;
         }
         energy = (int) (Math.random() * (maxEnergy - minEnergy)) + minEnergy;
+        bread = breadEnergy;
         // x, y are defined later on via setPosition
         setSpeed();
     }
@@ -41,10 +43,26 @@ public class RabbitsGrassSimulationAgent implements Drawable {
         } while (vx == 0 && vy == 0);
     }
 
+    /**
+     * Draws the rabbit
+     *
+     *
+     * @param g graphical context to draw in.
+     */
 	public void draw(SimGraphics g) {
-        // TODO display rabbits about to bread as well
-        Color color = energy < 10 ? Color.gray : Color.white;
-	    g.drawFastRoundRect(color);
+        Color color;
+        if (energy < 2) {
+            color = Color.darkGray;
+        } else if (energy < 5) {
+            color = Color.gray;
+        } else if (energy < 10) {
+            color = Color.lightGray;
+        } else if (energy > bread - 2) {
+            color = Color.pink;
+        } else {
+            color = Color.white;
+        }
+	    g.drawFastCircle(color);
 	}
 
     public void setPosition(int nx, int ny) {
