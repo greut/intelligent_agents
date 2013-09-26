@@ -121,11 +121,25 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
                 space.spreadGrass(grassGrowRate);
 
                 // Rabbits step (move + eat)
+                // remove all the rabbits from the board (so they can cross
+                // paths) a rabbit adds itself to the board in its step method.
+                for (RabbitsGrassSimulationAgent rabbit: rabbits) {
+                    space.getCurrentRabbitSpace().putObjectAt(rabbit.getX(),
+                            rabbit.getY(), null);
+                }
                 SimUtilities.shuffle(rabbits);
                 int younglings = 0;
                 for (RabbitsGrassSimulationAgent rabbit: rabbits) {
                     rabbit.step(space, grassEnergy);
 
+                    /* RabbitsGrassWeeds.nlogo
+                     *
+                     * if energy > birth-threshold
+                     *  [ set energy energy / 2
+                     *    hatch 1 [fd 1 ] ]
+                     *
+                     * Energy is cut by two
+                     */
                     if (rabbit.getEnergy() >= birthThreshold) {
                         younglings++;
                         rabbit.setEnergy(rabbit.getEnergy() / 2);
@@ -137,7 +151,6 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
                 for (Iterator<RabbitsGrassSimulationAgent> iter = rabbits.iterator(); iter.hasNext(); ) {
                     RabbitsGrassSimulationAgent rabbit = iter.next();
                     if (rabbit.isDead()) {
-                        space.removeRabbit(rabbit);
                         iter.remove();
                         totalDeaths++;
                     }
