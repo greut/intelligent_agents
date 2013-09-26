@@ -26,7 +26,7 @@ public class RabbitsGrassSimulationAgent implements Drawable {
         synchronized(RabbitsGrassSimulationAgent.class) {
             id = IDNumber++;
         }
-        energy = (int) (Math.random() * (maxEnergy - minEnergy)) + minEnergy;
+        energy = (int) (Math.random() * (Math.min(maxEnergy, breadEnergy) - minEnergy)) + minEnergy;
         bread = breadEnergy;
         // x, y are defined later on via setPosition
         setSpeed();
@@ -109,8 +109,8 @@ public class RabbitsGrassSimulationAgent implements Drawable {
         newy = (newy + grass.getSizeY()) % grass.getSizeY();
 
         // Change the direction if we meet someone else or once in a while
-        // to avoid going always in the same direction if we are alone (p=.9)
-        if (rabbits.getObjectAt(newx, newy) == null && Math.random() < .9) {
+        // to avoid going always in the same direction if we are alone (p=.95)
+        if (rabbits.getObjectAt(newx, newy) == null && Math.random() < .95) {
             rabbits.putObjectAt(x, y, null);
             x = newx;
             y = newy;

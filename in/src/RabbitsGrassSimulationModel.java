@@ -42,9 +42,9 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     private int numberOfRabbits = DEFAULT_NUMBER_OF_RABBITS; // 0 - 500
     private int birthThreshold = DEFAULT_BIRTH_THRESHOLD; // 0 - 20
     private int grassGrowRate = DEFAULT_GRASS_GROWTH_RATE; // 0 - 50
-    private int grassEnergy = 5; // ?
-    private int minEnergy = 10;
-    private int maxEnergy = 20;
+    private int grassEnergy = 5; // how much energy eating grass brings you
+    private int minEnergy = MIN_BIRTH_THRESHOLD;
+    private int maxEnergy = MAX_BIRTH_THRESHOLD;
 
     private int totalBirths = 0;
     private int totalDeaths = 0;
