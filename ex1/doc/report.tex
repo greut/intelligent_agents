@@ -1,0 +1,70 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+\documentclass[11pt,a4paper]{article}
+
+%\usepackage[left=70pt,top=50pt,bottom=70pt,right=40pt]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{fixltx2e}
+\usepackage{cmap}
+\usepackage{enumerate}
+\usepackage{ifthen}
+\usepackage{listings}
+\usepackage{url}
+\usepackage[T1]{fontenc}
+\usepackage{fontspec}
+\usepackage{xunicode}
+\usepackage{xltxtra}
+\setmainfont[Mapping=tex-text,Ligatures={Common,Rare,Discretionary}]{Linux Libertine O}
+%\usepackage[scaled=.90]{helvet}
+%\usepackage{courier}
+%\usepackage{natbib}
+%\renewcommand{\harvardurl}{URL: \url}
+\usepackage{pdflscape}
+\usepackage{qtree}
+\usepackage{alltt}
+
+\ifthenelse{\isundefined{\hypersetup}}{
+    \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+    \urlstyle{same}
+}{}
+
+\hypersetup{
+    pdftitle={Intelligent Agents - EX1 - Yoan Blanc, Tiziano Signo}
+}
+\title{\phantomsection%
+    A Reactive Agent for the Pickup and Delivery Problem
+}
+\author{
+    Yoan Blanc \texttt{<yoan.blanc@epfl.ch>}, 213552\\
+    Tiziano Signo \texttt{<tiziano.signo@epfl.ch>}, 226511
+}
+\date{\today}
+
+
+\begin{document}
+\maketitle
+
+\noindent
+\begin{quote}{\it
+    \begin{enumerate}
+        \item Define your state representation $s$, the possible actions $a$, the
+            reward table $R(s,a)$ and the probability transition table $T(s,a,s\prime)$.
+
+        \item Implement the offline reinforcement learning algorithm for
+            determining the actions to take in order to search and deliver
+            tasks optimally. This algorithm should be executed before the
+            vehicles start moving.
+
+        \item Run simulations of one, two and three agents using your optimally
+            learned strategy $V(S)$. Look at the performance graph of the agents.
+            How does it change for different discount factor $\gamma$?
+
+    \end{enumerate}
+}\end{quote}
+
+\medskip
+\textbf{TODO}
+
+\end{document}
