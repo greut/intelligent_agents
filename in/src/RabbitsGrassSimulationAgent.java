@@ -36,11 +36,16 @@ public class RabbitsGrassSimulationAgent implements Drawable {
         return id + " @" + x + "," + y + " (" + energy + ")";
     }
 
+    /**
+     * Changes the speed (where the rabbit will move).
+     *
+     * Only N,W,S,E options are valid, NW or SE are not.
+     */
     private void setSpeed() {
         do {
             vx = (int) Math.floor(Math.random() * 3) - 1;
             vy = (int) Math.floor(Math.random() * 3) - 1;
-        } while (vx == 0 && vy == 0);
+        } while (vx == 0 && vy == 0 || vx != 0 && vy != 0);
     }
 
     /**
