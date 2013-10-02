@@ -39,6 +39,8 @@
                 <include name="*.pdf"/>
             </fileset>
         </jar>
+        <copy file="${doc.dir}/report.pdf"
+              tofile="${bin.dir}/jar/blanc-signo-in.pdf"/>
     </target>
 
     <target name="run" depends="jar">

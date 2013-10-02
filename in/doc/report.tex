@@ -138,8 +138,8 @@
 \medskip
 \emph{How the grass grows}
 
-Grass is growing in patches having a certain amount of energy which can be
-cumulated over time until it reaches an upper bound ($15$). A each step, some
+Grass is growing in patches having a certain amount of energy ($5$) which can be
+accumulated over time until it reaches an upper bound ($15$). A each step, some
 grass is spread randomly over the map and if an existing patch of grass already
 exists, it'll simply increase its nutritive capabilities. Just like in real
 life where grass grow bigger and more nutritious over time (until a limit).
@@ -160,8 +160,14 @@ described before, some patches may be more nutritious than others if they
 managed to slowly grow.
 
 \medskip
-\emph{Conclusion}
+\emph{Results}
 
-\textbf{FIXME}
+The simulation seems to behave like the provided example. Some interesting
+experiments are the ones where the population and the grass available
+are oscillating between low population / high food available to the opposite
+of high population and low food without being able to somehow stabilize. The
+default values are not showing this because the grass is too nutricious (I
+guess). Bigger maps are enabling this pattern to emerge.
+
 
 \end{document}
