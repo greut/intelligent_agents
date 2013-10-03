@@ -13,16 +13,11 @@
 \usepackage{listings}
 \usepackage{url}
 \usepackage[T1]{fontenc}
-\usepackage{fontspec}
-\usepackage{xunicode}
-\usepackage{xltxtra}
-\setmainfont[Mapping=tex-text,Ligatures={Common,Rare,Discretionary}]{Linux Libertine O}
-%\usepackage[scaled=.90]{helvet}
-%\usepackage{courier}
-%\usepackage{natbib}
-%\renewcommand{\harvardurl}{URL: \url}
+%\usepackage{fontspec}
+%\usepackage{xunicode}
+%\usepackage{xltxtra}
+%\setmainfont[Mapping=tex-text,Ligatures={Common,Rare,Discretionary}]{Linux Libertine O}
 \usepackage{pdflscape}
-\usepackage{qtree}
 \usepackage{alltt}
 
 \ifthenelse{\isundefined{\hypersetup}}{
@@ -48,9 +43,18 @@
 
 \noindent
 \begin{quote}{\it
+
+    At the beginning there are two tables:
+
+    \begin{itemize}
+        \item $p(i,j)$: The probability that in $\text{city}_i$ there is a task to be transported to $\text{city}_j$.
+        \item $r(i,j)$: The reward for a task that is transported from $\text{city}_i$ to $\text{city}_j$.
+    \end{itemize}
+
     \begin{enumerate}
-        \item Define your state representation $s$, the possible actions $a$, the
-            reward table $R(s,a)$ and the probability transition table $T(s,a,s\prime)$.
+        \item Define your state representation $S$, the possible actions $A$, the
+            reward table $R(s,a) | s \in S, a \in A$ and the probability transition
+            table $T(s,a,s') | s, s' in S, a \in A$.
 
         \item Implement the offline reinforcement learning algorithm for
             determining the actions to take in order to search and deliver
@@ -64,7 +68,59 @@
     \end{enumerate}
 }\end{quote}
 
+\newpage
 \medskip
-\textbf{TODO}
+\textbf{State representation}
+
+The space of states $S$ is defined by tuples of the current city ($curr$)
+and the destination city ($dest$). We made this call because that what
+is given to the agent as informations.
+
+$$ \text{cities} = \{ \text{city}_1, \text{city}_2, \text{city}_3, \ldots, \text{city}_n \}$$
+
+$$ S = \{ (curr, dest) \quad | \quad curr \in \text{cities}, dest \in \text{cities} \cup \{ \emptyset \}, curr \neq dest \} $$
+
+For example: $(city_i, city_j)$ represents the state where the agent is
+in $city_i$ and there is a delivery to $city_j$ available to it. Likewise,
+$(city_k, \emptyset)$ means that there are not tasks available to the agent
+while it travels through $city_k$.
+
+\medskip
+\textbf{Action representation}
+
+The space of actions $A$ is defined by accepting and delivering the proposed task ($deliver$) or by deciding to move to another city.
+
+$$ A = \{ action \quad | \quad action \in \text{cities} \cup \{\text{deliver}\} \} $$
+
+\medskip
+\textbf{Other definitions}
+
+With the two spaces, we can now define the reward function $R(s,a)$ as well as the state transition function $T(s,a,s')$ using $p(i,j)$ and $r(i,j)$. First, define another function $q(i,j)$ which represents the cost to travel from
+the $city_i$ to the $city_j$.
+
+$$ q(i, j) = \text{cost per kilometer} * distance(city_i, city_j) $$
+
+The reward function is defined as follow:
+
+$$ R(s, a) = \left\{
+    \begin{array}{l l}
+        r(s.curr, s.dest) - q(s.curr, s.dest) & \text{if} \quad a \in \text{cities} \\
+        q(s.curr, s.dest) & \text{if} \quad a = \text{deliver}
+    \end{array} \right. $$
+
+And the state transistion function:
+
+$$ T(s, a, s') = \left\{
+    \begin{array}{l l}
+        p(s'.curr, s'.dest) & \text{if} \quad a = s'.curr \\
+        p(s'.curr, s'.dest) & \text{if} \quad a = \text{deliver}, s.dest = s'.curr \\
+        0 & \text{otherwise}
+    \end{array} \right. $$
+
+
+\bigskip
+\textbf{Implementation details}
+
+\emph{TODO}
 
 \end{document}
