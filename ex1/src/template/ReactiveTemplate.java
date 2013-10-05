@@ -118,17 +118,24 @@ public class ReactiveTemplate implements ReactiveBehavior {
                     q[s][a] = rewards[s][a] + discount * vs1;
                 }
 
-                // set new v[s]
-                int max = 0;
+                // best action initialized to first valid action for that state
+                int max;
                 for(int a = 0; a < actions.size(); a++) {
-                    if(q[s][a] > q[s][max])
+                    if(states.get(s).getCurrentCity().hasNeighbor(actions.get(a)))
                         max = a;
                 }
+                // check the best action in all possible actions for that state
+                for(int a = max + 1; a < actions.size(); a++) {
+                    if(states.get(s).getCurrentCity().hasNeighbor(actions.get(a)) && q[s][a] > q[s][max])
+                        max = a;
+                    
+                }
                 best.put(states.get(s), actions.get(max));
+                // check the error and updates v
                 double serror = Math.abs(q[s][max] - v[s]);
                 v[s] = q[s][max];
 
-                // check maximum error
+                // update and check maximum error
                 if(serror > max_error)
                     max_error = serror;
             }
@@ -139,7 +146,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
     public Action act(Vehicle vehicle, Task availableTask) {
         Action action;
 
-        State currentState;
+        State currentState = null;
         if(availableTask == null) {
             // no task -> state (current = dest)
             for(State s : states)
@@ -157,9 +164,6 @@ public class ReactiveTemplate implements ReactiveBehavior {
             action = new Pickup(availableTask);
         else
             action = new Move(next);
-
-        System.out.println(currentState);
-        System.out.println(next);
 
         return action;
     }
