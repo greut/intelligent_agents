@@ -113,7 +113,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
                 for(int a = 0; a < actions.size(); a++) {
                     double vs1 = 0;
                     for(int s1 = 0; s1 < states.size(); s1++) {
-                        vs1 *= transitions[s][a][s1] * v[s1];
+                        vs1 += transitions[s][a][s1] * v[s1];
                     }
                     q[s][a] = rewards[s][a] + discount * vs1;
                 }
@@ -142,10 +142,14 @@ public class ReactiveTemplate implements ReactiveBehavior {
         State currentState;
         if(availableTask == null) {
             // no task -> state (current = dest)
-            currentState = new State(vehicle.getCurrentCity());
+            for(State s : states)
+                if(s.getCurrentCity() == vehicle.getCurrentCity() && s.notask())
+                    currentState = s;
         } else {
             // task -> state(current, task_destination)
-            currentState = new State(vehicle.getCurrentCity(), availableTask.deliveryCity);
+            for(State s : states)
+                if(s.getCurrentCity() == vehicle.getCurrentCity() && s.getFutureCity() == availableTask.deliveryCity)
+                    currentState = s;
         }
 
         City next = best.get(currentState);
