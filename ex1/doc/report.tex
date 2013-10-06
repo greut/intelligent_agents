@@ -110,6 +110,8 @@ $$ R(s, a) = \left\{
 
 And the state transistion function:
 
+% shall we only consider the neighbors city when not delivering packages?
+
 $$ T(s, a, s') = \left\{
     \begin{array}{l l}
         p(s'.curr, s'.dest) & \text{if} \quad a = s'.curr \\

@@ -47,6 +47,7 @@
             <arg value="config/reactive.xml"/>
             <arg value="reactive-template" />
             <arg value="reactive-random" />
+            <arg value="reactive-accept" />
             <classpath>
                 <pathelement path="${java.class.path}"/>
                 <pathelement path="${lib.dir}/plot.jar"/>
