@@ -30,7 +30,7 @@
         </javac>
     </target>
 
-    <target name="jar" depends="compile">
+    <!--<target name="jar" depends="compile">
         <mkdir dir="${bin.dir}/jar"/>
         <jar destfile="${bin.dir}/jar/${jar.name}">
             <fileset dir="${bin.dir}/class"/>
@@ -40,11 +40,12 @@
                 <include name="*.pdf"/>
             </fileset>
         </jar>
-    </target>
+    </target>-->
 
-    <target name="run" depends="jar">
+    <target name="run" depends="compile">
         <java fork="true" classname="logist.LogistPlatform">
             <arg value="config/reactive.xml"/>
+            <arg value="reactive-template" />
             <arg value="reactive-random" />
             <classpath>
                 <pathelement path="${java.class.path}"/>
@@ -53,7 +54,6 @@
                 <pathelement path="${lib.dir}/colt.jar"/>
                 <pathelement path="${lib.dir}/logist.jar"/>
                 <pathelement path="${lib.dir}/jdom.jar"/>
-                <pathelement path="${bin.dir}/jar/${jar.name}"/>
             </classpath>
         </java>
     </target>
