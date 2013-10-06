@@ -1,8 +1,9 @@
 package template;
 
-import java.util.Random;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 import logist.simulation.Vehicle;
 import logist.agent.Agent;
@@ -15,156 +16,238 @@ import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
 
+
+/**
+ * The reactive agent.
+ *
+ * @author Yoan Blanc <yoan.blanc@epfl.ch>
+ * @author Tiziano Signo <tiziano.signo@epfl.ch>
+ */
 public class ReactiveTemplate implements ReactiveBehavior {
 
-    private ArrayList<State> states;
-    private ArrayList<City> actions;
+    /**
+     * Disount factor.
+     */
+    private static double DEFAULT_DISCOUNT = 0.95;
+    /**
+     * When to stop computing the optimal road.
+     */
+    private static double DEFAULT_EPSILON = 0.01;
+
+    // Set of states: S
+    private State[] states;
+    // Set of actions: A
+    private Act[] actions;
+    // Set of rewards: R(s, a)
     private double[][] rewards;
+    // Set of transistions: T(s, a, s')
     private double[][][] transitions;
 
-    // define best action structure and relative value
-    private HashMap<State, City> best;
-    private double[] v;
+    // define best action structure and relative value: B(s) -> a
+    private int[] best;
+    // V(s) -> N
+    private double[] values;
 
-    @Override
-    public void setup(Topology topology, TaskDistribution td, Agent agent) {
-
-        // Reads the discount factor from the agents.xml file.
-        // If the property is not present it defaults to 0.95
-        Double discount = agent.readProperty("discount-factor", Double.class,
-                0.95);
-
-        // from the probability and rewards of every task,
-        // p = td.probability(from,to);
-        // r = td.reward(from, to);
-        if(agent.vehicles().size() == 0)
-            return;
-
-        // define states
-        states = new ArrayList<State>();
-        for(City from : topology.cities()) {
-            for(City to : topology.cities()) {
-                states.add(new State(from, to));
-            }
-        }
-
-        // define actions
-        actions = new ArrayList<City>();
-        for(City c : topology.cities())
-            actions.add(c);
-
-        // define rewards
-        rewards = new double[states.size()][actions.size()];
-        for(int s = 0; s < states.size(); s++) {
-            for(int a = 0; a < actions.size(); a++) {
-                State objs = states.get(s);
-                City obja = actions.get(a);
-                if(objs.notask()) {
-                    // cannot pick delivery, set reward as "-infinite"
-                    rewards[s][a] = Double.MIN_VALUE;
-
-                } else if(obja == objs.getFutureCity()) {
-                    // delivery -> reward = reward - cost
-                    rewards[s][a] = td.reward(objs.getCurrentCity(), objs.getFutureCity());
-                    rewards[s][a] -= objs.getCurrentCity().distanceTo(objs.getFutureCity()) * agent.vehicles().get(0).costPerKm();
-                } else {
-                    // simple move -> reward = cost only
-                    rewards[s][a] = -objs.getCurrentCity().distanceTo(obja) * agent.vehicles().get(0).costPerKm();
+    /**
+     * Initiate the states.
+     *
+     * @param cities the list of all the cities from the topology.
+     * @return a list of states
+     * @see template.State
+     */
+    private static List<State> buildStateList(List<City> cities) {
+        List<State> list = new ArrayList<State>();
+        for (City current: cities) {
+            list.add(new State(current));
+            for (City future: cities) {
+                if (!current.equals(future)) {
+                    list.add(new State(current, future));
                 }
             }
         }
+        return list;
+    }
 
-        // define transitions
-        transitions = new double[states.size()][actions.size()][states.size()];
-        for(int s = 0; s < states.size(); s++) {
-            for(int a = 0; a < actions.size(); a++) {
-                for(int s1 =  0; s1 < states.size(); s1++) {
-                    State objs = states.get(s);
-                    City obja = actions.get(a);
-                    State objs1 = states.get(s1);
-
-                    // TODO: can't stay in the same place nor pickup if there is no task
-
-                    // if delivery
-                    if(obja == objs1.getCurrentCity() && obja != objs.getCurrentCity()) {
-                        // if a == s.dest && s.dest != s.current -> delivery
-                        // if a != s.dest && s1.current == a -> simple movement
-                        transitions[s][a][s1] = td.probability(objs1.getCurrentCity(), objs1.getFutureCity());
-                    }
-                    else {
-                        transitions[s][a][s1] = 0;
-                    }
-                }
-            }
+    /**
+     * Initiate the actions.
+     *
+     * @param cities the list of all cities from the topology.
+     * @return a list of actions
+     */
+    private static List<Act> buildActList(List<City> cities) {
+        List<Act> list = new ArrayList<Act>();
+        list.add(Act.DELIVERY);
+        for (City city : cities) {
+            list.add(new Act(city));
         }
+        return list;
+    }
 
-        best = new HashMap<State, City>(states.size());
-        v = new double[states.size()];
-        // run reinforcement learning algorithm
-        for(int i = 0; i < states.size(); i++) v[i] = 1; // initialize v
-        double epsilon = 0.001; // error
-        double max_error = 1;
-        while(max_error > epsilon) {
-            
-            max_error = 0;
-            double[][] q = new double[states.size()][actions.size()];
-            
-            for(int s = 0; s < states.size(); s++) {
-                for(int a = 0; a < actions.size(); a++) {
-                    double vs1 = 0;
-                    for(int s1 = 0; s1 < states.size(); s1++) {
-                        vs1 += transitions[s][a][s1] * v[s1];
+    /**
+     * Compute the reward table.
+     *
+     * @param td the task distribution object for the `reward` function.
+     * @param costPerKm the fuel cost
+     * @see logist.task.TaskDistribution.reward()
+     */
+    protected void computeRewards(TaskDistribution td, double costPerKm) {
+        State state;
+        Act action;
+        double distance;
+        double reward;
+        for (int s=0; s < states.length; s++) {
+            state = states[s];
+            for (int a=0; a < actions.length; a++) {
+                action = actions[a];
+                reward = 0;
+                distance = 0;
+
+                if (action.isDelivery()) { // Deliver
+                    if (state.hasTask()) {
+                        reward = (double) td.reward(state.getCurrentCity(),
+                                state.getFutureCity());
+                        distance = state.getDistance();
+                    } else {
+                        // We shall not use this combination, ever since there
+                        // is nothing to deliver from here.
+                        reward = Double.MIN_VALUE;
                     }
-                    q[s][a] = rewards[s][a] + discount * vs1;
+                } else { // Move
+                    if (state.getCurrentCity().hasNeighbor(action.getCity())) {
+                        distance = state.getDistance(action);
+                    } else {
+                        // Do no try to jump directly to non-adjacent cities.
+                        reward = Double.MIN_VALUE;
+                    }
                 }
-
-                // best action initialized to first valid action for that state
-                int max;
-                for(int a = 0; a < actions.size(); a++) {
-                    if(states.get(s).getCurrentCity().hasNeighbor(actions.get(a)))
-                        max = a;
-                }
-                // check the best action in all possible actions for that state
-                for(int a = max + 1; a < actions.size(); a++) {
-                    if(states.get(s).getCurrentCity().hasNeighbor(actions.get(a)) && q[s][a] > q[s][max])
-                        max = a;
-                    
-                }
-                best.put(states.get(s), actions.get(max));
-                // check the error and updates v
-                double serror = Math.abs(q[s][max] - v[s]);
-                v[s] = q[s][max];
-
-                // update and check maximum error
-                if(serror > max_error)
-                    max_error = serror;
+                rewards[s][a] = reward - distance * costPerKm;
             }
         }
     }
 
-    @Override
-    public Action act(Vehicle vehicle, Task availableTask) {
-        Action action;
+    /**
+     * Compute the transition table.
+     *
+     * @param td the task distribution object the `probability` function.
+     * @see logist.task.TaskDistribution.probability()
+     */
+    protected void computeTransitions(TaskDistribution td) {
+        State state;
+        Act action;
+        State statePrime;
+        double p;
+        for (int s=0; s < states.length; s++) {
+            state = states[s];
+            for (int a=0; a < actions.length; a++) {
+                action = actions[a];
+                for (int s2=0; s2 < states.length; s2++) {
+                    statePrime = states[s2];
+                    p = 0;
 
-        State currentState = null;
-        if(availableTask == null) {
-            // no task -> state (current = dest)
-            for(State s : states)
-                if(s.getCurrentCity() == vehicle.getCurrentCity() && s.notask())
-                    currentState = s;
-        } else {
-            // task -> state(current, task_destination)
-            for(State s : states)
-                if(s.getCurrentCity() == vehicle.getCurrentCity() && s.getFutureCity() == availableTask.deliveryCity)
-                    currentState = s;
+                    // Keep only valid states:
+                    //  - if there is a task, then the action must be the
+                    //    delivery one and the s' current city the destination
+                    //    city of the current state
+                    //  - if there is no tasks, then the next city must be a
+                    //    neighbor of the current one. It's illegal to jump to
+                    //    other cities (and it makes sense).
+                    if ((state.hasTask() && action.isDelivery() &&
+                            state.getFutureCity().equals(statePrime.getCurrentCity())) ||
+                        (!state.hasTask() && action.isMove() &&
+                            action.getCity().equals(statePrime.getCurrentCity()) &&
+                            state.getCurrentCity().hasNeighbor(action.getCity()))
+                    ) {
+                        p = td.probability(statePrime.getCurrentCity(),
+                            statePrime.getFutureCity());
+                    }
+
+                    transitions[s][a][s2] = p;
+                }
+            }
         }
+    }
 
-        City next = best.get(currentState);
-        if(next == currentState.getFutureCity())
-            action = new Pickup(availableTask);
-        else
-            action = new Move(next);
+    /**
+     * Run the reinforcement learning algorithm.
+     *
+     * @param discount the discount factor
+     * @param epsilon the error threshold
+     */
+    protected void reinforcementLearning(double discount, double epsilon) {
+        int max;
+        double vs, error;
+        double max_error = 2 * epsilon;
+        double[][] q = new double[states.length][actions.length];
 
-        return action;
+        while (max_error > epsilon) {
+            max_error = 0;
+            for (int s=0; s < states.length; s++) {
+                for (int a=0; a < actions.length; a++) {
+                    vs = 0;
+                    for (int s2 = 0; s2 < states.length; s2++) {
+                        vs += transitions[s][a][s2] * values[s2];
+                    }
+                    q[s][a] = rewards[s][a] + discount * vs;
+                }
+
+                max = 0;
+                for (int a=0; a < q[s].length; a++) {
+                    if (q[s][a] >= q[s][max]) {
+                        max = a;
+                    }
+                }
+
+                best[s] = max;
+                error = Math.abs(q[s][max] - values[s]);
+                values[s] = q[s][max];
+                max_error = Math.max(error, max_error);
+            }
+        }
+    }
+
+    public void setup(Topology topology, TaskDistribution td, Agent agent) {
+        // Reads the discount factor from the agents.xml file.
+        // If the property is not present it defaults to 0.95
+        double discount = (double) agent.readProperty("discount-factor",
+                Double.class, DEFAULT_DISCOUNT);
+        double epsilon = DEFAULT_EPSILON;
+
+        // define states
+        List<State> ts = buildStateList(topology.cities());
+        states = new State[ts.size()];
+        states = ts.toArray(states);
+
+        // define actions
+        List<Act> ta = buildActList(topology.cities());
+        actions = new Act[ta.size()];
+        actions = ta.toArray(actions);
+
+        // define rewards
+        rewards = new double[states.length][actions.length];
+        computeRewards(td, agent.vehicles().get(0).costPerKm());
+
+        // define transitions
+        transitions = new double[states.length][actions.length][states.length];
+        computeTransitions(td);
+
+        best = new int[states.length];
+        values = new double[states.length];
+
+        reinforcementLearning(discount, epsilon);
+    }
+
+    public Action act(Vehicle vehicle, Task availableTask) {
+        State state = new State(vehicle.getCurrentCity(),
+                availableTask != null ? availableTask.deliveryCity : null);
+        int s = Arrays.asList(states).indexOf(state);
+
+
+        int next = best[s];
+        Action nextAction = actions[next].isDelivery() ?
+            new Pickup(availableTask) :
+            new Move(actions[next].getCity());
+
+        System.err.println("[Reactive] " + state + " >> " + nextAction);
+        return nextAction;
     }
 }
