@@ -11,4 +11,4 @@ history.xml
 *.aux
 *.log
 *.out
-*.pdf
+**/doc/*.pdf
