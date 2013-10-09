@@ -8,16 +8,16 @@ import logist.topology.Topology.City;
  * The action is either to accept the task (DELIVERY) or to move to the task's
  * city.
  */
-public class Act {
+public class Action {
     private City destination;
-    public static Act DELIVERY = new Act(null);
+    public static Action DELIVERY = new Action(null);
 
-    public Act(City to) {
+    public Action(City to) {
         destination = to;
     }
 
     public String toString() {
-        return String.format("<Act: %s>",
+        return String.format("<Action: \"%s\">",
                 isDelivery() ? "DELIVERY" : "-> " + destination);
     }
 
@@ -26,7 +26,7 @@ public class Act {
     }
 
     public boolean equals(Object other) {
-        Act o = (Act) other;
+        Action o = (Action) other;
         return destination != null ?
                 destination.equals(o.destination) :
                 destination == o.destination;

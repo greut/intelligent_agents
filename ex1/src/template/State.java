@@ -43,7 +43,7 @@ public class State {
         return current.distanceTo(future);
     }
 
-    public double getDistance(Act action) {
+    public double getDistance(Action action) {
         return current.distanceTo(action.getCity());
     }
 

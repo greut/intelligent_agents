@@ -1,14 +1,19 @@
 package template;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import logist.simulation.Vehicle;
 import logist.agent.Agent;
 import logist.behavior.ReactiveBehavior;
-import logist.plan.Action;
 import logist.plan.Action.Move;
 import logist.plan.Action.Pickup;
 import logist.task.Task;
@@ -37,7 +42,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
     // Set of states: S
     private State[] states;
     // Set of actions: A
-    private Act[] actions;
+    private Action[] actions;
     // Set of rewards: R(s, a)
     private double[][] rewards;
     // Set of transistions: T(s, a, s')
@@ -74,11 +79,11 @@ public class ReactiveTemplate implements ReactiveBehavior {
      * @param cities the list of all cities from the topology.
      * @return a list of actions
      */
-    private static List<Act> buildActList(List<City> cities) {
-        List<Act> list = new ArrayList<Act>();
-        list.add(Act.DELIVERY);
+    private static List<Action> buildActionList(List<City> cities) {
+        List<Action> list = new ArrayList<Action>();
+        list.add(Action.DELIVERY);
         for (City city : cities) {
-            list.add(new Act(city));
+            list.add(new Action(city));
         }
         return list;
     }
@@ -92,7 +97,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
      */
     protected void computeRewards(TaskDistribution td, double costPerKm) {
         State state;
-        Act action;
+        Action action;
         double distance;
         double reward;
         for (int s=0; s < states.length; s++) {
@@ -133,7 +138,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
      */
     protected void computeTransitions(TaskDistribution td) {
         State state;
-        Act action;
+        Action action;
         State statePrime;
         double p;
         for (int s=0; s < states.length; s++) {
@@ -174,7 +179,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
      * @param epsilon the error threshold
      */
     protected void reinforcementLearning(double discount, double epsilon) {
-        int max;
+        int max, steps = 0;
         double vs, error;
         double max_error = 2 * epsilon;
         double[][] q = new double[states.length][actions.length];
@@ -191,7 +196,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
                 }
 
                 max = 0;
-                for (int a=0; a < q[s].length; a++) {
+                for (int a=1; a < q[s].length; a++) {
                     if (q[s][a] >= q[s][max]) {
                         max = a;
                     }
@@ -202,7 +207,70 @@ public class ReactiveTemplate implements ReactiveBehavior {
                 values[s] = q[s][max];
                 max_error = Math.max(error, max_error);
             }
+            steps++;
         }
+        System.err.println(steps + " steps to converge.");
+    }
+
+    protected void outputGraphviz(String path) throws IOException {
+        File f = new File(path);
+        FileWriter fp = new FileWriter(f);
+        // Building the data structure
+        // ---------------------------
+        // City -> City -> counter
+        // -1: route that does not exist
+        // 0: no arc
+        // 1+: default
+        HashMap<City,Map<City,Integer>> graph = new HashMap<City,Map<City,Integer>>();
+        Map<City,Integer> counter;
+
+        for(int s=0; s < best.length; s++) {
+            State state = states[s];
+            City city = state.getCurrentCity();
+            City next;
+            Action action = actions[best[s]];
+            int value = 0;
+            if(!graph.containsKey(city)) {
+                graph.put(city, new HashMap<City, Integer>());
+            }
+            counter = graph.get(city);
+            next = action.getCity();
+            if (state.hasTask() && !action.isDelivery()) {
+                System.err.println(state + " " + action);
+                value = -1;
+            } else if (!state.hasTask()) {
+                value = 1;
+            }
+
+            if (next != null) {
+                if(!counter.containsKey(next)) {
+                    counter.put(next, value);
+                } else {
+                    counter.put(next, value);
+                }
+            }
+        }
+
+        // Output the graph
+        // ----------------
+        // Display: the preferred route (when there is no tasks)
+        //          the routes are discarded (even if a task exist)
+        fp.write("digraph G {\n");
+        for (Map.Entry<City,Map<City,Integer>> curr: graph.entrySet()) {
+            for (Map.Entry<City,Integer> next: curr.getValue().entrySet()) {
+                if (next.getValue() != 0) {
+                    fp.write("\"" + curr.getKey() + "\" -> \"" +
+                        next.getKey() + "\" [style=" +
+                        ((next.getValue() == 1) ?
+                            "solid" :
+                            ((next.getValue() == -1) ?
+                                "dotted" : "invisible")) + "]\n");
+                }
+            }
+        }
+        fp.write("}\n");
+        fp.close();
+        System.err.println(path + " has been written with graph.");
     }
 
     public void setup(Topology topology, TaskDistribution td, Agent agent) {
@@ -218,8 +286,8 @@ public class ReactiveTemplate implements ReactiveBehavior {
         states = ts.toArray(states);
 
         // define actions
-        List<Act> ta = buildActList(topology.cities());
-        actions = new Act[ta.size()];
+        List<Action> ta = buildActionList(topology.cities());
+        actions = new Action[ta.size()];
         actions = ta.toArray(actions);
 
         // define rewards
@@ -234,16 +302,21 @@ public class ReactiveTemplate implements ReactiveBehavior {
         values = new double[states.length];
 
         reinforcementLearning(discount, epsilon);
+        try {
+            outputGraphviz("graph.dot");
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+        }
     }
 
-    public Action act(Vehicle vehicle, Task availableTask) {
+    public logist.plan.Action act(Vehicle vehicle, Task availableTask) {
         State state = new State(vehicle.getCurrentCity(),
                 availableTask != null ? availableTask.deliveryCity : null);
         int s = Arrays.asList(states).indexOf(state);
 
 
         int next = best[s];
-        Action nextAction = actions[next].isDelivery() ?
+        logist.plan.Action nextAction = actions[next].isDelivery() ?
             new Pickup(availableTask) :
             new Move(actions[next].getCity());
 
