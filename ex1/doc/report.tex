@@ -19,6 +19,7 @@
 %\setmainfont[Mapping=tex-text,Ligatures={Common,Rare,Discretionary}]{Linux Libertine O}
 \usepackage{pdflscape}
 \usepackage{alltt}
+\usepackage{algpseudocode}
 
 \ifthenelse{\isundefined{\hypersetup}}{
     \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
@@ -78,7 +79,8 @@ is given to the agent as informations.
 
 $$ \text{cities} = \{ \text{city}_1, \text{city}_2, \text{city}_3, \ldots, \text{city}_n \}$$
 
-$$ S = \{ (curr, dest) \quad | \quad curr \in \text{cities}, dest \in \text{cities} \cup \{ \emptyset \}, curr \neq dest \} $$
+$$ S = \{ (curr, dest) \quad | \quad curr \in \text{cities}, dest \in
+\text{cities} \cup \{ \emptyset \}, curr \neq dest \} $$
 
 For example: $(city_i, city_j)$ represents the state where the agent is
 in $city_i$ and there is a delivery to $city_j$ available to it. Likewise,
@@ -88,14 +90,17 @@ while it travels through $city_k$.
 \medskip
 \textbf{Action representation}
 
-The space of actions $A$ is defined by accepting and delivering the proposed task ($deliver$) or by deciding to move to another city.
+The space of actions $A$ is defined by accepting and delivering the proposed
+task ($deliver$) or by deciding to move to another city.
 
 $$ A = \{ action \quad | \quad action \in \text{cities} \cup \{\text{deliver}\} \} $$
 
 \medskip
 \textbf{Other definitions}
 
-With the two spaces, we can now define the reward function $R(s,a)$ as well as the state transition function $T(s,a,s')$ using $p(i,j)$ and $r(i,j)$. First, define another function $q(i,j)$ which represents the cost to travel from
+With the two spaces, we can now define the reward function $R(s,a)$ as well as
+the state transition function $T(s,a,s')$ using $p(i,j)$ and $r(i,j)$. First,
+define another function $q(i,j)$ which represents the cost to travel from
 the $city_i$ to the $city_j$.
 
 $$ q(i, j) = \text{cost per kilometer} * distance(city_i, city_j) $$
@@ -119,10 +124,31 @@ $$ T(s, a, s') = \left\{
         0 & \text{otherwise}
     \end{array} \right. $$
 
+\medskip
+\textbf{Algorithm}
+
+We followed the algorithm from the slides. An extra variable $ Best$ is used to
+store which $a$ was the $max$ one and not only the best value.
+
+\begin{algorithmic}
+    \Function{reinforcementLearning}{}
+        \For{$s \in S$}
+            \State $V(s) \gets 0$
+        \EndFor
+        \While{$error \leq \epsilon$}
+            \For{$s \in S$}
+                \For{$a \in A$}
+                    $Q(s, a) \gets R(s, a) + \gamma \sum_{s' \in S} T(s,a,s') V(s')$
+                \EndFor
+            $V(s) \gets max_aQ(s, a)$
+            \EndFor
+        \EndWhile
+    \EndFunction
+\end{algorithmic}
 
 \bigskip
 \textbf{Implementation details}
 
-\emph{TODO}
+
 
 \end{document}
