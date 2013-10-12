@@ -115,14 +115,14 @@ public class ReactiveTemplate implements ReactiveBehavior {
                     } else {
                         // We shall not use this combination, ever since there
                         // is nothing to deliver from here.
-                        reward = Double.MIN_VALUE;
+                        reward = Double.NEGATIVE_INFINITY;
                     }
                 } else { // Move
                     if (state.getCurrentCity().hasNeighbor(action.getCity())) {
                         distance = state.getDistance(action);
                     } else {
                         // Do no try to jump directly to non-adjacent cities.
-                        reward = Double.MIN_VALUE;
+                        reward = Double.NEGATIVE_INFINITY;
                     }
                 }
                 rewards[s][a] = reward - distance * costPerKm;
@@ -236,7 +236,6 @@ public class ReactiveTemplate implements ReactiveBehavior {
             counter = graph.get(city);
             next = action.getCity();
             if (state.hasTask() && !action.isDelivery()) {
-                System.err.println(state + " " + action);
                 value = -1;
             } else if (!state.hasTask()) {
                 value = 1;
@@ -313,9 +312,8 @@ public class ReactiveTemplate implements ReactiveBehavior {
         State state = new State(vehicle.getCurrentCity(),
                 availableTask != null ? availableTask.deliveryCity : null);
         int s = Arrays.asList(states).indexOf(state);
-
-
         int next = best[s];
+
         logist.plan.Action nextAction = actions[next].isDelivery() ?
             new Pickup(availableTask) :
             new Move(actions[next].getCity());
