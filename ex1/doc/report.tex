@@ -149,41 +149,60 @@ store which $a$ was the $max$ one and not only the best value.
 \bigskip
 \textbf{Implementation details}
 
-We start defining specifically built classes for \texttt{State} and \texttt{Action} in order to simplify the construction of reward and transition matrices and the reinforcemente learning algorithm computation.
+We start defining specifically built classes for \texttt{State} and
+\texttt{Action} in order to simplify the construction of reward and transition
+matrices and the reinforcemente learning algorithm computation.
 
-The implementation of the agents is based on 2 functions: \texttt{setup} and \texttt{act}, the first one handling the offline preprocessing, and the second one used at runtime to decide what to do and where to go next from any city.
+The implementation of the agents is based on 2 functions: \texttt{setup} and
+\texttt{act}, the first one handling the offline preprocessing, and the second
+one used at runtime to decide what to do and where to go next from any city.
 
-The function \texttt{setup} starts with the creation of our 4 basic structures required for the reinforcemente learning algorithm:
+The function \texttt{setup} starts with the creation of our 4 basic structures
+required for the reinforcemente learning algorithm:
+
 \begin{enumerate}
-	\item{\texttt{State} set (as an array of objects $s$)}
-	\item{\texttt{Action} set (as an array of objects $a$)}
-	\item{\texttt{Reward} matrix (as a matrix $s \times a$)}
-	\item{\texttt{Transition} matrix (as a matrix $s \times a \times s'$)}
+    \item{\texttt{State} set (as an array of objects $s$)}
+    \item{\texttt{Action} set (as an array of objects $a$)}
+    \item{\texttt{Reward} matrix (as a matrix $s \times a$)}
+    \item{\texttt{Transition} matrix (as a matrix $s \times a \times s'$)}
 \end{enumerate}
 
-Each one of these objects is built using specific separated functions, respectively we have \texttt{buildStateList}, \texttt{buildActionList}, \texttt{computeRewards} and \texttt{computeTransitions}.
+Each one of these objects is built using specific separated functions,
+respectively we have \texttt{buildStateList}, \texttt{buildActionList},
+\texttt{computeRewards} and \texttt{computeTransitions}.
 
-The content of these functions is summarized and explained previously in the pdf, but one important note has to be given: since the reward matrix considers all the possible combinations $(s, a)$ and our problem have unallowed or impossible cases (e.g. delivery when we have no task) it's necessarnot to consider them. In this unallowed cases we specify the reward as \texttt{Double.NEGATIVE\_INFINITY}.
+The content of these functions is summarized and explained previously above,
+but one important note has to be given: since the reward matrix considers
+all the possible combinations $(s, a)$ and our problem have unallowed or
+impossible cases (e.g. delivery when we have no task) it's necessarnot to
+consider them. In this unallowed cases we specify the reward as a very large
+negative value (\texttt{Double.NEGATIVE\_INFINITY}).
 
-Thanks to how we handle these cases the reinforcemente learning algorithm (called right after in the \texttt{setup} function) simply follows the directives given in class and is free of additional verifications. As an output we obtain all the best actions to take from any given state.
+Thanks to how we handle these cases the reinforcement learning algorithm
+(called right after in the \texttt{setup} function) simply follows the
+directives given in class and is free of additional verifications. As an output
+we obtain all the best actions to take from any given state.
 
 The final part IS YOAN WHO EXPLAINS THE GENERATED GRAPH.\newline
 
-
-When everything is computed the simulation can be started and here the focus is moved to the \texttt{act} function. This simple function only cares about applying the best action to take from the given state.
-
+When everything is computed the simulation can be started and here the focus is
+moved to the \texttt{act} function. This simple function only cares about
+applying the best action to take from the given state.
 
 
 \bigskip
 \textbf{Agents comparison}
 
-In our simulation we show the map given in the configuration and 3 agents operating on it. Each one of the agents follows a different algorithm:
+In our simulation, we show the map given in the configuration and 3 agents
+operating on it. Each one of the agents follows a different algorithm:
+
 \begin{itemize}
-\item{random choice (random choice to accept a task, move to random neighbor if not accepted)}
-\item{greedy choice (always accept a task, move to random neighbor otherwise)}
-\item{reactive choice (take the best action)}
+    \item{random choice (random choice to accept a task, move to random neighbor if not accepted)}
+    \item{greedy choice (always accept a task, move to random neighbor otherwise)}
+    \item{reactive choice (take the best action)}
 \end{itemize}
 
-While the simulation runs it's possible to see the differences of rewards over time and compare the efficiency of each agent.
+While the simulation runs it's possible to see the differences of rewards over
+time and compare the efficiency of each agent.
 
 \end{document}
