@@ -309,11 +309,13 @@ public class ReactiveTemplate implements ReactiveBehavior {
     }
 
     public logist.plan.Action act(Vehicle vehicle, Task availableTask) {
+        // recreate current state
         State state = new State(vehicle.getCurrentCity(),
                 availableTask != null ? availableTask.deliveryCity : null);
         int s = Arrays.asList(states).indexOf(state);
         int next = best[s];
 
+        // apply next action
         logist.plan.Action nextAction = actions[next].isDelivery() ?
             new Pickup(availableTask) :
             new Move(actions[next].getCity());
