@@ -20,6 +20,8 @@
 \usepackage{pdflscape}
 \usepackage{alltt}
 \usepackage{algpseudocode}
+\usepackage{wrapfig}
+\usepackage{graphicx}
 
 \ifthenelse{\isundefined{\hypersetup}}{
     \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
@@ -167,42 +169,64 @@ required for the reinforcemente learning algorithm:
     \item{\texttt{Transition} matrix (as a matrix $s \times a \times s'$)}
 \end{enumerate}
 
-Each one of these objects is built using specific separated functions,
-respectively we have \texttt{buildStateList}, \texttt{buildActionList},
-\texttt{computeRewards} and \texttt{computeTransitions}.
+\begin{wrapfigure}{r}{.5\textwidth}
+    \includegraphics[width=0.5\textwidth]{graph.eps}
+    \caption{Default destination}{solid lines show where the agent will go if
+    there are no tasks available, dotted lines show where the agent will go in
+    any states.}
+    \label{fig:graph}
+\end{wrapfigure}
 
-The content of these functions is summarized and explained previously above,
-but one important note has to be given: since the reward matrix considers
-all the possible combinations $(s, a)$ and our problem have unallowed or
-impossible cases (e.g. delivery when we have no task) it's necessarnot to
-consider them. In this unallowed cases we specify the reward as a very large
-negative value (\texttt{Double.NEGATIVE\_INFINITY}).
-
-Thanks to how we handle these cases the reinforcement learning algorithm
-(called right after in the \texttt{setup} function) simply follows the
-directives given in class and is free of additional verifications. As an output
+Our reward function (described above) return a very large
+negative value\footnote{\texttt{Double.NEGATIVE\_INFINITY}} if the combination of
+state and action is impossible. Doing this, the reinforcement learning algorithm
+simply is to verifying if the explored space is valid or not. As an output
 we obtain all the best actions to take from any given state.
-
-The final part IS YOAN WHO EXPLAINS THE GENERATED GRAPH.\newline
 
 When everything is computed the simulation can be started and here the focus is
 moved to the \texttt{act} function. This simple function only cares about
 applying the best action to take from the given state.
 
+\medskip
+As we can see in the figure ~\ref{fig:graph}, the agents default path will tend
+to find the best reward loop (a couple of cities to loop into) if there is no
+tasks. But as long as the cost to move around is low proportional to the reward
+the agent can get, it will tend to accept the tasks. We had to increase the
+$ cost per km$ quite a bit to get the agent to refuse any tasks and prefer moving
+to a better city instead.
 
 \bigskip
 \textbf{Agents comparison}
 
-In our simulation, we show the map given in the configuration and 3 agents
-operating on it. Each one of the agents follows a different algorithm:
+\begin{wrapfigure}{r}{.5\textwidth}
+    \includegraphics[width=0.5\textwidth]{result.png}
+    \caption{Result graph}{}
+    \label{fig:result}
+\end{wrapfigure}
+
+In our simulation (see ~\ref{fig:result}), we show the map given in the
+configuration and 3 agents operating on it. Each one of the agents follows a
+different algorithm:
 
 \begin{itemize}
-    \item{random choice (random choice to accept a task, move to random neighbor if not accepted)}
-    \item{greedy choice (always accept a task, move to random neighbor otherwise)}
-    \item{reactive choice (take the best action)}
+    \item \textbf{Vehicle 1} reactive choice, take the best action according to the plan)
+    \item \textbf{Vehicle 2} random choice, random choice to accept a task, move to
+        random neighbor if not accepted)
+    \item\textbf{Vehicle 3} greedy choice (always accept a task, move to random neighbor
+        otherwise)
 \end{itemize}
 
 While the simulation runs it's possible to see the differences of rewards over
-time and compare the efficiency of each agent.
+time and compare the efficiency of each agent. Our agent outperforms the other
+ones, but not by a large margin. By always accepting tasks (the case when the
+cost to move is low enough), the agent goes to cities to put it in not so good
+situations.
+
+\bigskip
+\textbf{Conclusion}
+
+Our agent seems to do its work, we would have liked to see cases where it would
+accept tasks to some cities but not any city. Visualization of the state space
+is not that easy after all.
 
 \end{document}

@@ -2,7 +2,6 @@ bin
 build
 history.xml
 *.dot
-*.png
 
 # vim
 .*.sw[op]

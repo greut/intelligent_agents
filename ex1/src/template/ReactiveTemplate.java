@@ -184,6 +184,9 @@ public class ReactiveTemplate implements ReactiveBehavior {
         double max_error = 2 * epsilon;
         double[][] q = new double[states.length][actions.length];
 
+        best = new int[states.length];
+        values = new double[states.length];
+
         while (max_error > epsilon) {
             max_error = 0;
             for (int s=0; s < states.length; s++) {
@@ -296,9 +299,6 @@ public class ReactiveTemplate implements ReactiveBehavior {
         // define transitions
         transitions = new double[states.length][actions.length][states.length];
         computeTransitions(td);
-
-        best = new int[states.length];
-        values = new double[states.length];
 
         reinforcementLearning(discount, epsilon);
         try {
