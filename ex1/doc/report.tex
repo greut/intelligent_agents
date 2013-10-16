@@ -153,11 +153,19 @@ store which $a$ was the $max$ one and not only the best value.
 
 We start defining specifically built classes for \texttt{State} and
 \texttt{Action} in order to simplify the construction of reward and transition
-matrices and the reinforcemente learning algorithm computation.
+matrices and the reinforcement learning algorithm computation.
 
 The implementation of the agents is based on 2 functions: \texttt{setup} and
 \texttt{act}, the first one handling the offline preprocessing, and the second
 one used at runtime to decide what to do and where to go next from any city.
+
+\begin{wrapfigure}{r}{.5\textwidth}
+    \includegraphics[width=.6\textwidth]{graph.eps}
+    \caption{Default destination}{\textbf{solid lines} show where the agent will go if
+        there are no tasks available\\\textbf{dotted lines} show the paths the agent
+        will avoid by not reject the task.}
+    \label{fig:graph}
+\end{wrapfigure}
 
 The function \texttt{setup} starts with the creation of our 4 basic structures
 required for the reinforcemente learning algorithm:
@@ -169,42 +177,33 @@ required for the reinforcemente learning algorithm:
     \item{\texttt{Transition} matrix (as a matrix $s \times a \times s'$)}
 \end{enumerate}
 
-\begin{wrapfigure}{r}{.5\textwidth}
-    \includegraphics[width=0.5\textwidth]{graph.eps}
-    \caption{Default destination}{solid lines show where the agent will go if
-    there are no tasks available, dotted lines show where the agent will go in
-    any states.}
-    \label{fig:graph}
-\end{wrapfigure}
-
-Our reward function (described above) return a very large
-negative value\footnote{\texttt{Double.NEGATIVE\_INFINITY}} if the combination of
-state and action is impossible. Doing this, the reinforcement learning algorithm
-simply is to verifying if the explored space is valid or not. As an output
-we obtain all the best actions to take from any given state.
+The reward and transition matrices ensure that nothing forbidden is ever done
+by returning the worst possible reward and $0$ probability in such cases. Having
+this, the reinforcement learning algorithm is free of performing any further
+checks.
 
 When everything is computed the simulation can be started and here the focus is
-moved to the \texttt{act} function. This simple function only cares about
-applying the best action to take from the given state.
+moved to the \texttt{act} function. The function grabs the \emph{best} action
+to take knowing the current state.
 
-\medskip
 As we can see in the figure ~\ref{fig:graph}, the agents default path will tend
 to find the best reward loop (a couple of cities to loop into) if there is no
 tasks. But as long as the cost to move around is low proportional to the reward
-the agent can get, it will tend to accept the tasks. We had to increase the
-$ cost per km$ quite a bit to get the agent to refuse any tasks and prefer moving
-to a better city instead.
+the agent can get, it will tend to accept the tasks. To produce this figure, we
+had to increase the$ cost per km$ quite a bit to get the agent to refuse accepting
+some tasks (the red and dotted lines) and prefering moving to a better city
+instead (the black and solid lines).
 
 \bigskip
 \textbf{Agents comparison}
 
 \begin{wrapfigure}{r}{.5\textwidth}
-    \includegraphics[width=0.5\textwidth]{result.png}
+    \includegraphics[width=.6\textwidth]{result.png}
     \caption{Result graph}{}
     \label{fig:result}
 \end{wrapfigure}
 
-In our simulation (see ~\ref{fig:result}), we show the map given in the
+In our simulation (see figure ~\ref{fig:result}), we show the map given in the
 configuration and 3 agents operating on it. Each one of the agents follows a
 different algorithm:
 
@@ -225,8 +224,8 @@ situations.
 \bigskip
 \textbf{Conclusion}
 
-Our agent seems to do its work, we would have liked to see cases where it would
-accept tasks to some cities but not any city. Visualization of the state space
-is not that easy after all.
+Our agent seems to do its work even if the difference with the greedy one is
+not impressive. Building a way to visualize the best actions space helped us to
+fix our implementation and understand the observed behavior.
 
 \end{document}
