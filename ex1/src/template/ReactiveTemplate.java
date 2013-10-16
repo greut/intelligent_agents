@@ -221,35 +221,38 @@ public class ReactiveTemplate implements ReactiveBehavior {
         // Building the data structure
         // ---------------------------
         // City -> City -> counter
-        // -1: route that does not exist
-        // 0: no arc
-        // 1+: default
+        // 0: accept given task
+        // 1: default
+        // -1: avoid taking a task
         HashMap<City,Map<City,Integer>> graph = new HashMap<City,Map<City,Integer>>();
-        Map<City,Integer> counter;
 
         for(int s=0; s < best.length; s++) {
+            Map<City,Integer> counter;
+            City next;
+            int value = 0;
+
             State state = states[s];
             City city = state.getCurrentCity();
-            City next;
             Action action = actions[best[s]];
-            int value = 0;
+
             if(!graph.containsKey(city)) {
                 graph.put(city, new HashMap<City, Integer>());
             }
             counter = graph.get(city);
             next = action.getCity();
+
             if (state.hasTask() && !action.isDelivery()) {
                 value = -1;
-            } else if (!state.hasTask()) {
+                next = state.getFutureCity();
+            } else if(!state.hasTask()) {
                 value = 1;
             }
 
             if (next != null) {
                 if(!counter.containsKey(next)) {
-                    counter.put(next, value);
-                } else {
-                    counter.put(next, value);
+                    counter.put(next, 0);
                 }
+                counter.put(next, value + counter.get(next));
             }
         }
 
@@ -263,10 +266,10 @@ public class ReactiveTemplate implements ReactiveBehavior {
                 if (next.getValue() != 0) {
                     fp.write("\"" + curr.getKey() + "\" -> \"" +
                         next.getKey() + "\" [style=" +
-                        ((next.getValue() == 1) ?
+                        ((next.getValue() > 0) ?
                             "solid" :
-                            ((next.getValue() == -1) ?
-                                "dotted" : "invisible")) + "]\n");
+                            ((next.getValue() < 0) ?
+                                "dotted,color=red" : "invisible")) + "]\n");
                 }
             }
         }
