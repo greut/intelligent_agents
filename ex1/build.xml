@@ -63,6 +63,7 @@
         <copy todir="${zip.dir}/config">
             <fileset dir="config"/>
         </copy>
+        <copy todir="${zip.dir}" file="history.xml"/>
         <zip destfile="blanc-signo-${ant.project.name}.zip"
              basedir="${bin.dir}"
              excludes="class/**">
