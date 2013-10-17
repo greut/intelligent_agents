@@ -2,13 +2,12 @@
 <!--
     @author Yoan Blanc <yoan.blanc@epfl.ch>
 -->
-<project name="ex2" default="run" basedir=".">
+<project name="ex1" default="run" basedir=".">
     <property name="src.dir" location="src"/>
     <property name="bin.dir" location="bin"/>
     <property name="doc.dir" location="doc"/>
 
     <property name="lib.dir" location="../lib"/>
-    <property name="jar.name" value="blanc-signo-${ant.project.name}.jar"/>
 
     <target name="clean">
         <delete includeEmptyDirs="true" failonerror="false">
@@ -30,22 +29,12 @@
         </javac>
     </target>
 
-    <!--<target name="jar" depends="compile">
-        <mkdir dir="${bin.dir}/jar"/>
-        <jar destfile="${bin.dir}/jar/${jar.name}">
-            <fileset dir="${bin.dir}/class"/>
-            <fileset dir="${src.dir}"/>
-            <fileset dir="${doc.dir}">
-                <include name="*.tex"/>
-                <include name="*.pdf"/>
-            </fileset>
-        </jar>
-    </target>-->
-
     <target name="run" depends="compile">
         <java fork="true" classname="logist.LogistPlatform">
-            <arg value="config/deliberative.xml"/>
-            <arg value="deliberative-random" />
+            <arg value="config/reactive.xml"/>
+            <arg value="reactive-template" />
+            <arg value="reactive-random" />
+            <arg value="reactive-accept" />
             <classpath>
                 <pathelement path="${java.class.path}"/>
                 <pathelement path="${lib.dir}/plot.jar"/>
@@ -55,5 +44,31 @@
                 <pathelement path="${lib.dir}/jdom.jar"/>
             </classpath>
         </java>
+    </target>
+
+    <target name="deliver" depends="compile">
+        <property name="zip.dir" value="${bin.dir}/blanc-signo-${ant.project.name}"/>
+        <mkdir dir="${zip.dir}"/>
+        <copy file="build.xml" todir="${zip.dir}"/>
+        <copy todir="${zip.dir}/doc">
+            <fileset dir="doc">
+                <exclude name="**/*.log"/>
+                <exclude name="**/*.aux"/>
+                <exclude name="**/*.out"/>
+            </fileset>
+        </copy>
+        <copy todir="${zip.dir}/src">
+            <fileset dir="src"/>
+        </copy>
+        <copy todir="${zip.dir}/config">
+            <fileset dir="config"/>
+        </copy>
+        <copy todir="${zip.dir}" file="history.xml"/>
+        <zip destfile="blanc-signo-${ant.project.name}.zip"
+             basedir="${bin.dir}"
+             excludes="class/**">
+        </zip>
+        <delete dir="${zip.dir}"/>
+        <echo message="blanc-signo-${ant.project.name}.zip generated. `unzip -l` to check its content."/>
     </target>
 </project>

@@ -1,0 +1,114 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+\documentclass[11pt,a4paper]{article}
+
+%\usepackage[left=70pt,top=50pt,bottom=70pt,right=40pt]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{fixltx2e}
+\usepackage{cmap}
+\usepackage{enumerate}
+\usepackage{ifthen}
+\usepackage{listings}
+\usepackage{url}
+\usepackage[T1]{fontenc}
+%\usepackage{fontspec}
+%\usepackage{xunicode}
+%\usepackage{xltxtra}
+%\setmainfont[Mapping=tex-text,Ligatures={Common,Rare,Discretionary}]{Linux Libertine O}
+\usepackage{pdflscape}
+\usepackage{alltt}
+%\usepackage{algpseudocode}
+%\usepackage{wrapfig}
+%\usepackage{graphicx}
+
+\ifthenelse{\isundefined{\hypersetup}}{
+    \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+    \urlstyle{same}
+}{}
+
+\hypersetup{
+    pdftitle={Intelligent Agents - EX2 - Yoan Blanc, Tiziano Signo}
+}
+\title{\phantomsection%
+    A Deliberative Agent for the Pickup and Delivery Problem
+}
+\author{
+    Yoan Blanc \texttt{<yoan.blanc@epfl.ch>}, 213552\\
+    Tiziano Signo \texttt{<tiziano.signo@epfl.ch>}, 226511
+}
+\date{\today}
+
+
+\begin{document}
+\maketitle
+
+\noindent
+\begin{quote}{\it
+
+    In this exercise, you will learn to use a deliberative agent to solve the
+Pickup and Delivery Problem. A deliberative agent does not simply react to
+percepts coming from the environment. It can build a plan that specifies the
+sequence of actions to be taken in order to reach a certain goal. A
+deliberative agent has goals (e.g. to deliver all tasks) and is fully aware of
+the world it is acting in.
+
+    Unlike the reactive agent, the deliberative agent knows the list of tasks
+that must be delivered. The deliberative agent can therefore construct a plan
+(a certain path through the network) that guarantees the optimal delivery of
+tasks.
+
+    \begin{enumerate}
+        \item Choose a representation for the states, transitions and goals
+        (final states) to be used in a state-based search algorithm that finds
+        the optimal plan for delivering a set of tasks.
+
+        \item Implement the state-based breadth-first search and A* heuristic
+        search algorithms.  Choose one heuristic and explain why. Discuss the
+        optimality of your new algorithm in relation to your heuristic.
+
+        \item Implement a deliberative agent which can use the above planning
+        algorithms.
+
+        \item Compare the performances of the breadth-first search and the A*
+        search algorithms for different problem sizes.
+
+        \item Run the simulation with 1, 2 and 3 deliberative agents and report
+        the differences of the joint performance of the agents.
+
+    \end{enumerate}
+
+}\end{quote}
+
+\newpage
+\medskip
+\textbf{State representation}
+
+The objects of the system are the tasks, cities.
+
+$$ objects = \{T_1, \cdots, T_n\} \cup \{city_1, \cdots, city_m\} $$
+
+Five predicates are kept (for now), one stating where the agent is and 
+
+\begin{align*}
+predicates = &city(c)                            & c \text{is a city} \\
+             &task(t)                            & t \text{is a task} \\
+             &currentPosition(c)                 & \text{position of the agent}      \\
+             &ready(t, from, to, weight, reward) & \text{task ready to be picked-up} \\
+             &loaded(t, to, weight, reward)      & \text{task currently in transit}  \\
+             &delivered(t)                       & \text{task delivered}             \\
+             &balance(n)                         & \text{rewards - costs}            
+\end{align*}
+
+Actions are given by the system:
+
+\begin{align*}
+actions = \{&pickup(t),   & \text{if } ready(t, from) \wedge currentPosition(from) \\
+            &move(c),     & \text{if } \lnot currentPosition(c)                    \\
+            &deliver(t)\} & \text{if } loaded(t, to) \wedge currentPosition(to)
+\end{align*}
+
+
+\end{document}
+
