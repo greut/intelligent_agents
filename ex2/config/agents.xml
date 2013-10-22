@@ -4,6 +4,12 @@
     <!-- A list of agents and their behavior classes -->
 
     <!-- #### DELIBERATIVE AGENTS ### -->
+    <agent name="deliberative-agent">
+        <set class-path="bin/class"/>
+        <set class-name="template.DeliberativeAgent"/>
+        <set algorithm="BFS"/>
+    </agent>
+
     <agent name="deliberative-naive">
         <set class-path="bin/class"/>
         <set class-name="template.DeliberativeNaive"/>

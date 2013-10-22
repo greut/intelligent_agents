@@ -32,7 +32,8 @@
     <target name="run" depends="compile">
         <java fork="true" classname="logist.LogistPlatform">
             <arg value="config/deliberative.xml"/>
-            <arg value="deliberative-naive" />
+            <arg value="deliberative-agent" />
+            <!--<arg value="deliberative-naive" />-->
             <classpath>
                 <pathelement path="${java.class.path}"/>
                 <pathelement path="${lib.dir}/plot.jar"/>
