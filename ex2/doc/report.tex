@@ -89,16 +89,18 @@ The objects of the system are the tasks, cities.
 
 $$ objects = \{T_1, \cdots, T_n\} \cup \{city_1, \cdots, city_m\} $$
 
-Five predicates are kept (for now), one stating where the agent is and 
+Five predicates are kept (for now), one stating where the agent is and in which
+state are the tasks.
 
 \begin{align*}
 predicates = &city(c)                            & c \text{is a city} \\
              &task(t)                            & t \text{is a task} \\
-             &currentPosition(c)                 & \text{position of the agent}      \\
+             &position(c)                        & \text{position of the agent}      \\
+             &capacity(c)                        & \text{capacity of the agent}      \\
              &ready(t, from, to, weight, reward) & \text{task ready to be picked-up} \\
              &loaded(t, to, weight, reward)      & \text{task currently in transit}  \\
              &delivered(t)                       & \text{task delivered}             \\
-             &balance(n)                         & \text{rewards - costs}            
+             &balance(n)                         & \text{rewards - costs}
 \end{align*}
 
 Actions are given by the system:
