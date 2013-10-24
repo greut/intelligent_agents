@@ -2,9 +2,10 @@ package template;
 
 import java.util.AbstractSet;
 import java.util.Deque;
-import java.util.Queue;
-import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 import logist.simulation.Vehicle;
 import logist.agent.Agent;
@@ -85,27 +86,33 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 
         // Dirty BFS
         Deque<State> q = new LinkedList<State>();
-        State curr = null;
+        Queue<State> finals = new PriorityQueue<State>();
+        int maxDepth = Integer.MAX_VALUE;
         q.add(initial);
         while(!q.isEmpty()) {
-            curr = q.removeFirst();
+            State curr = q.removeFirst();
             if (curr.isFinal()) {
-                break;
+                maxDepth = curr.getDepth();
+                finals.add(curr);
             }
-            Queue<Step> steps = curr.steps();
-            for(Step s = steps.poll(); s != null; s = steps.poll()) {
-                State next = curr.apply(s);
-                boolean found = false;
-                if (!next.hasLoop()) {
-                    q.add(next);
+            if (curr.getDepth() < maxDepth) {
+                Queue<Step> steps = curr.steps();
+                for(Step s = steps.poll(); s != null; s = steps.poll()) {
+                    State next = curr.apply(s);
+                    boolean found = false;
+                    if (!next.hasLoop()) {
+                        q.add(next);
+                    }
                 }
             }
         }
         // Tracing back the trail of actions that made this result possible.
+        // Move that to the state.
         LinkedList<Action> actions = new LinkedList<Action>();
-        while (!curr.equals(initial)) {
-            actions.add(curr.getPreviousAction());
-            curr = curr.getParent();
+        State best = finals.peek();
+        while (!best.equals(initial)) {
+            actions.add(best.getPreviousAction());
+            best = best.getParent();
         }
         // Build plan
         Plan plan = new Plan(current);

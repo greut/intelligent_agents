@@ -65,12 +65,6 @@ public class Step implements Comparable<Step> {
     }
 
     public int compareTo(Step o) {
-        if (reward < o.reward) {
-            return 1;
-        } else if (reward > o.reward) {
-            return -1;
-        } else {
-            return 0;
-        }
+        return Double.compare(reward, o.reward);
     }
 }

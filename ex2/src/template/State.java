@@ -16,7 +16,7 @@ import logist.topology.Topology.City;
  *
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
  */
-public class State {
+public class State implements Comparable<State> {
     /**
      * Position of the agent.
      */
@@ -42,9 +42,9 @@ public class State {
      */
     private AbstractSet<Task> loaded;
     /**
-     * Taks that where delivered
+     * Money!! Tons of money (hence `double`)
      */
-    //private AbstractSet<Task> delivered;
+    private double balance;
     /**
      * What actions has been taken on in the past.
      */
@@ -68,7 +68,7 @@ public class State {
         distance = 0;
         ready = new CopyOnWriteArraySet<Task>(readyTasks);
         loaded = new CopyOnWriteArraySet<Task>();
-        //delivered = new CopyOnWriteArraySet<Task>();
+        balance = 0;
         seed = null;
         parent = null;
     }
@@ -84,7 +84,7 @@ public class State {
         distance = s.distance;
         ready = s.ready;
         loaded = s.loaded;
-        //delivered = s.delivered;
+        balance = s.balance;
     }
 
     public City getPosition() {
@@ -106,15 +106,18 @@ public class State {
         }
         return left;
     }
-/*
-    public int balance() {
-        int balance = - distance * cost;
-        for (Task t : delivered) {
-            balance += t.reward;
-        }
+
+    public double getBalance() {
         return balance;
     }
-*/
+
+    public int getDepth() {
+        int depth;
+        State p;
+        for (depth=0, p=parent; p != null; p=p.parent, depth++);
+        return depth;
+    }
+
     /**
      * Return all possible actions from this state.
      */
@@ -152,20 +155,19 @@ public class State {
             case MOVE:
                 s.distance += position.distanceTo(step.destination);
                 s.position = step.destination;
+                s.balance -= position.distanceTo(step.destination) * cost;
                 break;
             case PICKUP:
-                // clone
+                // clone only when required
                 s.ready = new CopyOnWriteArraySet<Task>(s.ready);
                 s.loaded = new CopyOnWriteArraySet<Task>(s.loaded);
-                // do
                 s.ready.remove(step.task);
                 s.loaded.add(step.task);
                 break;
             case DELIVERY:
                 s.loaded = new CopyOnWriteArraySet<Task>(s.loaded);
-                //s.delivered = new CopyOnWriteArraySet<Task>(s.delivered);
                 s.loaded.remove(step.task);
-                //s.delivered.add(step.task);
+                s.balance += step.task.reward;
                 break;
         }
         return s;
@@ -196,10 +198,11 @@ public class State {
         return false;
     }
 
+    @Override
     public String toString() {
         return String.format("<State \"" + position + "\" " +
-                //" € " + balance() + " (" +
-                loaded.size() + "/" + ready.size() + //"/" + delivered.size() +
+                " € " + balance + " (" +
+                loaded.size() + "/" + ready.size() +
                 ")>");
     }
 
@@ -222,5 +225,9 @@ public class State {
             return false;
         }
         return true;
+    }
+
+    public int compareTo(State o) {
+        return Double.compare(o.balance, balance);
     }
 }
