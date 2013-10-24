@@ -7,11 +7,11 @@ import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import logist.simulation.Vehicle;
 import logist.agent.Agent;
 import logist.behavior.DeliberativeBehavior;
 import logist.plan.Action;
 import logist.plan.Plan;
+import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.task.TaskDistribution;
 import logist.task.TaskSet;
@@ -106,17 +106,11 @@ public class DeliberativeAgent implements DeliberativeBehavior {
                 }
             }
         }
-        // Tracing back the trail of actions that made this result possible.
-        // Move that to the state.
-        LinkedList<Action> actions = new LinkedList<Action>();
-        State best = finals.peek();
-        while (!best.equals(initial)) {
-            actions.add(best.getPreviousAction());
-            best = best.getParent();
-        }
+
         // Build plan
         Plan plan = new Plan(current);
-        Iterator<Action> iter = actions.descendingIterator();
+        State best = finals.peek();
+        Iterator<Action> iter = best.planIterator();
         while(iter.hasNext()) {
             plan.append(iter.next());
         }

@@ -1,13 +1,15 @@
 package template;
 
-import java.util.Arrays;
-import java.util.PriorityQueue;
 import java.util.AbstractSet;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import logist.plan.Action;
 import logist.task.Task;
 import logist.task.TaskSet;
-import logist.plan.Action;
 import logist.topology.Topology.City;
 
 
@@ -89,14 +91,6 @@ public class State implements Comparable<State> {
 
     public City getPosition() {
         return position;
-    }
-
-    public Action getPreviousAction() {
-        return seed;
-    }
-
-    public State getParent() {
-        return parent;
     }
 
     public int capacityLeft() {
@@ -229,5 +223,20 @@ public class State implements Comparable<State> {
 
     public int compareTo(State o) {
         return Double.compare(o.balance, balance);
+    }
+
+    /**
+     * Builds the plan that reaches this state.
+     *
+     * @return iterator for each action.
+     */
+    public Iterator<Action> planIterator() {
+        LinkedList<Action> actions = new LinkedList<Action>();
+        State s = this;
+        while (s.parent != null) {
+            actions.add(s.seed);
+            s = s.parent;
+        }
+        return actions.descendingIterator();
     }
 }
