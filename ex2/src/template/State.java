@@ -44,7 +44,7 @@ public class State {
     /**
      * Taks that where delivered
      */
-    private AbstractSet<Task> delivered;
+    //private AbstractSet<Task> delivered;
     /**
      * What actions has been taken on in the past.
      */
@@ -68,7 +68,7 @@ public class State {
         distance = 0;
         ready = new CopyOnWriteArraySet<Task>(readyTasks);
         loaded = new CopyOnWriteArraySet<Task>();
-        delivered = new CopyOnWriteArraySet<Task>();
+        //delivered = new CopyOnWriteArraySet<Task>();
         seed = null;
         parent = null;
     }
@@ -82,9 +82,9 @@ public class State {
         this(s.capacity, s.cost);
         position = s.position;
         distance = s.distance;
-        ready = new CopyOnWriteArraySet<Task>(s.ready);
-        loaded = new CopyOnWriteArraySet<Task>(s.loaded);
-        delivered = new CopyOnWriteArraySet<Task>(s.delivered);
+        ready = s.ready;
+        loaded = s.loaded;
+        //delivered = s.delivered;
     }
 
     public City getPosition() {
@@ -106,7 +106,7 @@ public class State {
         }
         return left;
     }
-
+/*
     public int balance() {
         int balance = - distance * cost;
         for (Task t : delivered) {
@@ -114,7 +114,7 @@ public class State {
         }
         return balance;
     }
-
+*/
     /**
      * Return all possible actions from this state.
      */
@@ -152,28 +152,54 @@ public class State {
             case MOVE:
                 s.distance += position.distanceTo(step.destination);
                 s.position = step.destination;
-                // is the clone really required?
                 break;
             case PICKUP:
+                // clone
+                s.ready = new CopyOnWriteArraySet<Task>(s.ready);
+                s.loaded = new CopyOnWriteArraySet<Task>(s.loaded);
+                // do
                 s.ready.remove(step.task);
                 s.loaded.add(step.task);
                 break;
             case DELIVERY:
+                s.loaded = new CopyOnWriteArraySet<Task>(s.loaded);
+                //s.delivered = new CopyOnWriteArraySet<Task>(s.delivered);
                 s.loaded.remove(step.task);
-                s.delivered.add(step.task);
+                //s.delivered.add(step.task);
                 break;
         }
         return s;
     }
 
+    /**
+     * Tell if this state is a goal state or not.
+     *
+     * @return true if nothing to be done remain.
+     */
     public boolean isFinal() {
         return ready.isEmpty() && loaded.isEmpty();
     }
 
+    /**
+     * Search for a loop in the exploration graph.
+     *
+     * @return true is this state already existed in this history.
+     */
+    public boolean hasLoop() {
+        State s = parent;
+        while (s != null && s.ready.size() == ready.size()) {
+            if (s.equals(this)) {
+                return true;
+            }
+            s = s.parent;
+        }
+        return false;
+    }
+
     public String toString() {
         return String.format("<State \"" + position + "\" " +
-                " € " + balance() + " (" +
-                loaded.size() + "/" + ready.size() + "/" + delivered.size() +
+                //" € " + balance() + " (" +
+                loaded.size() + "/" + ready.size() + //"/" + delivered.size() +
                 ")>");
     }
 
@@ -186,9 +212,15 @@ public class State {
             return true;
         }
         State o = (State) other;
-        boolean same = position.equals(o.position);
-        same &= ready.equals(o.ready);
-        same &= loaded.equals(o.loaded);
-        return same;
+        if (!position.equals(o.position)) {
+            return false;
+        }
+        if (!ready.equals(o.ready)) {
+            return false;
+        }
+        if (!loaded.equals(o.loaded)) {
+            return false;
+        }
+        return true;
     }
 }

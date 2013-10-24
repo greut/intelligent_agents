@@ -8,12 +8,14 @@
         <set class-path="bin/class"/>
         <set class-name="template.DeliberativeAgent"/>
         <set algorithm="BFS"/>
+        <!--<set algorithm="A-star"/>-->
     </agent>
 
     <agent name="deliberative-naive">
         <set class-path="bin/class"/>
         <set class-name="template.DeliberativeNaive"/>
         <set algorithm="BFS"/>
+        <!--<set algorithm="A-star"/>-->
     </agent>
 
 </agents>

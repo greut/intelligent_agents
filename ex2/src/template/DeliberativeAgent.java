@@ -79,11 +79,13 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         City current = vehicle.getCurrentCity();
         State initial = new State(current, capacity, costPerKm, tasks);
 
+        for (Task t : tasks) {
+            System.err.println(t);
+        }
+
         // Dirty BFS
-        LinkedList<State> all = new LinkedList<State>();
         Deque<State> q = new LinkedList<State>();
         State curr = null;
-        all.add(initial);
         q.add(initial);
         while(!q.isEmpty()) {
             curr = q.removeFirst();
@@ -94,14 +96,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
             for(Step s = steps.poll(); s != null; s = steps.poll()) {
                 State next = curr.apply(s);
                 boolean found = false;
-                for (Iterator<State> i = all.iterator(); i.hasNext() && !found;) {
-                    if (i.next().equals(next)) {
-                        found = true;
-                    }
-                }
-
-                if (!found) {
-                    all.add(next);
+                if (!next.hasLoop()) {
                     q.add(next);
                 }
             }
