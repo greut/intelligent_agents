@@ -1,6 +1,6 @@
 package template;
 
-import java.util.AbstractSet;
+import java.util.HashMap;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -63,12 +63,10 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         // Compute the plan with the selected algorithm.
         switch (algorithm) {
         case ASTAR:
-            // ...
-            plan = doPlan(vehicle, tasks);
+            plan = doPlanAstar(vehicle, tasks);
             break;
         case BFS:
-            // ...
-            plan = doPlan(vehicle, tasks);
+            plan = doPlanBFS(vehicle, tasks);
             break;
         default:
             throw new AssertionError("Should not happen.");
@@ -76,7 +74,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         return plan;
     }
 
-    private Plan doPlan(Vehicle vehicle, TaskSet tasks) {
+    private Plan doPlanBFS(Vehicle vehicle, TaskSet tasks) {
         City current = vehicle.getCurrentCity();
         State initial = new State(current, capacity, costPerKm, tasks);
 
@@ -110,7 +108,50 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         // Build plan
         Plan plan = new Plan(current);
         State best = finals.peek();
+        System.out.println(best.getBalance());
         Iterator<Action> iter = best.planIterator();
+        while(iter.hasNext()) {
+            plan.append(iter.next());
+        }
+
+        return plan;
+    }
+
+    private Plan doPlanAstar(Vehicle vehicle, TaskSet tasks) {
+        City current = vehicle.getCurrentCity();
+        State initial = new State(current, capacity, costPerKm, tasks);
+
+        for(Task t: tasks) {
+            System.err.println(t);
+        }
+
+        // A-star
+        PriorityQueue<State> q = new PriorityQueue<State>();
+        HashMap<State,Double> c = new HashMap<State,Double>();
+        State curr = null;
+        q.add(initial);
+        while(!q.isEmpty()) {
+            curr = q.poll();
+            if(!q.isEmpty())
+                System.err.println(curr + " ||||| " + q.peek());
+            if(curr.isFinal()) {
+                break;
+            }
+
+            Double prevbalance = c.get(curr); // if state already in c compare balance
+            if(prevbalance == null || curr.getBalance() >= prevbalance) {
+                c.put(curr, curr.getBalance());
+                Queue<Step> steps = curr.steps();
+                for(Step s = steps.poll(); s != null; s = steps.poll()) {
+                    State next = curr.apply(s);
+                    q.add(next);
+                }
+            }
+        }
+
+        // Build plan
+        Plan plan = new Plan(current);
+        Iterator<Action> iter = curr.planIterator();
         while(iter.hasNext()) {
             plan.append(iter.next());
         }
