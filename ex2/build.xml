@@ -32,7 +32,9 @@
     <target name="run" depends="compile">
         <java fork="true" classname="logist.LogistPlatform">
             <arg value="config/deliberative.xml"/>
-            <arg value="deliberative-agent" />
+            <arg value="deliberative-agent-a-star" />
+            <!--<arg value="deliberative-agent-bfs" />-->
+            <!--<arg value="deliberative-agent-a-star" />-->
             <!--<arg value="deliberative-naive" />-->
             <classpath>
                 <pathelement path="${java.class.path}"/>
