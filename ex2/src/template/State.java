@@ -117,17 +117,25 @@ public class State implements Comparable<State> {
      */
     public PriorityQueue<Step> steps() {
         PriorityQueue<Step> q = new PriorityQueue<Step>();
-        for (City neighbor : position.neighbors()) {
-            q.add(new Step(neighbor, - position.distanceTo(neighbor) * cost));
+        for (Task task : loaded) {
+            if (task.deliveryCity.equals(position)) {
+                q.add(new Step(task, task.reward));
+            }
+        }
+        if (!q.isEmpty()) {
+            return q;
         }
         for (Task task : ready) {
             if (task.pickupCity.equals(position) && task.weight <= capacityLeft()) {
                 q.add(new Step(task));
             }
         }
-        for (Task task : loaded) {
-            if (task.deliveryCity.equals(position)) {
-                q.add(new Step(task, task.reward));
+        if (!q.isEmpty()) {
+            return q;
+        }
+        for (City neighbor : position.neighbors()) {
+            if (parent == null || !neighbor.equals(parent.position)) {
+                q.add(new Step(neighbor, - position.distanceTo(neighbor) * cost));
             }
         }
         return q;
