@@ -58,36 +58,56 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 
     @Override
     public Plan plan(Vehicle vehicle, TaskSet tasks) {
-        Plan plan;
+        City current = vehicle.getCurrentCity();
+        Plan plan = new Plan(current);
+        State initial = new State(current, capacity, costPerKm, tasks);
+        State goal;
 
-        // Compute the plan with the selected algorithm.
         switch (algorithm) {
-        case ASTAR:
-            plan = doPlanAstar(vehicle, tasks);
-            break;
-        case BFS:
-            plan = doPlanBFS(vehicle, tasks);
-            break;
-        default:
-            throw new AssertionError("Should not happen.");
+            case ASTAR:
+                goal = doAStarSearch(initial);
+                break;
+            case BFS:
+            default:
+                goal = doBreadthFirstSearch(initial);
+                break;
         }
+
+        // Debug information
+        System.err.println("Tasks:");
+        System.err.println("------");
+        for (Task t : tasks) {
+            System.err.println(" " + t);
+        }
+        System.err.println("Best plan:");
+        System.err.println("----------");
+        System.err.println(" " + current);
+        // Build plan
+        Iterator<Action> iter = goal.planIterator();
+        while (iter.hasNext()) {
+            Action action = iter.next();
+            System.err.println(" " + action);
+            plan.append(action);
+        }
+
         return plan;
     }
 
-    private Plan doPlanBFS(Vehicle vehicle, TaskSet tasks) {
-        City current = vehicle.getCurrentCity();
-        State initial = new State(current, capacity, costPerKm, tasks);
-
-        for (Task t : tasks) {
-            System.err.println(t);
-        }
-
-        // Dirty BFS
+    /**
+     * Breadth First Search algorithm.
+     *
+     * @param initial the initial state of the agent.
+     * @return the best final state found.
+     */
+    private State doBreadthFirstSearch(State initial) {
         Deque<State> q = new LinkedList<State>();
         Queue<State> finals = new PriorityQueue<State>();
         int maxDepth = Integer.MAX_VALUE;
+        // stats
+        int statesExplored = 0;
+        int statesDiscarded = 0;
         q.add(initial);
-        while(!q.isEmpty()) {
+        while (!q.isEmpty()) {
             State curr = q.removeFirst();
             if (curr.isFinal()) {
                 maxDepth = curr.getDepth();
@@ -95,68 +115,67 @@ public class DeliberativeAgent implements DeliberativeBehavior {
             }
             if (curr.getDepth() < maxDepth) {
                 Queue<Step> steps = curr.steps();
-                for(Step s = steps.poll(); s != null; s = steps.poll()) {
+                for (Step s = steps.poll(); s != null; s = steps.poll()) {
                     State next = curr.apply(s);
                     boolean found = false;
                     if (!next.hasLoop()) {
                         q.add(next);
+                    } else {
+                        statesDiscarded++;
                     }
                 }
             }
+            statesExplored++;
         }
 
-        // Build plan
-        Plan plan = new Plan(current);
         State best = finals.peek();
-        System.out.println(best.getBalance());
-        Iterator<Action> iter = best.planIterator();
-        while(iter.hasNext()) {
-            plan.append(iter.next());
-        }
-
-        return plan;
+        // stats
+        System.out.println("states: " + statesDiscarded + "/" + statesExplored + " max-depth:" + maxDepth);
+        System.out.println(best);
+        return best;
     }
 
-    private Plan doPlanAstar(Vehicle vehicle, TaskSet tasks) {
-        City current = vehicle.getCurrentCity();
-        State initial = new State(current, capacity, costPerKm, tasks);
-
-        for(Task t: tasks) {
-            System.err.println(t);
-        }
-
-        // A-star
+    /**
+     * A-star algorithm.
+     *
+     * @param initial the initial state of the agent.
+     * @return the best final state found.
+     */
+    private State doAStarSearch(State initial) {
         PriorityQueue<State> q = new PriorityQueue<State>();
         HashMap<State,Double> c = new HashMap<State,Double>();
         State curr = null;
+        // stats
+        int statesExplored = 0;
+        int statesDiscarded = 0;
         q.add(initial);
-        while(!q.isEmpty()) {
+        while (!q.isEmpty()) {
             curr = q.poll();
-            if(!q.isEmpty())
+            if (!q.isEmpty())
                 System.err.println(curr + " ||||| " + q.peek());
-            if(curr.isFinal()) {
+            if (curr.isFinal()) {
                 break;
             }
 
-            Double prevbalance = c.get(curr); // if state already in c compare balance
-            if(prevbalance == null || curr.getBalance() >= prevbalance) {
+            // if state already in c compare balance
+            Double prevbalance = c.get(curr);
+            if (prevbalance == null || curr.getBalance() >= prevbalance) {
                 c.put(curr, curr.getBalance());
                 Queue<Step> steps = curr.steps();
-                for(Step s = steps.poll(); s != null; s = steps.poll()) {
+                for (Step s = steps.poll(); s != null; s = steps.poll()) {
                     State next = curr.apply(s);
                     q.add(next);
                 }
+            } else {
+                statesDiscarded++;
             }
+            statesExplored++;
         }
 
-        // Build plan
-        Plan plan = new Plan(current);
-        Iterator<Action> iter = curr.planIterator();
-        while(iter.hasNext()) {
-            plan.append(iter.next());
-        }
-
-        return plan;
+        // stats
+        System.out.println("states: " + statesDiscarded + "/" + statesExplored + " max-depth:" + curr.getDepth());
+        System.out.println(curr);
+        return curr;
     }
 
     @Override
