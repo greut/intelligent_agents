@@ -2,9 +2,9 @@ package template;
 
 import java.util.AbstractSet;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.PriorityQueue;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import logist.plan.Action;
@@ -115,11 +115,11 @@ public class State implements Comparable<State> {
     /**
      * Return all possible actions from this state.
      */
-    public PriorityQueue<Step> steps() {
-        PriorityQueue<Step> q = new PriorityQueue<Step>();
+    public Deque<Step> steps() {
+        Deque<Step> q = new LinkedList<Step>();
         for (Task task : loaded) {
             if (task.deliveryCity.equals(position)) {
-                q.add(new Step(task, task.reward));
+                q.add(new Step(task, Step.Actions.DELIVERY));
             }
         }
         if (!q.isEmpty()) {
@@ -127,7 +127,7 @@ public class State implements Comparable<State> {
         }
         for (Task task : ready) {
             if (task.pickupCity.equals(position) && task.weight <= capacityLeft()) {
-                q.add(new Step(task));
+                q.add(new Step(task, Step.Actions.PICKUP));
             }
         }
         if (!q.isEmpty()) {
@@ -135,7 +135,7 @@ public class State implements Comparable<State> {
         }
         for (City neighbor : position.neighbors()) {
             if (parent == null || !neighbor.equals(parent.position)) {
-                q.add(new Step(neighbor, - position.distanceTo(neighbor) * cost));
+                q.add(new Step(neighbor));
             }
         }
         return q;

@@ -33,7 +33,7 @@ public class BreadthFirstSearch implements SearchAlgorithm {
                 finals.add(curr);
             }
             if (curr.getDepth() < maxDepth) {
-                Queue<Step> steps = curr.steps();
+                Deque<Step> steps = curr.steps();
                 for (Step s = steps.poll(); s != null; s = steps.poll()) {
                     State next = curr.apply(s);
                     boolean found = false;

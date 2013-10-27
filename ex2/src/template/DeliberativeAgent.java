@@ -79,10 +79,13 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         for (Task t : tasks) {
             System.err.println(" " + t);
         }
+
+        State goal = algo.search(initial);
+
+        // Debug
         System.err.println("Best plan for " + algo + ":");
         System.err.println(new String(new char[80]).replace('\0', '-'));
         System.err.println(" " + current);
-        State goal = algo.search(initial);
         // Build plan
         Iterator<Action> iter = goal.planIterator();
         while (iter.hasNext()) {

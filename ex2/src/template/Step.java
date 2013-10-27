@@ -10,10 +10,9 @@ import logist.task.Task;
  *
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
  */
-public class Step implements Comparable<Step> {
+public class Step {
     public final City destination;
     public final Task task;
-    public final double reward;
     public final Step.Actions type;
 
     public static enum Actions {
@@ -22,29 +21,20 @@ public class Step implements Comparable<Step> {
         DELIVERY
     };
 
-    public Step(Task task) {
+    public Step(Task task, Actions type) {
         this.destination = null;
         this.task = task;
-        this.reward = 0;
-        type = Actions.PICKUP;
+        this.type = type;
     }
 
-    public Step(Task task, double reward) {
-        this.destination = null;
-        this.task = task;
-        this.reward = reward;
-        type = Actions.DELIVERY;
-    }
-
-    public Step(City destination, double reward) {
+    public Step(City destination) {
         this.destination = destination;
         this.task = null;
-        this.reward = reward;
         type = Actions.MOVE;
     }
 
     public String toString() {
-        return String.format("<Step \"" + toAction().toLongString()  + ", € " + reward +"\">");
+        return String.format("<Step \"" + toAction().toLongString()  + "\">");
     }
 
     /**
@@ -62,9 +52,5 @@ public class Step implements Comparable<Step> {
             default:
                 return new Action.Delivery(task);
         }
-    }
-
-    public int compareTo(Step o) {
-        return Double.compare(reward, o.reward);
     }
 }
