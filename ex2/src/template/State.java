@@ -69,10 +69,12 @@ public class State implements Comparable<State> {
      * @param currentCity     initial city
      * @param storageCapacity storage capacity
      * @param costPerKm       cost per km
-     * @param readyTasks      inial tasks
+     * @param readyTasks      available tasks
+     * @param loadedTasks     loaded tasks
+     * @param g               the heuristic to be sorted with
      */
     public State(City currentCity, int storageCapacity, int costPerKm,
-            TaskSet readyTasks, Heuristic g) {
+            TaskSet readyTasks, TaskSet loadedTasks, Heuristic g) {
         this(storageCapacity, costPerKm);
         position = currentCity;
         distance = 0;

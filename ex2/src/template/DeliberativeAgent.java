@@ -54,10 +54,17 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 
     @Override
     public Plan plan(Vehicle vehicle, TaskSet tasks) {
+        synchronized(System.out) {
+            System.out.println("--------------");
+            System.out.println("Vehicle:\t\t" + vehicle.name());
+            System.out.println("Tasks:\t\t" + tasks);
+            System.out.println("Current Tasks:\t" + vehicle.getCurrentTasks());
+            System.out.println("--------------");
+        }
         City current = vehicle.getCurrentCity();
         Plan plan = new Plan(current);
         Heuristic g = new DistanceHeuristic();
-        State initial = new State(current, capacity, costPerKm, tasks, g);
+        State initial = new State(current, capacity, costPerKm, tasks, vehicle.getCurrentTasks(), g);
         SearchAlgorithm algo;
 
         switch (algorithm) {
@@ -71,35 +78,25 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         }
 
         // Debug information
-        System.err.println("Tasks:");
-        System.err.println(new String(new char[80]).replace('\0', '-'));
+        //System.err.println("Tasks:");
+        //System.err.println(new String(new char[80]).replace('\0', '-'));
         for (Task t : tasks) {
-            System.err.println(" " + t);
+        //    System.err.println(" " + t);
         }
-        System.err.println("Best plan for: " + algo + " + " + g + ":");
-        System.err.println(new String(new char[80]).replace('\0', '-'));
+        //System.err.println("Best plan for: " + algo + " + " + g + ":");
+        //System.err.println(new String(new char[80]).replace('\0', '-'));
 
         State goal = algo.search(initial);
 
         // Build plan
         Iterator<Action> iter = goal.planIterator();
-        System.err.println(" " + current);
+        //System.err.println(" " + current);
         while (iter.hasNext()) {
             Action action = iter.next();
-            System.err.println(" " + action);
+        //    System.err.println(" " + action);
             plan.append(action);
         }
 
         return plan;
-    }
-
-    @Override
-    public void planCancelled(TaskSet carriedTasks) {
-
-        if (!carriedTasks.isEmpty()) {
-            // This cannot happen for this simple agent, but typically
-            // you will need to consider the carriedTasks when the next
-            // plan is computed.
-        }
     }
 }
