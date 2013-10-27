@@ -6,8 +6,11 @@ import logist.task.Task;
 
 
 /**
- * Encapsulating the step with their direct reward.
+ * Encapsulating the Action.
  *
+ * Necessary because an action has sadly no accesors.
+ *
+ * @see logist.plan.Action
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
  */
 public class Step {
@@ -33,6 +36,7 @@ public class Step {
         type = Actions.MOVE;
     }
 
+    @Override
     public String toString() {
         return String.format("<Step \"" + toAction().toLongString()  + "\">");
     }

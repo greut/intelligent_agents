@@ -1,6 +1,10 @@
 package template;
 
-
+/**
+ * Search algorithm interface.
+ *
+ * @author Yoan Blanc <yoan.blanc@epfl.ch>
+ */
 public interface SearchAlgorithm {
     /**
      * Search for the best final state from the start state.

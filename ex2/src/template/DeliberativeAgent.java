@@ -1,11 +1,6 @@
 package template;
 
-import java.util.HashMap;
-import java.util.Deque;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.Queue;
 
 import logist.agent.Agent;
 import logist.behavior.DeliberativeBehavior;
@@ -22,6 +17,7 @@ import logist.topology.Topology.City;
  * An optimal planner for one vehicle.
  *
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
+ * @author Tiziano Signo <tiziano.signo@epfl.ch>
  */
 public class DeliberativeAgent implements DeliberativeBehavior {
 

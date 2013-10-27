@@ -1,7 +1,6 @@
 package template;
 
 import java.util.AbstractSet;
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;

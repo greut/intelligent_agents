@@ -6,8 +6,9 @@ import java.util.Queue;
 
 
 /**
- * A* implementation.
+ * A* (A-star) implementation.
  *
+ * @see https://en.wikipedia.org/wiki/A*_search_algorithm
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
  * @author Tiziano Signo <tiziano.signo@epfl.ch>
  */

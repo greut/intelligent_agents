@@ -9,6 +9,7 @@ import java.util.LinkedList;
 /**
  * Breadth First Search (BFS) implementation
  *
+ * @see https://en.wikipedia.org/wiki/Breadth-first_search
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
  * @author Tiziano Signo <tiziano.signo@epfl.ch>
  */
