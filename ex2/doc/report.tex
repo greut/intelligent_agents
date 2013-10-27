@@ -35,6 +35,7 @@
     A Deliberative Agent for the Pickup and Delivery Problem
 }
 \author{
+    \textbf{Group 16}\\
     Yoan Blanc \texttt{<yoan.blanc@epfl.ch>}, 213552\\
     Tiziano Signo \texttt{<tiziano.signo@epfl.ch>}, 226511
 }
@@ -48,34 +49,35 @@
 \begin{quote}{\it
 
     In this exercise, you will learn to use a deliberative agent to solve the
-Pickup and Delivery Problem. A deliberative agent does not simply react to
-percepts coming from the environment. It can build a plan that specifies the
-sequence of actions to be taken in order to reach a certain goal. A
-deliberative agent has goals (e.g. to deliver all tasks) and is fully aware of
-the world it is acting in.
+    Pickup and Delivery Problem. A deliberative agent does not simply react to
+    percepts coming from the environment. It can build a plan that specifies
+    the sequence of actions to be taken in order to reach a certain goal. A
+    deliberative agent has goals (e.g. to deliver all tasks) and is fully aware
+    of the world it is acting in.
 
     Unlike the reactive agent, the deliberative agent knows the list of tasks
-that must be delivered. The deliberative agent can therefore construct a plan
-(a certain path through the network) that guarantees the optimal delivery of
-tasks.
+    that must be delivered. The deliberative agent can therefore construct a
+    plan (a certain path through the network) that guarantees the optimal
+    delivery of tasks.
 
     \begin{enumerate}
         \item Choose a representation for the states, transitions and goals
-        (final states) to be used in a state-based search algorithm that finds
-        the optimal plan for delivering a set of tasks.
+            (final states) to be used in a state-based search algorithm that
+            finds the optimal plan for delivering a set of tasks.
 
-        \item Implement the state-based breadth-first search and A* heuristic
-        search algorithms.  Choose one heuristic and explain why. Discuss the
-        optimality of your new algorithm in relation to your heuristic.
+        \item Implement the state-based \emph{breadth-first search} and
+            \emph{A* heuristic search} algorithms.  Choose one heuristic and
+            explain why. Discuss the optimality of your new algorithm in
+            relation to your heuristic.
 
         \item Implement a deliberative agent which can use the above planning
-        algorithms.
+            algorithms.
 
-        \item Compare the performances of the breadth-first search and the A*
-        search algorithms for different problem sizes.
+        \item Compare the performances of the \emph{breadth-first search} and
+            the \emph{A* search} algorithms for different problem sizes.
 
-        \item Run the simulation with 1, 2 and 3 deliberative agents and report
-        the differences of the joint performance of the agents.
+        \item Run the simulation with $1$, $2$ and $3$ deliberative agents and
+            report the differences of the joint performance of the agents.
 
     \end{enumerate}
 
@@ -89,17 +91,16 @@ The objects of the system are the tasks, cities.
 
 $$ objects = \{T_1, \cdots, T_n\} \cup \{city_1, \cdots, city_m\} $$
 
-Five predicates are kept (for now), one stating where the agent is and in which
-state are the tasks.
+Six predicates are used to define where the agent is, how it is doing and in
+which state are the tasks.
 
 \begin{align*}
 predicates = &city(c)                            & c \text{is a city} \\
              &task(t)                            & t \text{is a task} \\
              &position(c)                        & \text{position of the agent}      \\
-             &capacity(c)                        & \text{capacity of the agent}      \\
+             &capacity(n)                        & \text{capacity of the agent}      \\
              &ready(t, from, to, weight, reward) & \text{task ready to be picked-up} \\
              &loaded(t, to, weight, reward)      & \text{task currently in transit}  \\
-             &delivered(t)                       & \text{task delivered}             \\
              &balance(n)                         & \text{rewards - costs}
 \end{align*}
 
@@ -111,6 +112,30 @@ actions = \{&pickup(t),   & \text{if } ready(t, from) \wedge currentPosition(fro
             &deliver(t)\} & \text{if } loaded(t, to) \wedge currentPosition(to)
 \end{align*}
 
+The initial state has a given position and a set of tasks ready to be loaded,
+an initial position (\texttt{City}), a loading capacity and the money made so
+far (which is $0$ at the beginning)
+
+\begin{align*}
+    initial = &position(c)                            & c \text{ is the starting city of the agent} \\
+              &capacity(n) \; | \; n \in \mathbb{N} \wedge n > 0   & \text{positive capacity} \\
+              &ready(t) \; \forall t \in tasks                   & tasks \text{ is the initial \texttt{TaskSet}} \\
+              &balance(0) & \text{initial balance is zero}
+\end{align*}
+
+The final state only cares that there are no more tasks ready neither loaded.
+
+\begin{align*}
+    goal = &position(c) & c \text{ any city} \\
+           &capacity(n) & n \text{ the initial capacity} \\
+           &\nexists \: ready(t) \; \forall t \in tasks & \text{no more ready tasks} \\
+           &\nexists \: loaded(t) \; \forall t \in tasks & \text{no tasks are still loaded} \\
+\end{align*}
+
+\medskip
+\textbf{Heuristic}
+
+{\huge TODO}
 
 \end{document}
 
