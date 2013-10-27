@@ -16,7 +16,7 @@
         <set algorithm="ASTAR"/>
     </agent>
 
-    <agent name="deliberative-naive">
+    <agent name="deliberative-agent-naive">
         <set class-path="bin/class"/>
         <set class-name="template.DeliberativeNaive"/>
         <set algorithm="BFS"/>

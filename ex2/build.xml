@@ -9,6 +9,8 @@
 
     <property name="lib.dir" location="../lib"/>
 
+    <property name="agent" value="naive" />
+
     <target name="clean">
         <delete includeEmptyDirs="true" failonerror="false">
             <fileset dir="${bin.dir}"/>
@@ -32,10 +34,7 @@
     <target name="run" depends="compile">
         <java fork="true" classname="logist.LogistPlatform">
             <arg value="config/deliberative.xml"/>
-            <arg value="deliberative-agent-a-star" />
-            <!--<arg value="deliberative-agent-bfs" />-->
-            <!--<arg value="deliberative-agent-a-star" />-->
-            <!--<arg value="deliberative-naive" />-->
+            <arg value="deliberative-agent-${agent}" />
             <classpath>
                 <pathelement path="${java.class.path}"/>
                 <pathelement path="${lib.dir}/plot.jar"/>
