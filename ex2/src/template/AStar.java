@@ -20,38 +20,31 @@ public class AStar implements SearchAlgorithm {
 
     public State search(State initial) {
         PriorityQueue<State> q = new PriorityQueue<State>();
-        HashMap<State,Double> c = new HashMap<State,Double>();
-        State curr = null;
+        State best = null;
         // stats
         int statesExplored = 0;
         int statesDiscarded = 0;
         q.add(initial);
         while (!q.isEmpty()) {
-            curr = q.poll();
-            //if (!q.isEmpty())
-            //    System.err.println(curr + " ||||| " + q.peek());
+            State curr = q.poll();
             if (curr.isFinal()) {
+                best = curr;
                 break;
             }
 
-            // if state already in c compare balance
-            Double prevbalance = c.get(curr);
-            if (prevbalance == null || curr.getBalance() >= prevbalance) {
-                c.put(curr, curr.getBalance());
-                Queue<Step> steps = curr.steps();
-                for (Step s = steps.poll(); s != null; s = steps.poll()) {
-                    State next = curr.apply(s);
-                    q.add(next);
-                }
-            } else {
-                statesDiscarded++;
+            Queue<Step> steps = curr.steps();
+            for (Step s = steps.poll(); s != null; s = steps.poll()) {
+                State next = curr.apply(s);
+                q.add(next);
             }
             statesExplored++;
         }
 
+        statesDiscarded = q.size() - 1;
+
         // stats
-        System.err.println("states: " + statesDiscarded + "/" + statesExplored + " max-depth:" + curr.getDepth());
-        System.err.println(curr);
-        return curr;
+        System.err.println("states: " + statesDiscarded + "/" + statesExplored + " max-depth:" + best.getDepth());
+        System.err.println(best);
+        return best;
     }
 }

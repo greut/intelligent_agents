@@ -56,7 +56,8 @@ public class DeliberativeAgent implements DeliberativeBehavior {
     public Plan plan(Vehicle vehicle, TaskSet tasks) {
         City current = vehicle.getCurrentCity();
         Plan plan = new Plan(current);
-        State initial = new State(current, capacity, costPerKm, tasks, new BalanceHeuristic());
+        Heuristic g = new DistanceHeuristic();
+        State initial = new State(current, capacity, costPerKm, tasks, g);
         SearchAlgorithm algo;
 
         switch (algorithm) {
@@ -75,15 +76,14 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         for (Task t : tasks) {
             System.err.println(" " + t);
         }
+        System.err.println("Best plan for: " + algo + " + " + g + ":");
+        System.err.println(new String(new char[80]).replace('\0', '-'));
 
         State goal = algo.search(initial);
 
-        // Debug
-        System.err.println("Best plan for " + algo + ":");
-        System.err.println(new String(new char[80]).replace('\0', '-'));
-        System.err.println(" " + current);
         // Build plan
         Iterator<Action> iter = goal.planIterator();
+        System.err.println(" " + current);
         while (iter.hasNext()) {
             Action action = iter.next();
             System.err.println(" " + action);

@@ -43,9 +43,13 @@ public class State implements Comparable<State> {
      */
     private AbstractSet<Task> loaded;
     /**
-     * Money!! Tons of money (hence `double`)
+     * Value of the loaded tasks.
      */
-    private double balance;
+    private double loadedValue;
+    /**
+     * Value of the delivered tasks;
+     */
+    private double deliveredValue;
     /**
      * What actions has been taken on in the past.
      */
@@ -74,10 +78,11 @@ public class State implements Comparable<State> {
         distance = 0;
         ready = new CopyOnWriteArraySet<Task>(readyTasks);
         loaded = new CopyOnWriteArraySet<Task>();
-        balance = 0;
         seed = null;
         parent = null;
         heuristic = g;
+        loadedValue = 0;
+        deliveredValue = 0;
     }
 
     private State(int storageCapacity, int costPerKm) {
@@ -91,8 +96,9 @@ public class State implements Comparable<State> {
         distance = s.distance;
         ready = s.ready;
         loaded = s.loaded;
-        balance = s.balance;
         heuristic = s.heuristic;
+        loadedValue = s.loadedValue;
+        deliveredValue = s.deliveredValue;
     }
 
     public City getPosition() {
@@ -107,10 +113,47 @@ public class State implements Comparable<State> {
         return left;
     }
 
-    public double getBalance() {
-        return balance;
+    /**
+     * The total travelled distance.
+     *
+     * @return the traveled distance.
+     */
+    public int getDistance() {
+        return distance;
     }
 
+    /**
+     * The rewards minus the costs.
+     *
+     * @return the remaining money so far.
+     */
+    public double getBalance() {
+        return deliveredValue - (distance * cost);
+    }
+
+    /**
+     * Value of what's carried.
+     *
+     * @return potential money we have.
+     */
+    public double getLoadedRewards() {
+        return loadedValue;
+    }
+
+    /**
+     * Value of what's been delivered.
+     *
+     * @return money made.
+     */
+    public double getDeliveredReward() {
+        return deliveredValue;
+    }
+
+    /**
+     * How deep in the exploration tree are we.
+     *
+     * @return total number of actions till here.
+     */
     public int getDepth() {
         int depth;
         State p;
@@ -163,7 +206,6 @@ public class State implements Comparable<State> {
             case MOVE:
                 s.distance += position.distanceTo(step.destination);
                 s.position = step.destination;
-                s.balance -= position.distanceTo(step.destination) * cost;
                 break;
             case PICKUP:
                 // clone only when required
@@ -171,11 +213,13 @@ public class State implements Comparable<State> {
                 s.loaded = new CopyOnWriteArraySet<Task>(s.loaded);
                 s.ready.remove(step.task);
                 s.loaded.add(step.task);
+                s.loadedValue += step.task.reward;
                 break;
             case DELIVERY:
                 s.loaded = new CopyOnWriteArraySet<Task>(s.loaded);
                 s.loaded.remove(step.task);
-                s.balance += step.task.reward;
+                s.loadedValue -= step.task.reward;
+                s.deliveredValue += step.task.reward;
                 break;
         }
         return s;
@@ -209,7 +253,7 @@ public class State implements Comparable<State> {
     @Override
     public String toString() {
         return String.format("<State \"" + position + "\" " +
-                " € " + balance + " (" +
+                " € " + getBalance() + " (" +
                 loaded.size() + "/" + ready.size() +
                 ")>");
     }
