@@ -56,7 +56,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
     public Plan plan(Vehicle vehicle, TaskSet tasks) {
         City current = vehicle.getCurrentCity();
         Plan plan = new Plan(current);
-        State initial = new State(current, capacity, costPerKm, tasks);
+        State initial = new State(current, capacity, costPerKm, tasks, new BalanceHeuristic());
         SearchAlgorithm algo;
 
         switch (algorithm) {

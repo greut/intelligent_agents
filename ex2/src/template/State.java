@@ -54,6 +54,10 @@ public class State implements Comparable<State> {
      * Who's your daddy
      */
     private State parent;
+    /**
+     * Heuristic function to sort good from bad states.
+     */
+    private Heuristic heuristic;
 
     /**
      * The initial state.
@@ -63,7 +67,8 @@ public class State implements Comparable<State> {
      * @param costPerKm       cost per km
      * @param readyTasks      inial tasks
      */
-    public State(City currentCity, int storageCapacity, int costPerKm, TaskSet readyTasks) {
+    public State(City currentCity, int storageCapacity, int costPerKm,
+            TaskSet readyTasks, Heuristic g) {
         this(storageCapacity, costPerKm);
         position = currentCity;
         distance = 0;
@@ -72,6 +77,7 @@ public class State implements Comparable<State> {
         balance = 0;
         seed = null;
         parent = null;
+        heuristic = g;
     }
 
     private State(int storageCapacity, int costPerKm) {
@@ -86,6 +92,7 @@ public class State implements Comparable<State> {
         ready = s.ready;
         loaded = s.loaded;
         balance = s.balance;
+        heuristic = s.heuristic;
     }
 
     public City getPosition() {
@@ -229,7 +236,7 @@ public class State implements Comparable<State> {
     }
 
     public int compareTo(State o) {
-        return Double.compare(o.balance, balance);
+        return heuristic.compare(this, o);
     }
 
     /**
