@@ -99,4 +99,9 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 
         return plan;
     }
+
+    @Override
+    public void planCancelled(TaskSet cancelledTasks) {
+        // pass
+    }
 }

@@ -79,7 +79,7 @@ public class State implements Comparable<State> {
         position = currentCity;
         distance = 0;
         ready = new CopyOnWriteArraySet<Task>(readyTasks);
-        loaded = new CopyOnWriteArraySet<Task>();
+        loaded = new CopyOnWriteArraySet<Task>(loadedTasks);
         seed = null;
         parent = null;
         heuristic = g;
