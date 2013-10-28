@@ -135,7 +135,23 @@ The final state only cares that there are no more tasks ready neither loaded.
 \medskip
 \textbf{Heuristic}
 
-{\huge TODO}
+\emph{TODO}
+
+\medskip
+\textbf{Performance}
+
+% with the distance heuristic.
+\medskip
+\begin{tabular}{ r | c c | c c }
+    ~ & \multicolumn{2}{c |}{Breadth First Search} & \multicolumn{2}{c}{A* Search} \\
+    \cline{2-5}
+    \# tasks & \# states & time [s] & \# states & time [s] \\
+    \hline
+    $6$        & $5e^5$       & $0.9$      & $1e^5$       & $0.3$ \\
+    $7$        & $9e^6$       & $17.4$     & $2e^6$       & $7.1$ \\
+    $8$        & GC overhead & --     & timeout   & -- \\
+\end{tabular}
+
 
 \end{document}
 

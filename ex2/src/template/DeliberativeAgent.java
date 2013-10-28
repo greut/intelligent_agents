@@ -84,7 +84,6 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         State goal = algo.search(initial);
         long duration = System.nanoTime() - startTime;
 
-
         // Build plan
         Iterator<Action> iter = goal.planIterator();
         while (iter.hasNext()) {
