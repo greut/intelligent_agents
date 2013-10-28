@@ -49,8 +49,8 @@ public class BreadthFirstSearch implements SearchAlgorithm {
         }
 
         // Debug
-        //System.err.println("states: " + statesDiscarded + "/" + statesExplored + " max-depth:" + maxDepth);
-        //System.err.println(finals.peek());
+        System.err.println("states: " + statesDiscarded + "/" + statesExplored + " max-depth:" + maxDepth);
+        System.err.println(finals.peek());
         return finals.peek();
     }
 }

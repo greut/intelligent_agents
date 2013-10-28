@@ -54,13 +54,6 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 
     @Override
     public Plan plan(Vehicle vehicle, TaskSet tasks) {
-        synchronized(System.out) {
-            System.out.println("--------------");
-            System.out.println("Vehicle:\t\t" + vehicle.name());
-            System.out.println("Tasks:\t\t" + tasks);
-            System.out.println("Current Tasks:\t" + vehicle.getCurrentTasks());
-            System.out.println("--------------");
-        }
         City current = vehicle.getCurrentCity();
         Plan plan = new Plan(current);
         Heuristic g = new DistanceHeuristic();
@@ -78,24 +71,27 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         }
 
         // Debug information
-        //System.err.println("Tasks:");
-        //System.err.println(new String(new char[80]).replace('\0', '-'));
+        System.err.println(vehicle.name());
+        System.err.println("Tasks:");
+        System.err.println(new String(new char[80]).replace('\0', '-'));
         for (Task t : tasks) {
-        //    System.err.println(" " + t);
+            System.err.println(" " + t);
         }
-        //System.err.println("Best plan for: " + algo + " + " + g + ":");
-        //System.err.println(new String(new char[80]).replace('\0', '-'));
+        System.err.println("Best plan for: " + algo + " + " + g + ":");
+        System.err.println(new String(new char[80]).replace('\0', '-'));
 
+        long startTime = System.nanoTime();
         State goal = algo.search(initial);
+        long duration = System.nanoTime() - startTime;
+
 
         // Build plan
         Iterator<Action> iter = goal.planIterator();
-        //System.err.println(" " + current);
         while (iter.hasNext()) {
-            Action action = iter.next();
-        //    System.err.println(" " + action);
-            plan.append(action);
+            plan.append(iter.next());
         }
+
+        System.err.println(String.format("Time spent: %.3fs", duration / 1000000000.));
 
         return plan;
     }
