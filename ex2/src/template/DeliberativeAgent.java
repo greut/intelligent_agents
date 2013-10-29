@@ -24,7 +24,7 @@ import template.heuristic.*;
 public class DeliberativeAgent implements DeliberativeBehavior {
 
     enum Algorithm { BFS, ASTAR }
-    enum Heuristic { BALANCE, DISTANCE }
+    enum Heuristic { BALANCE, DISTANCE, POTENTIAL }
 
     /* Environment */
     Topology topology;
@@ -67,6 +67,9 @@ public class DeliberativeAgent implements DeliberativeBehavior {
             case BALANCE:
                 // Very fast but not optimal in the A* case
                 g = new Balance();
+                break;
+            case POTENTIAL:
+                g = new Potential();
                 break;
             case DISTANCE:
             default:

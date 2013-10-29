@@ -127,6 +127,24 @@ public class State implements Comparable<State> {
     }
 
     /**
+     * The upper-bound of what need to be travelled.
+     *
+     * @return maximum travelling distance from the current state.
+     * @todo memoization
+     */
+    public int getDistanceToGoal() {
+        int upper = 0;
+        for (Task t: ready) {
+            upper += position.distanceTo(t.pickupCity);
+            //upper += t.pickupCity.distanceTo(t.deliveryCity);
+        }
+        for (Task t: loaded) {
+            upper += position.distanceTo(t.deliveryCity);
+        }
+        return upper;
+    }
+
+    /**
      * The rewards minus the costs.
      *
      * @return the remaining money so far.
@@ -140,7 +158,7 @@ public class State implements Comparable<State> {
      *
      * @return potential money we have.
      */
-    public double getLoadedRewards() {
+    public double getLoadedReward() {
         return loadedValue;
     }
 
