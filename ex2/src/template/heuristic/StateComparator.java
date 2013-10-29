@@ -1,4 +1,6 @@
-package template;
+package template.heuristic;
+
+import template.State;
 
 
 /**
@@ -6,7 +8,7 @@ package template;
  *
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
  */
-public interface Heuristic {
+public interface StateComparator {
     /**
      * How two states are compared.
      *

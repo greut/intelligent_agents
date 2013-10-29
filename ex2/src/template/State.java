@@ -11,6 +11,8 @@ import logist.task.Task;
 import logist.task.TaskSet;
 import logist.topology.Topology.City;
 
+import template.heuristic.StateComparator;
+
 
 /**
  * State of the deliberative agent.
@@ -59,9 +61,9 @@ public class State implements Comparable<State> {
      */
     private State parent;
     /**
-     * Heuristic function to sort good from bad states.
+     * comparator function to sort good from bad states.
      */
-    private Heuristic heuristic;
+    private StateComparator comparator;
 
     /**
      * The initial state.
@@ -71,10 +73,10 @@ public class State implements Comparable<State> {
      * @param costPerKm       cost per km
      * @param readyTasks      available tasks
      * @param loadedTasks     loaded tasks
-     * @param g               the heuristic to be sorted with
+     * @param g               the comparator to be sorted with
      */
     public State(City currentCity, int storageCapacity, int costPerKm,
-            TaskSet readyTasks, TaskSet loadedTasks, Heuristic g) {
+            TaskSet readyTasks, TaskSet loadedTasks, StateComparator g) {
         this(storageCapacity, costPerKm);
         position = currentCity;
         distance = 0;
@@ -82,7 +84,7 @@ public class State implements Comparable<State> {
         loaded = new CopyOnWriteArraySet<Task>(loadedTasks);
         seed = null;
         parent = null;
-        heuristic = g;
+        comparator = g;
         loadedValue = 0;
         deliveredValue = 0;
     }
@@ -98,7 +100,7 @@ public class State implements Comparable<State> {
         distance = s.distance;
         ready = s.ready;
         loaded = s.loaded;
-        heuristic = s.heuristic;
+        comparator = s.comparator;
         loadedValue = s.loadedValue;
         deliveredValue = s.deliveredValue;
     }
@@ -282,7 +284,7 @@ public class State implements Comparable<State> {
     }
 
     public int compareTo(State o) {
-        return heuristic.compare(this, o);
+        return comparator.compare(this, o);
     }
 
     /**

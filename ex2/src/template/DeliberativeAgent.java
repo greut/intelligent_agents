@@ -13,6 +13,8 @@ import logist.task.TaskSet;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
 
+import template.heuristic.*;
+
 /**
  * An optimal planner for one vehicle.
  *
@@ -22,6 +24,7 @@ import logist.topology.Topology.City;
 public class DeliberativeAgent implements DeliberativeBehavior {
 
     enum Algorithm { BFS, ASTAR }
+    enum Heuristic { BALANCE, DISTANCE }
 
     /* Environment */
     Topology topology;
@@ -34,6 +37,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 
     /* the planning class */
     Algorithm algorithm;
+    Heuristic heuristic;
 
     @Override
     public void setup(Topology topology, TaskDistribution td, Agent agent) {
@@ -44,21 +48,32 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         // initialize the planner
         capacity = agent.vehicles().get(0).capacity();
         costPerKm = agent.vehicles().get(0).costPerKm();
-        String algorithmName = agent.readProperty("algorithm", String.class, "ASTAR");
+        String algorithmName = agent.readProperty("algorithm", String.class, "bfs");
+        String heuristicName = agent.readProperty("heuristic", String.class, "distance");
 
-        // Throws IllegalArgumentException if algorithm is unknown
-        algorithm = Algorithm.valueOf(algorithmName.toUpperCase());
-
-        // ...
+        // Throws IllegalArgumentException if they are unknown
+        algorithm = Algorithm.valueOf(algorithmName.trim().replace("-", "").toUpperCase());
+        heuristic = Heuristic.valueOf(heuristicName.trim().replace('-', '_').toUpperCase());
     }
 
     @Override
     public Plan plan(Vehicle vehicle, TaskSet tasks) {
         City current = vehicle.getCurrentCity();
         Plan plan = new Plan(current);
-        Heuristic g = new DistanceHeuristic();
-        State initial = new State(current, capacity, costPerKm, tasks, vehicle.getCurrentTasks(), g);
+        StateComparator g;
         SearchAlgorithm algo;
+
+        switch(heuristic) {
+            case BALANCE:
+                // Very fast but not optimal in the A* case
+                g = new Balance();
+                break;
+            case DISTANCE:
+            default:
+                // Optimal but too slow (behaves like BFS)
+                g = new Distance();
+                break;
+        }
 
         switch (algorithm) {
             case ASTAR:
@@ -71,21 +86,20 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         }
 
         // Debug information
-        System.err.println(vehicle.name());
+        System.err.println(vehicle.name() + " (" + algo + "+" + g + ")");
         System.err.println("Tasks:");
         System.err.println(new String(new char[80]).replace('\0', '-'));
         for (Task t : tasks) {
             System.err.println(" " + t);
         }
-        System.err.println("Best plan for: " + algo + " + " + g + ":");
-        System.err.println(new String(new char[80]).replace('\0', '-'));
 
         long startTime = System.nanoTime();
-        State goal = algo.search(initial);
+        State initial = new State(current, capacity, costPerKm, tasks, vehicle.getCurrentTasks(), g);
+        State best = algo.search(initial);
         long duration = System.nanoTime() - startTime;
 
         // Build plan
-        Iterator<Action> iter = goal.planIterator();
+        Iterator<Action> iter = best.planIterator();
         while (iter.hasNext()) {
             plan.append(iter.next());
         }
