@@ -1,10 +1,12 @@
-package template;
+package template.algorithm;
 
 import java.util.Queue;
 import java.util.Deque;
 import java.util.PriorityQueue;
 import java.util.LinkedList;
 
+import template.State;
+import template.Step;
 
 /**
  * Breadth First Search (BFS) implementation
@@ -13,7 +15,7 @@ import java.util.LinkedList;
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
  * @author Tiziano Signo <tiziano.signo@epfl.ch>
  */
-public class BreadthFirstSearch implements SearchAlgorithm {
+public class BreadthFirstSearch implements Search {
     @Override
     public String toString() {
         return "BFS";

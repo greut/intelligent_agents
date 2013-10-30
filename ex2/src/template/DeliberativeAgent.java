@@ -14,6 +14,7 @@ import logist.topology.Topology;
 import logist.topology.Topology.City;
 
 import template.heuristic.*;
+import template.algorithm.*;
 
 /**
  * An optimal planner for one vehicle.

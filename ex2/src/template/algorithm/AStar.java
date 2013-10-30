@@ -1,8 +1,11 @@
-package template;
+package template.algorithm;
 
 import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.Queue;
+
+import template.State;
+import template.Step;
 
 
 /**
@@ -12,7 +15,7 @@ import java.util.Queue;
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
  * @author Tiziano Signo <tiziano.signo@epfl.ch>
  */
-public class AStar implements SearchAlgorithm {
+public class AStar implements Search {
     @Override
     public String toString() {
         return "A*";

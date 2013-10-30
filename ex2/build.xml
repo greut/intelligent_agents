@@ -2,7 +2,7 @@
 <!--
     @author Yoan Blanc <yoan.blanc@epfl.ch>
 -->
-<project name="ex1" default="run" basedir=".">
+<project name="ex2" default="run" basedir=".">
     <property name="src.dir" location="src"/>
     <property name="bin.dir" location="bin"/>
     <property name="doc.dir" location="doc"/>

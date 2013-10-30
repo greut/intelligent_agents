@@ -1,11 +1,14 @@
-package template;
+package template.algorithm;
+
+import template.State;
+
 
 /**
  * Search algorithm interface.
  *
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
  */
-public interface SearchAlgorithm {
+public interface Search {
     /**
      * Search for the best final state from the start state.
      *
