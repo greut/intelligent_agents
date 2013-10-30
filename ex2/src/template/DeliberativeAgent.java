@@ -62,7 +62,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         City current = vehicle.getCurrentCity();
         Plan plan = new Plan(current);
         StateComparator f;
-        SearchAlgorithm algo;
+        Search algo;
 
         switch(heuristic) {
             case BALANCE:
@@ -93,17 +93,17 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         }
 
         // Debug information
-        System.err.println(vehicle.name() + " (" + algo + " + " + f + ")");
-        System.err.println("Tasks:");
-        System.err.println(new String(new char[80]).replace('\0', '-'));
-        for (Task t : tasks) {
-            System.err.println(" " + t);
-        }
+        //System.err.println(vehicle.name() + " (" + algo + " + " + f + ")");
+        //System.err.println("Tasks:");
+        //System.err.println(new String(new char[80]).replace('\0', '-'));
+        //for (Task t : tasks) {
+        //    System.err.println(" " + t);
+        //}
 
-        long startTime = System.nanoTime();
+        //long startTime = System.nanoTime();
         State initial = new State(current, capacity, costPerKm, tasks, vehicle.getCurrentTasks(), f);
         State best = algo.search(initial);
-        long duration = System.nanoTime() - startTime;
+        //long duration = System.nanoTime() - startTime;
 
         // Build plan
         Iterator<Action> iter = best.planIterator();
@@ -111,7 +111,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
             plan.append(iter.next());
         }
 
-        System.err.println(String.format("Time spent: %.3fs", duration / 1000000000.));
+        //System.err.println(String.format("Time spent: %.3fs", duration / 1000000000.));
 
         return plan;
     }

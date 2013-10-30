@@ -36,10 +36,7 @@ public class BreadthFirstSearch implements Search {
                 finals.add(curr);
             }
             if (curr.getDepth() < maxDepth) {
-                Deque<Step> steps = curr.steps();
-                for (Step s = steps.poll(); s != null; s = steps.poll()) {
-                    State next = curr.apply(s);
-                    boolean found = false;
+                for (State next : curr.nextStates()) {
                     if (!next.hasLoop()) {
                         q.add(next);
                     } else {
@@ -51,8 +48,8 @@ public class BreadthFirstSearch implements Search {
         }
 
         // Debug
-        System.err.println("states: " + statesDiscarded + "/" + statesExplored + " max-depth:" + maxDepth);
-        System.err.println(finals.peek());
+        //System.err.println("states: " + statesDiscarded + "/" + statesExplored + " max-depth:" + maxDepth);
+        //System.err.println(finals.peek());
         return finals.peek();
     }
 }

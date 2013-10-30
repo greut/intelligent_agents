@@ -1,9 +1,9 @@
 package template;
 
 import java.util.AbstractSet;
-import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import logist.plan.Action;
@@ -181,24 +181,6 @@ public class State implements Comparable<State> {
     }
 
     /**
-     * Value of what's carried.
-     *
-     * @return potential money we have.
-     */
-    public double getLoadedReward() {
-        return loadedValue;
-    }
-
-    /**
-     * Value of what's been delivered.
-     *
-     * @return money made.
-     */
-    public double getDeliveredReward() {
-        return deliveredValue;
-    }
-
-    /**
      * How deep in the exploration tree are we.
      *
      * @return total number of actions till here.
@@ -212,9 +194,11 @@ public class State implements Comparable<State> {
 
     /**
      * Return all possible actions from this state.
+     *
+     * @return list of possible/interesting steps;
      */
-    public Deque<Step> steps() {
-        Deque<Step> q = new LinkedList<Step>();
+    private List<Step> steps() {
+        List<Step> q = new LinkedList<Step>();
         for (Task task : loaded) {
             if (task.deliveryCity.equals(position)) {
                 q.add(new Step(task, Step.Actions.DELIVERY));
@@ -246,7 +230,7 @@ public class State implements Comparable<State> {
      * @param step the step to take.
      * @return     a new state.
      */
-    public State apply(Step step) {
+    private State apply(Step step) {
         State s = new State(this);
         s.seed = step.toAction();
         s.parent = this;
@@ -272,6 +256,22 @@ public class State implements Comparable<State> {
                 break;
         }
         return s;
+    }
+
+    /**
+     * Generates the next states reachable from this one.
+     *
+     * It will avoid to go back to the previous position.
+     *
+     * @return states accessible from it.
+     */
+    public List<State> nextStates() {
+        List<State> next = new LinkedList<State>();
+        Iterator<Step> iter = steps().iterator();
+        while(iter.hasNext()) {
+            next.add(apply(iter.next()));
+        }
+        return next;
     }
 
     /**

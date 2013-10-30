@@ -35,19 +35,14 @@ public class AStar implements Search {
                 break;
             }
 
-            Queue<Step> steps = curr.steps();
-            for (Step s = steps.poll(); s != null; s = steps.poll()) {
-                State next = curr.apply(s);
-                q.add(next);
-            }
+            q.addAll(curr.nextStates());
             statesExplored++;
         }
 
-        statesDiscarded = q.size() - 1;
-
         // stats
-        System.err.println("states: " + statesDiscarded + "/" + statesExplored + " max-depth:" + best.getDepth());
-        System.err.println(best);
+        //statesDiscarded = q.size() - 1;
+        //System.err.println("states: " + statesDiscarded + "/" + statesExplored + " max-depth:" + best.getDepth());
+        //System.err.println(best);
         return best;
     }
 }
