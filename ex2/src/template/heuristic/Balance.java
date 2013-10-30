@@ -7,7 +7,7 @@ import template.State;
  * The best state is the one with makes the most money.
  *
  * Note: this heuristic is not optimal because there is no `g`. It is not
- *       monotone.
+ *       monotone. This what is used for BFS though.
  *
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
  */

@@ -25,11 +25,11 @@
         <set heuristic="distance"/>
     </agent>
 
-    <agent name="deliberative-agent-a-star+potential">
+    <agent name="deliberative-agent-a-star+upper">
         <set class-path="bin/class"/>
         <set class-name="template.DeliberativeAgent"/>
         <set algorithm="a-star"/>
-        <set heuristic="potential"/>
+        <set heuristic="upper"/>
     </agent>
 
     <agent name="deliberative-agent-naive">

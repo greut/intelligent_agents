@@ -4,17 +4,18 @@ import template.State;
 
 
 /**
- * A combination of the distance so far with the money loaded.
+ * A combination of the distance so far with the upper bound of remaining
+ * distance.
  *
  * Note: This heuristic is not optimal because the `h` function over estimate
  *       the remaining cost. And it is not monotone.
  *
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
  */
-public class Potential implements StateComparator {
+public class UpperBound implements StateComparator {
     @Override
     public String toString() {
-        return "Potential";
+        return "UpperBound";
     }
 
     public int compare(State a, State b) {
