@@ -197,7 +197,24 @@ We can safely say that we can deliver up to $10$ tasks under a minute.
 
 \subsection*{Multi-agents simulation}
 
-\textbf{TODO}
+Running the simulation with more than one agent clearly shows the limitation of
+the taken approach. Each agent is doing a big initial computation which very
+quickly become obsolete as soon as it reaches a city where the task is no longer
+present. The next computations if lighter, can be totally useless and the agent
+has no way to discover it. Usually, in a multi-agents simulation, the total
+amount of money one agent gets at the end of the simulation is not the maximum
+it had during its run. Meaning it could have stopped way earlier and end up
+being in a better situation. Note that depending of the plan we could avoid
+having one but logist doesn't allow that behaviour.
+
+
+\subsection*{Conclusion}
+
+After trying some crazy ideas and wanted to pre compute more stuff than
+necessary, we managed to get something that is both efficient and optimal.
+This exercise puts into light the fact that agents have to have some kind of
+cooperation/colaboration in order to achieve a optimal result for the whole
+system.
 
 \end{document}
 
