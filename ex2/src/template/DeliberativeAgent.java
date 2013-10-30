@@ -92,7 +92,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         }
 
         // Debug information
-        System.err.println(vehicle.name() + " (" + algo + "+" + f + ")");
+        System.err.println(vehicle.name() + " (" + algo + " + " + f + ")");
         System.err.println("Tasks:");
         System.err.println(new String(new char[80]).replace('\0', '-'));
         for (Task t : tasks) {

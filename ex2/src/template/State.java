@@ -65,6 +65,10 @@ public class State implements Comparable<State> {
      */
     private StateComparator comparator;
 
+    // Memoization
+    private int maxDistance = -1;
+    private int minDistance = -1;
+
     /**
      * The initial state.
      *
@@ -130,37 +134,41 @@ public class State implements Comparable<State> {
      * The upper-bound of what need to be travelled.
      *
      * @return maximum travelling distance from the current state.
-     * @todo memoization
      */
     public int getMaxDistanceToGoal() {
-        int upper = 0;
-        for (Task t: ready) {
-            upper += position.distanceTo(t.pickupCity);
-            upper += t.pickupCity.distanceTo(t.deliveryCity);
+        if (maxDistance == -1) {
+            int upper = 0;
+            for (Task t: ready) {
+                upper += position.distanceTo(t.pickupCity);
+                upper += t.pickupCity.distanceTo(t.deliveryCity);
+            }
+            for (Task t: loaded) {
+                upper += position.distanceTo(t.deliveryCity);
+            }
+            maxDistance = upper;
         }
-        for (Task t: loaded) {
-            upper += position.distanceTo(t.deliveryCity);
-        }
-        return upper;
+        return maxDistance;
     }
 
     /**
      * The lower-bound of what moves are needed to finish.
      *
      * @return minimum travelling distance from the current state.
-     * @todo memoization
      */
     public int getMinDistanceToGoal() {
-        int longest = 0;
-        for (Task t: ready) {
-            longest = Math.max(longest,
-                    (int) (position.distanceTo(t.pickupCity) +
-                    t.pickupCity.distanceTo(t.deliveryCity)));
+        if (minDistance == -1) {
+            int longest = 0;
+            for (Task t: ready) {
+                longest = Math.max(longest,
+                        (int) (position.distanceTo(t.pickupCity) +
+                        t.pickupCity.distanceTo(t.deliveryCity)));
+            }
+            for (Task t: loaded) {
+                longest = Math.max(longest, (int) position.distanceTo(t.deliveryCity));
+            }
+            minDistance = longest;
         }
-        for (Task t: loaded) {
-            longest = Math.max(longest, (int) position.distanceTo(t.deliveryCity));
-        }
-        return longest;
+        return minDistance;
     }
 
     /**
