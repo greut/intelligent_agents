@@ -145,6 +145,25 @@ public class State implements Comparable<State> {
     }
 
     /**
+     * The lower-bound of what moves are needed to finish.
+     *
+     * @return minimum travelling distance from the current state.
+     * @todo memoization
+     */
+    public int getMinDistanceToGoal() {
+        int longest = 0;
+        for (Task t: ready) {
+            longest = Math.max(longest,
+                    (int) (position.distanceTo(t.pickupCity) +
+                    t.pickupCity.distanceTo(t.deliveryCity)));
+        }
+        for (Task t: loaded) {
+            longest = Math.max(longest, (int) position.distanceTo(t.deliveryCity));
+        }
+        return longest;
+    }
+
+    /**
      * The rewards minus the costs.
      *
      * @return the remaining money so far.

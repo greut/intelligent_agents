@@ -32,6 +32,13 @@
         <set heuristic="upper"/>
     </agent>
 
+    <agent name="deliberative-agent-a-star+lower">
+        <set class-path="bin/class"/>
+        <set class-name="template.DeliberativeAgent"/>
+        <set algorithm="a-star"/>
+        <set heuristic="lower"/>
+    </agent>
+
     <agent name="deliberative-agent-naive">
         <set class-path="bin/class"/>
         <set class-name="template.DeliberativeNaive"/>
