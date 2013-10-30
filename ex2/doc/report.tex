@@ -84,8 +84,7 @@
 }\end{quote}
 
 \newpage
-\medskip
-\textbf{State representation}
+\subsection*{State representation}
 
 The objects of the system are the tasks, cities.
 
@@ -132,26 +131,73 @@ The final state only cares that there are no more tasks ready neither loaded.
            &\nexists \: loaded(t) \; \forall t \in tasks & \text{no tasks are still loaded} \\
 \end{align*}
 
-\medskip
-\textbf{Heuristic}
 
-\emph{TODO}
+\subsection*{Heuristics}
 
-\medskip
-\textbf{Performance}
+We've been experimenting with various heuristics. A* search algorithm heuristic
+$f$() is usually defined in two parts $g()$ (the past-path cost function) and $h()$ 
+the future path-cost function).
 
-% with the distance heuristic.
+\begin{description}
+    \item[Balance] This heuristic gives out the total amount of money
+        collected and only makes sense \emph{Breadth First Search} as it do not
+        need any informations about the future.
+
+    \item[Distance] This heuristic is basically $g()$ where $h() \rightarrow
+        0$. It is always optimal as $h()$ never overestimates the remaining
+        cost to reach the goal and is monotone.
+
+        $$g() \rightarrow total \; distance$$
+
+    \item[Upper bound] $g()$ is \emph{Distance} and $h()$ computes the
+        upper-bound of all the remaining paths to explore. It is not optimal as
+        it overestimates the remaining cost (e.g., two same paths will be
+        counted twice).
+
+        $$h() \rightarrow \sum_{p \: \in \: all \; paths} length(p)$$
+
+    \item[Lower bound] $g()$ is \emph{Distance} and $h()$ computes the maximum
+        of all the remaining paths to explore.
+
+        $$h() \rightarrow \arg\max_{p \: \in \: all \; paths} length(p)$$
+
+\end{description}
+
+Both \emph{Distance} and \emph{Lower bound} are optimal. The later is much
+better at predicting the future and will be used for the performance measures.
+
+
+\subsection*{Performance}
+
+The following tests where made on a X1 Carbon laptop using the \emph{Lower
+bound} heuristic.
+
+% with the lower-bound heuristic
+% tests made on a Lenovo X1 Carbon, i7
 \medskip
-\begin{tabular}{ r | c c | c c }
-    ~ & \multicolumn{2}{c |}{Breadth First Search} & \multicolumn{2}{c}{A* Search} \\
+\begin{tabular}{ | r | c c | c c | }
+    \hline
+    ~ & \multicolumn{2}{c |}{Breadth First Search} & \multicolumn{2}{c |}{A* ~Search} \\
     \cline{2-5}
     \# tasks & \# states & time [s] & \# states & time [s] \\
     \hline
-    $6$        & $5e^5$       & $0.9$      & $1e^5$       & $0.3$ \\
-    $7$        & $9e^6$       & $17.4$     & $2e^6$       & $7.1$ \\
-    $8$        & GC overhead & --     & timeout   & -- \\
+    $6$        & $5e^5$       & $0.9$      & $4e^3$       & $0.1$ \\
+    $7$        & $9e^6$       & $17.4$     & $5e^4$       & $0.2$ \\
+    $8$        & GC overhead & --     & $3e^5$       & $1.1$ \\
+    $9$        & "         & --       & $4e^5$       & $1.4$ \\
+    $10$       & "         & --       & $4e^6$       & $38$ \\
+    $11$       & "         & --       & timeout   & -- \\
+    \hline
 \end{tabular}
 
+\medskip
+\noindent
+We can safely say that we can deliver up to $10$ tasks under a minute.
+
+
+\subsection*{Multi-agents simulation}
+
+\textbf{TODO}
 
 \end{document}
 
