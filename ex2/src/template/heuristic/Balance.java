@@ -6,6 +6,9 @@ import template.State;
 /**
  * The best state is the one with makes the most money.
  *
+ * Note: this heuristic is not optimal because there is no `g`. It is not
+ *       monotone.
+ *
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
  */
 public class Balance implements StateComparator {
@@ -15,6 +18,8 @@ public class Balance implements StateComparator {
     }
 
     public int compare(State a, State b) {
+        // g -> 0
+        // h -> money
         return Double.compare(b.getBalance(), a.getBalance());
     }
 }

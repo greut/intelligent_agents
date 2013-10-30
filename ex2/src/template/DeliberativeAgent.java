@@ -60,21 +60,21 @@ public class DeliberativeAgent implements DeliberativeBehavior {
     public Plan plan(Vehicle vehicle, TaskSet tasks) {
         City current = vehicle.getCurrentCity();
         Plan plan = new Plan(current);
-        StateComparator g;
+        StateComparator f;
         SearchAlgorithm algo;
 
         switch(heuristic) {
             case BALANCE:
                 // Very fast but not optimal in the A* case
-                g = new Balance();
+                f = new Balance();
                 break;
             case POTENTIAL:
-                g = new Potential();
+                f = new Potential();
                 break;
             case DISTANCE:
             default:
                 // Optimal but too slow (behaves like BFS)
-                g = new Distance();
+                f = new Distance();
                 break;
         }
 
@@ -89,7 +89,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         }
 
         // Debug information
-        System.err.println(vehicle.name() + " (" + algo + "+" + g + ")");
+        System.err.println(vehicle.name() + " (" + algo + "+" + f + ")");
         System.err.println("Tasks:");
         System.err.println(new String(new char[80]).replace('\0', '-'));
         for (Task t : tasks) {
@@ -97,7 +97,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         }
 
         long startTime = System.nanoTime();
-        State initial = new State(current, capacity, costPerKm, tasks, vehicle.getCurrentTasks(), g);
+        State initial = new State(current, capacity, costPerKm, tasks, vehicle.getCurrentTasks(), f);
         State best = algo.search(initial);
         long duration = System.nanoTime() - startTime;
 

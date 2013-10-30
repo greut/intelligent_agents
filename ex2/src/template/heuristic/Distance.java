@@ -17,6 +17,8 @@ public class Distance implements StateComparator {
     }
 
     public int compare(State a, State b) {
+        // g -> distance
+        // h -> 0
         return Double.compare(a.getDistance(), b.getDistance());
     }
 }

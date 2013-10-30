@@ -132,11 +132,11 @@ public class State implements Comparable<State> {
      * @return maximum travelling distance from the current state.
      * @todo memoization
      */
-    public int getDistanceToGoal() {
+    public int getMaxDistanceToGoal() {
         int upper = 0;
         for (Task t: ready) {
             upper += position.distanceTo(t.pickupCity);
-            //upper += t.pickupCity.distanceTo(t.deliveryCity);
+            upper += t.pickupCity.distanceTo(t.deliveryCity);
         }
         for (Task t: loaded) {
             upper += position.distanceTo(t.deliveryCity);
