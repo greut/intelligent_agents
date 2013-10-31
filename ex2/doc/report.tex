@@ -94,8 +94,8 @@ Six predicates are used to define where the agent is, how it is doing and in
 which state are the tasks.
 
 \begin{align*}
-predicates = &city(c)                            & c \text{is a city} \\
-             &task(t)                            & t \text{is a task} \\
+predicates = &city(c)                            & c \text{ is a city} \\
+             &task(t)                            & t \text{ is a task} \\
              &position(c)                        & \text{position of the agent}      \\
              &capacity(n)                        & \text{capacity of the agent}      \\
              &ready(t, from, to, weight, reward) & \text{task ready to be picked-up} \\
@@ -131,6 +131,15 @@ The final state only cares that there are no more tasks ready neither loaded.
            &\nexists \: loaded(t) \; \forall t \in tasks & \text{no tasks are still loaded} \\
 \end{align*}
 
+The system starts with an initial state and then goes down the tree. A
+\texttt{State} knows how to generate its subtree. For optimization reasons we
+decided to take some priorities in the generated subtree. If there is tasks to
+be delivered, this will be done first (meaning that no other options will be
+explored). Likewise, if there is some tasks to be delivered, these options will
+be considered next (no moves). And if none of the previous conditions hold,
+moves to neighbor cities are considered with the condition that we don't
+directly go back to the previous state (which is known to be a loop).
+
 
 \subsection*{Heuristics}
 
@@ -147,19 +156,27 @@ the future path-cost function).
         0$. It is always optimal as $h()$ never overestimates the remaining
         cost to reach the goal and is monotone.
 
-        $$g() \rightarrow total \; distance$$
+        $$g(n) \rightarrow total \; distance \; from \; start \; up \; to \; n$$
 
     \item[Upper bound] $g()$ is \emph{Distance} and $h()$ computes the
         upper-bound of all the remaining paths to explore. It is not optimal as
         it overestimates the remaining cost (e.g., two same paths will be
         counted twice).
 
-        $$h() \rightarrow \sum_{p \: \in \: all \; paths} length(p)$$
+        \[
+        length(t) = \left\{
+            \begin{array}{l l}
+                distance(position, t.from) + distance(t.from, t.to)& \text{if } ready(t) \\
+                distance(position, t.to) & \text{if } loaded(t)
+            \end{array}
+        \right.
+        \]
+        $$h(n) \rightarrow \sum_{t \: \in \: all \; tasks} length(t)$$
 
     \item[Lower bound] $g()$ is \emph{Distance} and $h()$ computes the maximum
         of all the remaining paths to explore.
 
-        $$h() \rightarrow \arg\max_{p \: \in \: all \; paths} length(p)$$
+        $$h(n) \rightarrow \arg\max_{t \: \in \: all \; tasks} length(t)$$
 
 \end{description}
 
