@@ -141,17 +141,23 @@ public class CentralizedAgent implements CentralizedBehavior {
 		if(neighbours.size() == 0)
 			return oldPlan; // shouldn't happen
 
-		CSPDefinition best = neighbours.get(0);
-		double bestcost = best.totalCost();
+		ArrayList<CSPDefinition> best = new ArrayList<CSPDefinition>();
+		best.add(neighbours.get(0));
+		double bestcost = neighbours.get(0).totalCost();
+
 		for(CSPDefinition c : neighbours) {
 			double ccost = c.totalCost();
 			if(ccost < bestcost) {
-				best = c;
+				best.clear();
+				best.add(c);
 				bestcost = ccost;
+			} else if(ccost == bestcost) {
+				best.add(c);
 			}
 		}
 
 		Random rand = new Random();
-		return (rand.nextDouble() < this.stepProbability) ? best : oldPlan;
+		int randombest = rand.nextInt(best.size());
+		return (rand.nextDouble() < this.stepProbability) ? best.get(randombest) : oldPlan;
 	}
 }
