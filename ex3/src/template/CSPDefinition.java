@@ -163,19 +163,19 @@ public class CSPDefinition {
 
 
 
-	public double dist(Task t1, Task t2) {
+	private double dist(Task t1, Task t2) {
 		return (t2 == null) ? 0 : t1.deliveryCity.distanceTo(t2.pickupCity);
 	}
 
-	public double dist(Vehicle v, Task t) {
+	private double dist(Vehicle v, Task t) {
 		return (t == null) ? 0 : v.getCurrentCity().distanceTo(t.pickupCity);
 	}
 
-	public double length(Task t) {
+	private double length(Task t) {
 		return (t == null) ? 0 : t.pickupCity.distanceTo(t.deliveryCity);
 	}
 
-	public double cost(Vehicle v) {
+	private double cost(Vehicle v) {
 		return v.costPerKm();
 	}
 
