@@ -7,8 +7,8 @@
     <agent name="centralized-agent">
         <set class-path="bin/class"/>
         <set class-name="template.CentralizedAgent"/>
-        <set step-probability="0.9"/>
-        <set iterations="1000"/>
+        <set step-probability="0.4"/>
+        <set iterations="10000"/>
     </agent>
 
     <agent name="centralized-random">
