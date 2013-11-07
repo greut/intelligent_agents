@@ -1,0 +1,77 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+\documentclass[11pt,a4paper]{article}
+
+%\usepackage[left=70pt,top=50pt,bottom=70pt,right=40pt]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{fixltx2e}
+\usepackage{cmap}
+\usepackage{enumerate}
+\usepackage{ifthen}
+\usepackage{listings}
+\usepackage{url}
+\usepackage[T1]{fontenc}
+%\usepackage{fontspec}
+%\usepackage{xunicode}
+%\usepackage{xltxtra}
+%\setmainfont[Mapping=tex-text,Ligatures={Common,Rare,Discretionary}]{Linux Libertine O}
+\usepackage{pdflscape}
+\usepackage{alltt}
+%\usepackage{algpseudocode}
+%\usepackage{wrapfig}
+%\usepackage{graphicx}
+
+\ifthenelse{\isundefined{\hypersetup}}{
+    \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+    \urlstyle{same}
+}{}
+
+\hypersetup{
+    pdftitle={Intelligent Agents - EX3 - Yoan Blanc, Tiziano Signo}
+}
+\title{\phantomsection%
+    A Centralized Agent for the Pickup and Delivery Problem
+}
+\author{
+    \textbf{Group 16}\\
+    Yoan Blanc \texttt{<yoan.blanc@epfl.ch>}, 213552\\
+    Tiziano Signo \texttt{<tiziano.signo@epfl.ch>}, 226511
+}
+\date{\today}
+
+
+\begin{document}
+\maketitle
+
+\noindent
+\begin{quote}{\it
+
+    In this exercise you will implement the Stochastic Local Search algorithm
+    (SLS) to find an efficient solution to the CSP description of the PDP. 
+
+    \begin{enumerate}
+        \item Implement the Stochastic Local Search algorithm for the PDP.
+
+        \item Run simulations for different configurations of the environment
+        (i.e. different tasks and number of vehicles) in order to observe the
+        behavior of the centralized planner using the SLS algorithm.
+
+        \item Reflect on the fairness of the optimal plans. Observe that
+        optimality requires some vehicles to do more work than others.
+        Illustrate this observation with an example in your report.
+
+        \item Test your program for different number of vehicles and various
+        sizes of the task set. How does the complexity of your algorithm depend
+        on these numbers?
+
+    \end{enumerate}
+
+}\end{quote}
+
+\newpage
+\subsection*{TODO}
+
+\end{document}
+
