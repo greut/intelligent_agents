@@ -49,7 +49,7 @@
 \begin{quote}{\it
 
     In this exercise you will implement the Stochastic Local Search algorithm
-    (SLS) to find an efficient solution to the CSP description of the PDP. 
+    (SLS) to find an efficient solution to the CSP description of the PDP.
 
     \begin{enumerate}
         \item Implement the Stochastic Local Search algorithm for the PDP.
@@ -71,7 +71,65 @@
 }\end{quote}
 
 \newpage
-\subsection*{TODO}
+\subsection*{Food for Thoughts}
+
+Very tasks $t_i$ is split into two actions: pickup and delivery.
+
+\begin{align*}
+actions = \{&t_1^p,                                     & \text{task $1$ pickup} \\
+          &t_1^d,                                     & \text{task $1$ delivery} \\
+          &t_2^p, &_2^d,                              & \\
+          &\dots,                                     & \\
+          &t_{N_T}^p, t_{N_T}^d\}                     & \text{up to the end}
+\end{align*}
+
+The set of plans is formed of tuples, one per vehicle, and the corresponding
+list of action to do. This is as strong constraints:
+
+\begin{enumerate}
+    \item two actions belonging to a same task must be in the same action,
+
+    \item pickup and delivery must appear in that order,
+
+    \item each item appear once and only once among the plans.
+\end{enumerate}
+
+\begin{align*}
+plans = \{&(v_1, (t_j^p, t_j^d, \: \dots)),            & \text{vehicle $1$ and task $j$} \\
+          &(v_2, (t_k^p, t_l^p, \dots, t_k^d, t_l^d)), & \text{interleaved tasks} \\
+          &\dots,                                      & \\
+          &(v_{N_V}, \varnothing)\}                    & \text{actions can be empty too}
+\end{align*}
+
+\subsubsection*{Local operators}
+
+A task can be affected by two kinds of changes: its order within a vehicle or
+the vehicle it belongs to.
+
+\begin{enumerate}
+    \item \textbf{Task order within a vehicle} \\
+        Moving only one action, either pickup or deliver, it will try to
+        move them to any other acceptable solution and pick the best one.
+
+        pickup can be moved ahead up to the first state or as long as the
+        vehicle capacity is not reached. And moved forward up to the
+        corresponding delivery.
+
+        delivery can be moved ahead up to the pickup action and forward
+        up to the end of the list as long as the maximum capacity is not
+        already reached.
+
+    \item \textbf{Vehicle doing the task} \\
+        To move a task to another vehicle, it has to pick both pickup and
+        delivery and try them on another vehicle.
+
+        For each vehicle, it'll try to find the position in the list that
+        minimize the overall cost.
+
+        % Try to find the optimal solution for both p and d is way too
+        % costly.
+\end{enumerate}
+
 
 \end{document}
 
