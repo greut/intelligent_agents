@@ -37,12 +37,30 @@ public class CentralizedAgent2 implements CentralizedBehavior {
 
         Planning planning = new Planning(vehicles);
         planning.selectInitialSolution(tasks);
-        boolean terminationCriterion = false;
-        while (!terminationCriterion) {
-            // todo
-            terminationCriterion = true;
+        int i = 100;
+        System.err.println("=> " + planning.getCost());
+        while (i-- > 0) {
+            List<Planning> neighbors = planning.chooseNeighbors();
+            Planning best = localChoice(planning, neighbors);
+            // TODO: probability thingy
+            planning = best;
+            //System.err.println("-> " + planning.getCost());
         }
         System.err.println(planning);
+        System.err.println("=> " + planning.getCost());
         return planning.toList();
+    }
+
+    private Planning localChoice(Planning old, List<Planning> plans) {
+        double cost = old.getCost(), c = cost;
+        Planning best = old;
+        for (Planning plan : plans) {
+            c = plan.getCost();
+            if (c < cost) {
+                cost = c;
+                best = plan;
+            }
+        }
+        return best;
     }
 }

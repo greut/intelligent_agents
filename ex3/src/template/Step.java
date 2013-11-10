@@ -13,6 +13,7 @@ public class Step {
     public final Types type;
     public final Task task;
     public final Schedule schedule;
+    public final City city;
 
     public static enum Types {
         PICKUP {
@@ -33,6 +34,14 @@ public class Step {
         type = ty;
         task = ta;
         schedule = sched;
+        switch (ty) {
+            case PICKUP:
+                city = ta.pickupCity;
+                break;
+            case DELIVERY:
+            default:
+                city = ta.deliveryCity;
+        }
     }
 
     public static Step newPickup(Task t, Schedule s) {
@@ -48,21 +57,9 @@ public class Step {
      *
      * @param plan the plan to act on
      * @param position the starting point
-     * @return the final position
      */
-    public City applyTo(Plan plan, City position) {
-        City destination;
-        // Move
-        switch (type) {
-            case PICKUP:
-                destination = task.pickupCity;
-                break;
-            case DELIVERY:
-            default:
-                destination = task.deliveryCity;
-                break;
-        }
-        for (City c : position.pathTo(destination)) {
+    public void applyTo(Plan plan, City position) {
+        for (City c : position.pathTo(city)) {
             plan.appendMove(c);
         }
         // Do
@@ -75,7 +72,6 @@ public class Step {
                 plan.appendDelivery(task);
                 break;
         }
-        return destination;
     }
 
     @Override
