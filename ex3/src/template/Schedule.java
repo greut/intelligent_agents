@@ -1,6 +1,8 @@
 package template;
 
 import java.util.LinkedList;
+import java.util.ListIterator;
+import java.util.Random;
 
 import logist.plan.Plan;
 import logist.simulation.Vehicle;
@@ -44,9 +46,22 @@ public class Schedule {
     }
 
     /**
+     * A random task from the schedule.
+     *
+     * @return random task
+     */
+    public Task randomTask() {
+        Random r = new Random();
+        if (!steps.isEmpty()) {
+            return steps.get(r.nextInt(steps.size())).task;
+        }
+        return null;
+    }
+
+    /**
      * Compute the total cost.
      */
-    public double computeCost() {
+    /*public double computeCost() {
         double cost = 0;
         City c = vehicle.getCurrentCity();
         for (Step s : steps) {
@@ -54,7 +69,7 @@ public class Schedule {
             c = s.city;
         }
         return cost;
-    }
+    }//*/
 
     /**
      * Add the given task at the beginning of the schedule.
@@ -62,100 +77,123 @@ public class Schedule {
      * @param t the task to be added
      */
     public void add(Task t) {
-        Step p, d;
-        p = Step.newPickup(t, this);
-        d = Step.newDelivery(t, this);
+        insertAt(0, Step.newPickup(t));
+        insertAt(1, Step.newDelivery(t));
+    }
 
-        // Update the cost.
-        if (!steps.isEmpty()) {
-            cost -= vehicle.getCurrentCity().distanceTo(steps.get(0).city);
-            cost += d.city.distanceTo(steps.get(0).city);
+    /**
+     * Insert (as in shift stuff to the right) a step in the schedule.
+     *
+     * @param position where to insert it
+     * @param step what to insert
+     */
+    public void insertAt(int position, Step step) {
+        City a, b;
+        // position is: b.
+        // before: a - b
+        // after:  a - step - b
+        if (position == 0) {
+            a = vehicle.getCurrentCity();
+        } else {
+            a = steps.get(position-1).city;
         }
-        cost += p.city.distanceTo(d.city);
-        cost += vehicle.getCurrentCity().distanceTo(p.city);
+        if (steps.size() == position) {
+            b = null;
+        } else {
+            b = steps.get(position).city;
+        }
 
-        steps.addFirst(d);
-        steps.addFirst(p);
+        // Update cost
+        if (b != null) {
+            cost -= a.distanceTo(b);
+            cost += step.city.distanceTo(b);
+        }
+        cost += a.distanceTo(step.city);
+
+        // Altering the list
+        ListIterator<Step> iter = steps.listIterator(position);
+        iter.add(step);
+
+        /* DEBUG
+        if (Math.abs(cost - computeCost()) > 0.00001) {
+            System.err.println(toString());
+            System.err.println("Fail! " + position + " " + step);
+            System.err.println(a + " <-> " + b);
+            System.exit(1);
+        }//*/
     }
 
     /**
      * Remove the task from the schedule alltogether.
      *
+     * complexity: O(|steps|)
      * @param t the task to be removed
      */
     public boolean remove(Task t) {
         Step p = null, d = null;
-        int i = 0, j = 1, k = 0;
-        for (Step s : steps) {
-            // Using .equals should not be necessary here.
+        ListIterator<Step> iter = steps.listIterator(0);
+        while (iter.hasNext() && d == null) {
+            Step s = iter.next();
             if (s.task == t) {
-                if (p == null) {
-                    i = k;
-                    p = s;
-                } else {
-                    j = k;
-                    d = s;
-                    break;
+                switch (s.type) {
+                    case PICKUP:
+                        p = s;
+                        removeAt(iter, s);
+                        break;
+                    case DELIVERY:
+                    default:
+                        removeAt(iter, s);
+                        d = s;
                 }
             }
-            k++;
         }
 
-        // Update the cost.
-        // ================
-        // Where are doing incremental steps here since it's easy. It doesn't
-        // mean we won't need a way to recompute everything from scratch.
-        //
-        // a -> (P) -> b -> (D) -> c
-        City a, b = null, c = null;
-        if (i == 0) {
+        /* DEBUG
+        if (Math.abs(cost - computeCost()) > 0.00001) {
+            System.err.println(toString());
+            System.err.println("Fail!");
+            System.exit(1);
+        }//*/
+
+        return p != null && d != null;
+    }
+
+    /**
+     * Remove the step at the current position.
+     *
+     * NB: <var>step</var> is required in order to avoid doing a the
+     *     previous/next dance. (premature optimization)
+     *
+     * @param iter list iterator at the position of step
+     * @param step the about to be removed step
+     */
+    public void removeAt(ListIterator<Step> iter, Step step) {
+        iter.remove();
+        City a, b = null;
+        // a - step - b
+        if (iter.hasPrevious()) {
+            iter.previous();
+            a = iter.next().city;
+        } else {
             a = vehicle.getCurrentCity();
-        } else {
-            a = steps.get(i-1).city;
         }
-        if (i < j - 1) {
-            b = steps.get(j-1).city;
-        }
-        if (j < steps.size() - 2) {
-            c = steps.get(j+1).city;
+        if (iter.hasNext()) {
+            b = iter.next().city;
+            iter.previous();
         }
 
-        // Remove
-        // ------
-        // a -> P
-        cost -= a.distanceTo(p.city);
+        cost -= a.distanceTo(step.city);
         if (b != null) {
-            // P -> b
-            cost -= p.city.distanceTo(b);
-            // b -> D
-            cost -= b.distanceTo(d.city);
-        } else {
-            // P -[b]-> D
-            cost -= p.city.distanceTo(d.city);
-        }
-        // D -> c
-        if (c != null) {
-            cost -= d.city.distanceTo(c);
-        }
-
-        boolean ret = steps.remove(p) && steps.remove(d);
-
-        // Add back (a -> b -> c)
-        // --------
-        //
-        // a -> b
-        if (b != null) {
+            cost -= step.city.distanceTo(b);
             cost += a.distanceTo(b);
-        } else {
-            // a -[b]-> c
-            b = a;
-        }
-        // b -> c
-        if (c != null) {
-            cost += b.distanceTo(c);
         }
 
-        return ret;
+        /* DEBUG
+        if (Math.abs(cost - computeCost()) > 0.00001) {
+            System.err.println(toString());
+            System.err.println("Fail!");
+            System.exit(1);
+        }//*/
     }
 
     /**
@@ -164,8 +202,9 @@ public class Schedule {
      * @return the task removed
      */
     public Task removeFirst() {
-        if (isEmpty())
+        if (isEmpty()) {
             return null;
+        }
 
         Task t = steps.get(0).task;
         return remove(t) ? t : null;
@@ -176,11 +215,18 @@ public class Schedule {
         StringBuilder sb = new StringBuilder();
         sb.append(vehicle.name());
         sb.append(" (");
-        sb.append(cost);
+        sb.append(vehicle.getCurrentCity());
         sb.append(")");
+        sb.append(" $");
+        sb.append(Math.round(cost));
+        //sb.append(" / ");
+        //sb.append(computeCost());
         for (Step s : steps) {
             sb.append(" -> ");
             sb.append(s);
+            sb.append(" (");
+            sb.append(s.city);
+            sb.append(")");
         }
         sb.append(".");
         return sb.toString();
@@ -203,5 +249,21 @@ public class Schedule {
 
     public boolean isEmpty() {
         return steps.isEmpty();
+    }
+
+    /**
+     * Check the constraints
+     *
+     * @return false if one constraint has be violated
+     */
+    public boolean isValid() {
+        int capacity = vehicle.capacity();
+        for (Step step : steps) {
+            capacity -= step.weight;
+            if (capacity < 0) {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -1,6 +1,7 @@
 package template;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -18,6 +19,7 @@ import logist.task.TaskSet;
 public class Planning {
     private Schedule[] schedules;
     private double cost;
+    private boolean isValid;
 
     /**
      * All the vehicles and tasks.
@@ -29,6 +31,7 @@ public class Planning {
         cost = 0;
         schedules = new Schedule[cars.size()];
         int i = 0;
+        isValid = true;
         for (Vehicle car : cars) {
             schedules[i] = new Schedule(i, car);
             i += 1;
@@ -44,36 +47,38 @@ public class Planning {
      */
     private Planning(Planning p) {
         cost = p.cost;
+        isValid = p.isValid;
         schedules = new Schedule[p.schedules.length];
         System.arraycopy(p.schedules, 0, schedules, 0, schedules.length);
     }
 
     /**
-     * Assign all the task to the vehicle with the biggest capacity.
+     * Assign all the tasks in a round-robin fashion.
      *
      * @param tasks initial set of tasks
      */
     public void selectInitialSolution(TaskSet tasks) {
-        Schedule schedule = schedules[0];
-        int capacity = 0;
+        Iterator<Task> iter = tasks.iterator();
+        int rr = -1;
+        while (iter.hasNext()) {
+            Task t = iter.next();
+            do {
+                rr = (rr + 1) % schedules.length;
+            } while (schedules[rr].vehicle.capacity() < t.weight);
+            schedules[rr].add(t);
+        }
         for (Schedule s : schedules) {
-            if (capacity < s.vehicle.capacity()) {
-                schedule = s;
-            }
+            cost += s.getCost();
         }
-
-        for (Task task : tasks) {
-            schedule.add(task);
-        }
-        cost = schedule.getCost();
     }
 
     public List<Planning> chooseNeighbors() {
         ArrayList<Planning> neighbors = new ArrayList<Planning>();
-        Schedule schedule = randomNonEmptySchedule();
-        for (Schedule s : schedules) {
-            if (s != schedule) {
-                neighbors.add(changingVehicle(schedule, s));
+        Schedule from = randomNonEmptySchedule();
+        Task task = from.randomTask();
+        for (Schedule to : schedules) {
+            for (Planning p : changingTask(task, from, to)) {
+                neighbors.add(p);
             }
         }
         return neighbors;
@@ -86,6 +91,15 @@ public class Planning {
      */
     public double getCost() {
         return cost;
+    }
+
+    /**
+     * Tells if the planning is valid.
+     *
+     * @return false if some schedule are violating the constraint
+     */
+    public boolean isValid() {
+        return isValid;
     }
 
     /**
@@ -102,36 +116,82 @@ public class Planning {
         return pick;
     }
 
-    /**
-     * Change the first task's vehicle
+     /**
+     * Change the task schedule and order.
      *
-     * @param from vehicle to take the task from.
-     * @param to new vehicle handling this task.
-     * @return new planning with the change applied
+     * It computes all the possible task distribution for the given task by
+     * moving the pickup and delivery positions.
+     *
+     * @param task the t to be moved.
+     * @param from the schedule to pick the task from
+     * @param to the schedule to put the task into
      */
-    private Planning changingVehicle(Schedule from, Schedule to) {
-        Planning p = (Planning) clone();
-        // Clone schedules to be modified
-        Schedule newFrom = (Schedule) from.clone();
-        Schedule newTo = (Schedule) to.clone();
-        // Move task
-        Task t = newFrom.removeFirst();
-        newTo.add(t);
-        // Replace schedules
-        p.schedules[to.id] = newTo;
-        p.schedules[from.id] = newFrom;
-        // Update cost
-        p.cost -= from.getCost() + to.getCost();
-        p.cost += newFrom.getCost() + newTo.getCost();
-        return p;
+    private Planning[] changingTask(Task task, Schedule from, Schedule to) {
+        /*
+         * j i := positions
+         * | |
+         * v v
+         * p d - - - - -
+         * p - d - - - -
+         * - p d - - - -
+         * p - - d - - -
+         * - p - d - - -
+         * - - p d - - -
+         * p - - - d - -
+         * - p - - d - -
+         * - - p - d - -
+         * - - - p d - -
+         * p - - - - d -
+         * ...
+         * - - - - - p d
+         */
+        int k = 0, n = to.steps.size();
+        // If the destination is different from the source, it's gonna be
+        // bigger with a factor of 2 afterwards.
+        if (from != to) {
+            n += 2;
+        }
+        Planning[] plans = new Planning[(n - 1) * (n / 2)];
+        for (int i = 1; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                Planning p = (Planning) clone();
+                Schedule newFrom = (Schedule) from.clone();
+                Schedule newTo = newFrom;
+                if (from != to) {
+                    newTo = (Schedule) to.clone();
+                }
+
+                // Move task
+                newFrom.remove(task);
+                newTo.insertAt(j, Step.newPickup(task));
+                newTo.insertAt(i, Step.newDelivery(task));
+                p.schedules[from.id] = newFrom;
+                p.schedules[to.id] = newTo;
+
+                // Update cost
+                p.cost -= from.getCost();
+                p.cost += newFrom.getCost();
+                p.isValid &= newFrom.isValid();
+                if (from != to) {
+                    p.cost -= to.getCost();
+                    p.cost += newTo.getCost();
+                    p.isValid &= newTo.isValid();
+                }
+                plans[k] = p;
+                k++;
+            }
+        }
+        return plans;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("=> ");
+        sb.append(Math.round(cost));
         for (Schedule s : schedules) {
+            sb.append("\n  ");
             sb.append(s);
-            sb.append("\n");
         }
         return sb.toString();
     }

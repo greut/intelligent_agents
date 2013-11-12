@@ -34,29 +34,37 @@ public class CentralizedAgent2 implements CentralizedBehavior {
 
     @Override
     public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
-
         Planning planning = new Planning(vehicles);
         planning.selectInitialSolution(tasks);
-        int i = 100;
-        System.err.println("=> " + planning.getCost());
+        int i = 1000;
+        System.err.println(planning);
         while (i-- > 0) {
             List<Planning> neighbors = planning.chooseNeighbors();
             Planning best = localChoice(planning, neighbors);
             // TODO: probability thingy
             planning = best;
-            //System.err.println("-> " + planning.getCost());
+            System.err.println(i + "> " + planning.getCost());
         }
         System.err.println(planning);
-        System.err.println("=> " + planning.getCost());
         return planning.toList();
     }
 
+    /**
+     * Choose to replace the old plan with the best one from the plan.
+     *
+     * @param old   the old plan
+     * @param plans set of new plans
+     */
     private Planning localChoice(Planning old, List<Planning> plans) {
         double cost = old.getCost(), c = cost;
+        boolean valid;
         Planning best = old;
         for (Planning plan : plans) {
+            // Constraints check
+            valid = plan.isValid();
+            // Money check
             c = plan.getCost();
-            if (c < cost) {
+            if (valid && c < cost) {
                 cost = c;
                 best = plan;
             }

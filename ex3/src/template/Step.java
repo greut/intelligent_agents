@@ -12,8 +12,8 @@ import logist.topology.Topology.City;
 public class Step {
     public final Types type;
     public final Task task;
-    public final Schedule schedule;
     public final City city;
+    public final int weight;
 
     public static enum Types {
         PICKUP {
@@ -30,26 +30,27 @@ public class Step {
         }
     }
 
-    private Step(Types ty, Task ta, Schedule sched) {
+    /**
+     * Initiate a step.
+     *
+     * @param ty type of action
+     * @param ta parent task
+     * @param c city of action
+     * @param w weight change (negative for delivery)
+     */
+    private Step(Types ty, Task ta, City c, int w) {
         type = ty;
         task = ta;
-        schedule = sched;
-        switch (ty) {
-            case PICKUP:
-                city = ta.pickupCity;
-                break;
-            case DELIVERY:
-            default:
-                city = ta.deliveryCity;
-        }
+        city = c;
+        weight = w;
     }
 
-    public static Step newPickup(Task t, Schedule s) {
-        return new Step(Types.PICKUP, t, s);
+    public static Step newPickup(Task t) {
+        return new Step(Types.PICKUP, t, t.pickupCity, t.weight);
     }
 
-    public static Step newDelivery(Task t, Schedule s) {
-        return new Step(Types.DELIVERY, t, s);
+    public static Step newDelivery(Task t) {
+        return new Step(Types.DELIVERY, t, t.deliveryCity, -t.weight);
     }
 
     /**
