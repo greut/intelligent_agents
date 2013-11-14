@@ -19,7 +19,8 @@
 %\setmainfont[Mapping=tex-text,Ligatures={Common,Rare,Discretionary}]{Linux Libertine O}
 \usepackage{pdflscape}
 \usepackage{alltt}
-%\usepackage{algpseudocode}
+%\usepackage{algorithm}
+\usepackage{algpseudocode}
 %\usepackage{wrapfig}
 %\usepackage{graphicx}
 
@@ -71,23 +72,29 @@
 }\end{quote}
 
 \newpage
-\subsection*{Food for Thoughts}
+\subsection*{Implementation}
 
-Very tasks $t_i$ is split into two actions: pickup and delivery.
+The system is composed of $N_T$ tasks that has to be picked up from a city
+and delivered to another city. There is $N_V$ vehicles that are carrying a
+plan to handle a subset of the tasks.
+
+\subsubsection*{State representation}
+
+Every task $t_i$ is split into two actions: $p$ (pickup) and $d$ (delivery).
 
 \begin{align*}
-actions = \{&t_1^p,                                     & \text{task $1$ pickup} \\
-          &t_1^d,                                     & \text{task $1$ delivery} \\
-          &t_2^p, &_2^d,                              & \\
-          &\dots,                                     & \\
-          &t_{N_T}^p, t_{N_T}^d\}                     & \text{up to the end}
+actions = \{&t_1^p,                               & \text{task $1$ pickup} \\
+            &t_1^d,                               & \text{task $1$ delivery} \\
+            &t_2^p, &_2^d,                        & \\
+            &\dots,                               & \\
+            &t_{N_T}^p, t_{N_T}^d\}               & \text{up to the end}
 \end{align*}
 
 The set of plans is formed of tuples, one per vehicle, and the corresponding
-list of action to do. This is as strong constraints:
+list of action to do. This is as strong constraints that:
 
 \begin{enumerate}
-    \item two actions belonging to a same task must be in the same action,
+    \item two actions from a same task must be in the same plan,
 
     \item pickup and delivery must appear in that order,
 
@@ -101,35 +108,98 @@ plans = \{&(v_1, (t_j^p, t_j^d, \: \dots)),            & \text{vehicle $1$ and t
           &(v_{N_V}, \varnothing)\}                    & \text{actions can be empty too}
 \end{align*}
 
-\subsubsection*{Local operators}
+\subsubsection*{Algorithm}
 
-A task can be affected by two kinds of changes: its order within a vehicle or
-the vehicle it belongs to.
+The algorithm is quite straightforward. Thus we would like to explain in more
+depth the \textsc{chooseNeighbors} function. Instead of doing two things:
+moving one task from one schedule to another one and reorder one schedule, it's
+computing all the possible positions across all schedules for a task. To do so,
+the task is removed from the plan and the inserted at the acceptable positions
+(without taking care of the vehicle's capacity). If a schedule has $t$ tasks,
+there is $(2t - 1)t$ different positions. The overall cost is $O(|S| \cdot
+(\frac{|T|}{|S|})^2) \approx O(|T|^2)$ which was expected.
 
-\begin{enumerate}
-    \item \textbf{Task order within a vehicle} \\
-        Moving only one action, either pickup or deliver, it will try to
-        move them to any other acceptable solution and pick the best one.
+%\begin{algorithm}
+%\caption{SLS algorithm}
+\begin{algorithmic}
+    \Function{SLS}{$vehicles, tasks$}
+        \State $plan \gets $ \Call{initialSolution}{$vehicles, tasks$}
+        \While{$not finished$} % FIXME
+            \State $neighbors \gets $ \Call{chooseNeighbors}{$plan$}
+            \State $plan \gets $ \Call{localChoice}{$plan, neighbors$}
+        \EndWhile
+        \State \Return $plan$
+    \EndFunction
 
-        pickup can be moved ahead up to the first state or as long as the
-        vehicle capacity is not reached. And moved forward up to the
-        corresponding delivery.
+    \Function{initialSolution}{$vehicles, tasks$}
+        \State $plan \gets \varnothing$
+        \ForAll{$vehicle \: \in \: vehicles$}
+            \State $plan = plan \cup (vehicle, \varnothing)$
+        \EndFor
+        \ForAll{$task \: \in \: tasks$}
+            \State Assign the task to a vehicle's schedule in a round-robin fashion.
+        \EndFor
+    \EndFunction
 
-        delivery can be moved ahead up to the pickup action and forward
-        up to the end of the list as long as the maximum capacity is not
-        already reached.
+    \Function{chooseNeighbors}{$plan$}
+        \State $neighbors \gets \varnothing$
+        \State $task \gets $ \Call{pickRandomTask}{$plan$}
+        \ForAll{$schedule \: \in \: plan$}
+            \ForAll{$(p, d) \: \in $ \Call{taskPosition}{$schedule$}}
+                \State $neighbor \gets $ \Call{clone}{$plan$}
+                \State \Call{removeTaskFromPlan}{$neighbor, task$}
+                \State \Call{addTaskToPlan}{$neighbor, task, (p, d)$}
+                \State $neighbors \gets neighbors \cup neighbor$
+            \EndFor
+        \EndFor
+        \State \Return $neighbors$
+    \EndFunction
 
-    \item \textbf{Vehicle doing the task} \\
-        To move a task to another vehicle, it has to pick both pickup and
-        delivery and try them on another vehicle.
+    \Function{localChoice}{$plan, neighbors$}
+        \State $best \gets plan$
+        \ForAll{$neighbor \: \in \: neighbors$}
+            \If{\Call{isValid}{$neighbor$} $\wedge$ \Call{cost}{$best$} $\ge$ \Call{cost}{$neighbor$}}
+                \State $best \gets neighbor$
+            \EndIf
+        \EndFor
+        \State \Return $best$
+    \EndFunction
+\end{algorithmic}
+%\end{algorithm}
 
-        For each vehicle, it'll try to find the position in the list that
-        minimize the overall cost.
 
-        % Try to find the optimal solution for both p and d is way too
-        % costly.
-\end{enumerate}
+\subsection*{Behaviour}
 
+Since there is no time constraints here, the algorithm tends to assign all the
+tasks to one agent. It can be very simply explained by the fact that as soon as
+one agent reaches another agent's starting point. It become as good as the later (assuming its maximal capacity is not reached yet).
+
+
+\subsection*{Optimality \& Fairness}
+
+% Food for thoughts
+Optimality means travelling a very few to deliver a maximum stuff.
+
+In order to be optimal, one agent has to carry more than one packet at the time, ideally it should be full all the time. Every wasted space is travelling done at pure lost. Just like a CPU pipeline, a vehicle has to load up at the beginning and load down at the end while maintaining its load during the trip. Having more vehicles mean more load up and down phases. These phases cannot be optimal.
+
+% TODO draw a graph of the capacity over time for a vehicle.
+% ----------------------------------------------------------
+%
+% Vehicle 1)
+%
+% ^ load
+% |                # #
+% |              # # #
+% |      #     # # # # #
+% |    # # # # # # # # # #       #
+% |  # # # # # # # # # # # #   # # #
+% 0 ------------------------------------> time
+
+\subsection*{Algorithm complexity}
+
+As explained before, the complexity is of $O(|T|^2)$ for each step and does not
+depend on the number of vehicles.
+
+\textbf{to be continued\ldots}
 
 \end{document}
-
