@@ -207,6 +207,23 @@ public class Planning {
     }
 
     /**
+     * Time serie of the planning.
+     *
+     * For each schedule, return a time (dist) -> load% array.
+     *
+     * @return schedule's time serie for stats and stuff.
+     */
+    public int[][][] toTimeSerie() {
+        int[][][] series = new int[schedules.length][][];
+        int i = 0;
+        for (Schedule s : schedules) {
+            series[i] = s.toTimeSerie();
+            i++;
+        }
+        return series;
+    }
+
+    /**
      * Generate the plan to feed back the behaviour.
      *
      * @return list of plan to from the schedules.

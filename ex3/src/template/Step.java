@@ -75,6 +75,26 @@ public class Step {
         }
     }
 
+    /**
+     * Give the new position / load.
+     *
+     * Warning: it works in time directly.
+     *
+     * @param time position -> load.
+     */
+    public void tick(int[] time, City position) {
+        time[0] += position.distanceTo(city);
+        switch (type) {
+            case PICKUP:
+                time[1] += task.weight;
+                break;
+            case DELIVERY:
+            default:
+                time[1] -= task.weight;
+                break;
+        }
+    }
+
     @Override
     public String toString() {
         return type.toString() + task.id;

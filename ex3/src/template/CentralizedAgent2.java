@@ -1,5 +1,10 @@
 package template;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import java.util.Arrays;
 import java.util.List;
 
 import logist.behavior.CentralizedBehavior;
@@ -37,15 +42,29 @@ public class CentralizedAgent2 implements CentralizedBehavior {
         Planning planning = new Planning(vehicles);
         planning.selectInitialSolution(tasks);
         int i = 1000;
+        double cost = planning.getCost();
         System.err.println(planning);
+        try {
+            serieToCsv(planning.toTimeSerie(), "plan0.csv");
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
         while (i-- > 0) {
             List<Planning> neighbors = planning.chooseNeighbors();
             Planning best = localChoice(planning, neighbors);
             // TODO: probability thingy
             planning = best;
-            System.err.println(i + "> " + planning.getCost());
+            if (cost > planning.getCost()) {
+                cost = planning.getCost();
+                System.err.println(i + "> " + cost);
+            }
         }
         System.err.println(planning);
+        try {
+            serieToCsv(planning.toTimeSerie(), "plan.csv");
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
         return planning.toList();
     }
 
@@ -70,5 +89,23 @@ public class CentralizedAgent2 implements CentralizedBehavior {
             }
         }
         return best;
+    }
+
+    /**
+     * Output timeseries to CSV
+     */
+    private void serieToCsv(int[][][] serie, String filename) throws IOException {
+        File f = new File(filename);
+        FileWriter fp = new FileWriter(f);
+
+        for (int s=0; s < serie.length; s++) {
+            int[][] time = serie[s];
+            for (int t=0; t < time.length; t++) {
+                fp.write(s + "," + time[t][0] + "," + time[t][1] + "\n");
+            }
+        }
+
+        fp.close();
+        System.err.println(filename + " has been written with timeserie.");
     }
 }

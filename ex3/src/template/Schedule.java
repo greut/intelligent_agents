@@ -247,6 +247,36 @@ public class Schedule {
         return plan;
     }
 
+    /**
+     * Return the time serie for it.
+     *
+     * distance -> load% (0-100)
+     *
+     * @return how the load was at each step.
+     */
+    public int[][] toTimeSerie() {
+        // position / load
+        int t = 0;
+        int[] tick = new int[]{0, 0};
+        int[][] out = new int[steps.size() * 2 + 1][];
+        City current = vehicle.getCurrentCity();
+
+        out[t] = tick.clone();
+        t++;
+        for (Step s : steps) {
+            int before = tick[0];
+            s.tick(tick, current);
+            out[t] = new int[]{before,
+                    (int) Math.round((tick[1] / (double) vehicle.capacity()) * 100)};
+            t++;
+            out[t] = new int[]{tick[0],
+                    (int) Math.round((tick[1] / (double) vehicle.capacity()) * 100)};
+            t++;
+            current = s.city;
+        }
+        return out;
+    }
+
     public boolean isEmpty() {
         return steps.isEmpty();
     }
