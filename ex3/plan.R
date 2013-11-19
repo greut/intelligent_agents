@@ -2,7 +2,7 @@
 
 require(ggplot2)
 
-d <- read.table("plan0.csv", sep=",")
+d <- read.table("plan.csv", sep=",")
 
 colnames(d) <- c("vehicle", "distance", "load")
 vehicles <- factor(d$vehicle)
@@ -12,7 +12,7 @@ p <- ggplot() + scale_y_continuous("load %", limits=c(0, 100))
 for (v in levels(vehicles)) {
     dv <- d[d$vehicle == v,]
     if (dim(dv)[1] > 1) {
-        p <- p + geom_line(data=dv, aes(distance, load), col=strtoi(v)+2)
+        p <- p + geom_line(data=dv, aes(distance, load), col=strtoi(v)+1)
     }
 }
 
