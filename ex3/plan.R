@@ -2,12 +2,12 @@
 
 require(ggplot2)
 
-d <- read.table("plan.csv", sep=",")
+d <- read.table("plan0.csv", sep=",")
 
 colnames(d) <- c("vehicle", "distance", "load")
 vehicles <- factor(d$vehicle)
 
-p <- ggplot()
+p <- ggplot() + scale_y_continuous("load %", limits=c(0, 100))
 
 for (v in levels(vehicles)) {
     dv <- d[d$vehicle == v,]

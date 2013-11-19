@@ -19,10 +19,10 @@
 %\setmainfont[Mapping=tex-text,Ligatures={Common,Rare,Discretionary}]{Linux Libertine O}
 \usepackage{pdflscape}
 \usepackage{alltt}
-%\usepackage{algorithm}
 \usepackage{algpseudocode}
-%\usepackage{wrapfig}
-%\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{graphicx}
+\usepackage{verbatim}
 
 \ifthenelse{\isundefined{\hypersetup}}{
     \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
@@ -119,8 +119,22 @@ the task is removed from the plan and the inserted at the acceptable positions
 there is $(2t - 1)t$ different positions. The overall cost is $O(|S| \cdot
 (\frac{|T|}{|S|})^2) \approx O(|T|^2)$ which was expected.
 
-%\begin{algorithm}
-%\caption{SLS algorithm}
+We've played with two strategies for the \textsc{initialSolution} part:
+
+\begin{enumerate}
+    \item \textbf{All tasks to the biggest agent}\\
+        This solution seems to converge quickly and give better solution
+        overall. The downside is that it has no incentives to split the tasks
+        among other vehicles. (See \emph{Fairness} below)
+
+    \item \textbf{Round-robin assignement of tasks}\\
+        This solution usually gives worse result than the previous all-to-one
+        idea but enlighten why better solutions require less agent. Hence, we
+        didn't keep it as the default way of populating the initial plan.
+
+\end{enumerate}
+
+\begin{comment} % Takes too much space
 \begin{algorithmic}
     \Function{SLS}{$vehicles, tasks$}
         \State $plan \gets $ \Call{initialSolution}{$vehicles, tasks$}
@@ -130,6 +144,7 @@ there is $(2t - 1)t$ different positions. The overall cost is $O(|S| \cdot
         \EndWhile
         \State \Return $plan$
     \EndFunction
+
 
     \Function{initialSolution}{$vehicles, tasks$}
         \State $plan \gets \varnothing$
@@ -165,35 +180,63 @@ there is $(2t - 1)t$ different positions. The overall cost is $O(|S| \cdot
         \State \Return $best$
     \EndFunction
 \end{algorithmic}
-%\end{algorithm}
-
+\end{comment}
 
 \subsection*{Behaviour}
 
 Since there is no time constraints here, the algorithm tends to assign all the
 tasks to one agent. It can be very simply explained by the fact that as soon as
-one agent reaches another agent's starting point. It become as good as the later (assuming its maximal capacity is not reached yet).
+one agent reaches another agent's starting point. It become as good as the
+later (assuming its maximal capacity is not reached yet).
 
 
 \subsection*{Optimality \& Fairness}
 
-% Food for thoughts
-Optimality means travelling a very few to deliver a maximum stuff.
+Optimality means travelling a very few to deliver a maximum stuff. A way to
+look at it is the display the load over time (or travelling distance). We see
+in Figures~\ref{fig:one1} and \ref{fig:rr1} that the final plans try to be on
+high load as much as possible.
 
-In order to be optimal, one agent has to carry more than one packet at the time, ideally it should be full all the time. Every wasted space is travelling done at pure lost. Just like a CPU pipeline, a vehicle has to load up at the beginning and load down at the end while maintaining its load during the trip. Having more vehicles mean more load up and down phases. These phases cannot be optimal.
+\begin{figure}[ht!]
+    \begin{center}
+    \subfigure[Initial state]{
+        \includegraphics[width=1\textwidth]{plan_2662_0.png}
+        \label{fig:one0}
+    }
+    \subfigure[Final state]{
+        \includegraphics[width=1\textwidth]{plan_2662_1.png}
+        \label{fig:one1}
+    }
+    \caption{All the tasks go to one agent}{Total distance travelled: $2662$}
+    \label{fig:one}
+    \end{center}
+\end{figure}
 
-% TODO draw a graph of the capacity over time for a vehicle.
-% ----------------------------------------------------------
-%
-% Vehicle 1)
-%
-% ^ load
-% |                # #
-% |              # # #
-% |      #     # # # # #
-% |    # # # # # # # # # #       #
-% |  # # # # # # # # # # # #   # # #
-% 0 ------------------------------------> time
+
+\begin{figure}[ht!]
+    \begin{center}
+    \subfigure[Initial state]{
+        \includegraphics[width=1\textwidth]{plan_2861_0.png}
+        \label{fig:rr0}
+    }
+    \subfigure[Final state]{
+        \includegraphics[width=1\textwidth]{plan_2861_1.png}
+        \label{fig:rr1}
+    }
+    \caption{Round-robin distribution of the tasks}{Total distance travelled: $2861$}
+    \label{fig:rr}
+    \end{center}
+\end{figure}
+
+Regarding the fairness, if the algorithm tends to reduce the number of vehicles.
+Even with the round robin initial setup (see Figure~\ref{fig:rr}), the output solution
+kept only two vehicles and none of them managed to get fully loaded.
+
+One explanation is that for every vehicle there is a \emph{loading up} phase
+where it's collecting tasks to be delivered (maximizing the reward per km) at
+the beginning and an \emph{unloading} one at the end. Only the core of the
+vehicle's plan (where its load is high, let's say $>50\%$) tends to an optimal
+solution while both the beginning and the end cannot be.
 
 \subsection*{Algorithm complexity}
 
