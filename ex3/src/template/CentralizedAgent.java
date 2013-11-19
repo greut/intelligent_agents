@@ -17,11 +17,11 @@ import logist.topology.Topology;
 
 
 /**
- * A Centralized Agent that uses list, coz lists are the shit ;-)
+ * A Centralized Agent that uses linked list everywhere.
  *
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
  */
-public class CentralizedAgent2 implements CentralizedBehavior {
+public class CentralizedAgent implements CentralizedBehavior {
 
     // Not used
     //private Topology topology;
