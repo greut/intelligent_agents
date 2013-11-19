@@ -264,10 +264,10 @@ public class Schedule {
         out[t] = tick.clone();
         t++;
         for (Step s : steps) {
-            int before = tick[0];
+            int before = tick[1];
             s.tick(tick, current);
-            out[t] = new int[]{before,
-                    (int) Math.round((tick[1] / (double) vehicle.capacity()) * 100)};
+            out[t] = new int[]{tick[0],
+                    (int) Math.round((before / (double) vehicle.capacity()) * 100)};
             t++;
             out[t] = new int[]{tick[0],
                     (int) Math.round((tick[1] / (double) vehicle.capacity()) * 100)};

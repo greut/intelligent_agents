@@ -41,6 +41,7 @@ public class CentralizedAgent2 implements CentralizedBehavior {
     public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
         Planning planning = new Planning(vehicles);
         planning.selectInitialSolution(tasks);
+        //planning.selectInitialSolutionRoundRobin(tasks);
         int i = 1000;
         double cost = planning.getCost();
         System.err.println(planning);

@@ -53,11 +53,37 @@ public class Planning {
     }
 
     /**
-     * Assign all the tasks in a round-robin fashion.
+     * Assign all the tasks to the bigger vehicle.
      *
      * @param tasks initial set of tasks
      */
     public void selectInitialSolution(TaskSet tasks) {
+        // Bigger is better
+        int capacity = 0;
+        Schedule best = schedules[0];
+        for (Schedule s : schedules) {
+            if (s.vehicle.capacity() > capacity) {
+                capacity = s.vehicle.capacity();
+                best = s;
+            }
+        }
+        Iterator<Task> iter = tasks.iterator();
+        while (iter.hasNext()) {
+            Task t = iter.next();
+            if (t.weight > capacity) {
+                throw new IllegalArgumentException("Task " + t + " cannot be carried");
+            }
+            best.add(t);
+        }
+        cost += best.getCost();
+    }
+
+    /**
+     * Assign all the tasks in a round-robin fashion.
+     *
+     * @param tasks initial set of tasks
+     */
+    public void selectInitialSolutionRoundRobin(TaskSet tasks) {
         Iterator<Task> iter = tasks.iterator();
         int rr = -1;
         while (iter.hasNext()) {

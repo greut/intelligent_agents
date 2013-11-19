@@ -5,14 +5,17 @@ require(ggplot2)
 d <- read.table("plan.csv", sep=",")
 
 colnames(d) <- c("vehicle", "distance", "load")
+vehicles <- factor(d$vehicle)
 
+p <- ggplot()
 
-p <- ggplot() +
-     geom_line(data=d[d$vehicle == 0,], aes(distance, load), colour="red") +
-     geom_line(data=d[d$vehicle == 1,], aes(distance, load), colour="blue") +
-     geom_line(data=d[d$vehicle == 2,], aes(distance, load), colour="green") +
-     geom_line(data=d[d$vehicle == 3,], aes(distance, load), colour="cyan")
+for (v in levels(vehicles)) {
+    dv <- d[d$vehicle == v,]
+    if (dim(dv)[1] > 1) {
+        p <- p + geom_line(data=dv, aes(distance, load), col=strtoi(v)+2)
+    }
+}
 
-png("plan.png", width=800, height=300, units="px")
+png("plan.png", width=800, height=200, units="px")
 print(p)
 dev.off()
