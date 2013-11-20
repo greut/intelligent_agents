@@ -42,7 +42,7 @@ public class Schedule {
     }
 
     public double getCost() {
-        return cost;
+        return cost * vehicle.costPerKm();
     }
 
     /**
@@ -57,19 +57,6 @@ public class Schedule {
         }
         return null;
     }
-
-    /**
-     * Compute the total cost.
-     */
-    /*public double computeCost() {
-        double cost = 0;
-        City c = vehicle.getCurrentCity();
-        for (Step s : steps) {
-            cost += c.distanceTo(s.city);
-            c = s.city;
-        }
-        return cost;
-    }//*/
 
     /**
      * Add the given task at the beginning of the schedule.
@@ -113,14 +100,6 @@ public class Schedule {
         // Altering the list
         ListIterator<Step> iter = steps.listIterator(position);
         iter.add(step);
-
-        /* DEBUG
-        if (Math.abs(cost - computeCost()) > 0.00001) {
-            System.err.println(toString());
-            System.err.println("Fail! " + position + " " + step);
-            System.err.println(a + " <-> " + b);
-            System.exit(1);
-        }//*/
     }
 
     /**
@@ -147,13 +126,6 @@ public class Schedule {
                 }
             }
         }
-
-        /* DEBUG
-        if (Math.abs(cost - computeCost()) > 0.00001) {
-            System.err.println(toString());
-            System.err.println("Fail!");
-            System.exit(1);
-        }//*/
 
         return p != null && d != null;
     }
@@ -187,13 +159,6 @@ public class Schedule {
             cost -= step.city.distanceTo(b);
             cost += a.distanceTo(b);
         }
-
-        /* DEBUG
-        if (Math.abs(cost - computeCost()) > 0.00001) {
-            System.err.println(toString());
-            System.err.println("Fail!");
-            System.exit(1);
-        }//*/
     }
 
     /**
@@ -219,8 +184,6 @@ public class Schedule {
         sb.append(")");
         sb.append(" $");
         sb.append(Math.round(cost));
-        //sb.append(" / ");
-        //sb.append(computeCost());
         for (Step s : steps) {
             sb.append(" -> ");
             sb.append(s);

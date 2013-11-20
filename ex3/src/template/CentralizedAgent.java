@@ -29,19 +29,9 @@ public class CentralizedAgent implements CentralizedBehavior {
     private String init;
     private String search;
 
-    // Not used
-    //private Topology topology;
-    //private TaskDistribution distribution;
-    //private Agent agent;
-
     @Override
     public void setup(Topology topology, TaskDistribution distribution,
             Agent agent) {
-        // Not used anyway
-        //this.topology = topology;
-        //this.distribution = distribution;
-        //this.agent = agent;
-
         iterations = agent.readProperty("iterations", Integer.class, 10000);
         init = agent.readProperty("init", String.class, "one").toLowerCase();
         search = agent.readProperty("local-search", String.class, "greedy").toLowerCase();
