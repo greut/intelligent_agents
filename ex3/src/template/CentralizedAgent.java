@@ -25,7 +25,9 @@ import logist.topology.Topology;
  */
 public class CentralizedAgent implements CentralizedBehavior {
 
-    private static int MAX_ROUND = 1000;
+    private int iterations;
+    private String init;
+    private String search;
 
     // Not used
     //private Topology topology;
@@ -39,43 +41,72 @@ public class CentralizedAgent implements CentralizedBehavior {
         //this.topology = topology;
         //this.distribution = distribution;
         //this.agent = agent;
+
+        iterations = agent.readProperty("iterations", Integer.class, 10000);
+        init = agent.readProperty("init", String.class, "one").toLowerCase();
+        search = agent.readProperty("local-search", String.class, "greedy").toLowerCase();
+
+        System.err.println("Iterations: " + iterations);
+        System.err.println("Initialization: " + init);
+        System.err.println("Local search: " + search);
     }
 
     @Override
     public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
         Planning planning = new Planning(vehicles);
-        Planning thebest = planning;
-        planning.selectInitialSolution(tasks);
-        //planning.selectInitialSolutionRoundRobin(tasks);
-        int i = MAX_ROUND;
-        double cost = planning.getCost();
+        Planning best = planning;
+
+        if ("one".equals(init)) {
+            // Assign all the tasks to the biggest vehicle
+            planning.selectInitialSolution(tasks);
+        } else {
+            // Assign all the tasks in a round-robin fashion
+            planning.selectInitialSolutionRoundRobin(tasks);
+        }
+
+        // Debug
         System.err.println(planning);
         try {
             serieToCsv(planning.toTimeSerie(), "plan0.csv");
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
+
+        int i = iterations;
         while (i-- > 0) {
             List<Planning> neighbors = planning.chooseNeighbors();
+            Planning next;
 
-            //Planning best = localChoiceGreedy(planning, neighbors);
-            //Planning best = localChoiceStochastic(planning, neighbors);
-            Planning best = localChoiceSimulatedAnnealing(planning, neighbors, i);
-
-            if (thebest.getCost() > best.getCost()) {
-                System.err.println(i + "> " + cost);
-                thebest = best;
+            if ("greedy".equals(search)) {
+                // Bist the best
+                next = localChoiceGreedy(planning, neighbors);
+            } else if ("stochastic".equals(search)) {
+                // Random pick among the better ones
+                next = localChoiceStochastic(planning, neighbors);
+            } else {
+                // Consider any valid solutions and cool it down
+                next = localChoiceSimulatedAnnealing(planning, neighbors, i);
             }
-            cost = best.getCost();
-            planning = best;
+
+            if (best.getCost() > next.getCost()) {
+                best = next;
+
+                // Debug
+                System.err.println(i + "> " + next.getCost());
+            }
+
+            planning = next;
         }
-        planning = thebest;
+        planning = best;
+
+        // Debug
         System.err.println(planning);
         try {
             serieToCsv(planning.toTimeSerie(), "plan.csv");
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
+
         return planning.toList();
     }
 
@@ -94,11 +125,12 @@ public class CentralizedAgent implements CentralizedBehavior {
         boolean valid;
         Planning best = old;
         for (Planning plan : plans) {
-            // Constraints check
-            valid = plan.isValid();
-            // Money check
+            if (!plan.isValid()) {
+                continue;
+            }
+
             c = plan.getCost();
-            if (valid && c < cost) {
+            if (c < cost) {
                 cost = c;
                 best = plan;
             }
@@ -118,19 +150,17 @@ public class CentralizedAgent implements CentralizedBehavior {
      * @return best new planning
      */
     private Planning localChoiceStochastic(Planning old, List<Planning> plans) {
-        double cost = old.getCost(), c = cost;
         ArrayList<Planning> bests = new ArrayList<Planning>();
         for (Planning plan : plans) {
-            // Constraints check
             if (!plan.isValid()) {
                 continue;
             }
-            // Money check
-            c = plan.getCost();
-            if (c < cost) {
+
+            if (plan.getCost() < old.getCost()) {
                 bests.add(plan);
             }
         }
+
         if (bests.size() > 0) {
             Random rand = new Random();
             return bests.get(rand.nextInt(bests.size()));
@@ -150,25 +180,26 @@ public class CentralizedAgent implements CentralizedBehavior {
      * @return best new planning
      */
     private Planning localChoiceSimulatedAnnealing(Planning old, List<Planning> plans, int temperature) {
-        double cost = old.getCost(), c = cost;
         ArrayList<Planning> valids = new ArrayList<Planning>();
         for (Planning plan : plans) {
-            // Constraints check
             if (!plan.isValid()) {
                 continue;
             }
             valids.add(plan);
         }
+
         if (valids.size() > 0) {
+            double cost = old.getCost();
             Random rand = new Random();
             Planning best;
-            int tries = 2 * valids.size();
+
+            int tries = valids.size();
             while (tries-- > 0) {
                 best = valids.get(rand.nextInt(valids.size()));
                 double badness = cost - best.getCost();
                 if (badness > 0) {
                     return best;
-                } else if (rand.nextDouble() < (Math.exp(badness / (MAX_ROUND / (double) temperature)))) {
+                } else if (rand.nextDouble() < (Math.exp(badness / (iterations / (double) temperature)))) {
                     return best;
                 }
             }

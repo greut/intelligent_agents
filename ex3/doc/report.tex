@@ -2,7 +2,7 @@
 %!TEX encoding = UTF-8 Unicode
 \documentclass[11pt,a4paper]{article}
 
-%\usepackage[left=70pt,top=50pt,bottom=70pt,right=40pt]{geometry}
+\usepackage[left=80pt,top=60pt,bottom=110pt,right=60pt]{geometry}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -72,13 +72,13 @@
 }\end{quote}
 
 \newpage
-\subsection*{Implementation}
+\section*{Implementation}
 
 The system is composed of $N_T$ tasks that has to be picked up from a city
 and delivered to another city. There is $N_V$ vehicles that are carrying a
 plan to handle a subset of the tasks.
 
-\subsubsection*{State representation}
+\subsection*{State representation}
 
 Every task $t_i$ is split into two actions: $p$ (pickup) and $d$ (delivery).
 
@@ -108,16 +108,11 @@ plans = \{&(v_1, (t_j^p, t_j^d, \: \dots)),            & \text{vehicle $1$ and t
           &(v_{N_V}, \varnothing)\}                    & \text{actions can be empty too}
 \end{align*}
 
-\subsubsection*{Algorithm}
 
-The algorithm is quite straightforward. Thus we would like to explain in more
-depth the \textsc{chooseNeighbors} function. Instead of doing two things:
-moving one task from one schedule to another one and reorder one schedule, it's
-computing all the possible positions across all schedules for a task. To do so,
-the task is removed from the plan and the inserted at the acceptable positions
-(without taking care of the vehicle's capacity). If a schedule has $t$ tasks,
-there is $(2t - 1)t$ different positions. The overall cost is $O(|S| \cdot
-(\frac{|T|}{|S|})^2) \approx O(|T|^2)$ which was expected.
+\subsection*{Algorithm}
+
+
+\subsubsection*{\textsc{initialSolution}}
 
 We've played with two strategies for the \textsc{initialSolution} part:
 
@@ -134,115 +129,129 @@ We've played with two strategies for the \textsc{initialSolution} part:
 
 \end{enumerate}
 
-\begin{comment} % Takes too much space
-\begin{algorithmic}
-    \Function{SLS}{$vehicles, tasks$}
-        \State $plan \gets $ \Call{initialSolution}{$vehicles, tasks$}
-        \While{$not finished$} % FIXME
-            \State $neighbors \gets $ \Call{chooseNeighbors}{$plan$}
-            \State $plan \gets $ \Call{localChoice}{$plan, neighbors$}
-        \EndWhile
-        \State \Return $plan$
-    \EndFunction
+
+\subsubsection*{\textsc{chooseNeighbors}}
+
+Instead of doing two things (like in the documentation given): moving one task
+from one schedule to another one and reorder one schedule. It's computing all
+the possible positions across all schedules for a task. To do so, the task is
+removed from the plan and the inserted at the acceptable positions (without
+taking care of the vehicle's capacity).
+
+If a schedule has $t$ tasks, there is $(2t - 1)t$ different positions. The
+overall cost is $O(|S| \cdot (\frac{|T|}{|S|})^2) \approx O(|T|^2)$ which was
+expected.
 
 
-    \Function{initialSolution}{$vehicles, tasks$}
-        \State $plan \gets \varnothing$
-        \ForAll{$vehicle \: \in \: vehicles$}
-            \State $plan = plan \cup (vehicle, \varnothing)$
-        \EndFor
-        \ForAll{$task \: \in \: tasks$}
-            \State Assign the task to a vehicle's schedule in a round-robin fashion.
-        \EndFor
-    \EndFunction
+\subsection*{\textsc{localChoice}}
 
-    \Function{chooseNeighbors}{$plan$}
-        \State $neighbors \gets \varnothing$
-        \State $task \gets $ \Call{pickRandomTask}{$plan$}
-        \ForAll{$schedule \: \in \: plan$}
-            \ForAll{$(p, d) \: \in $ \Call{taskPosition}{$schedule$}}
-                \State $neighbor \gets $ \Call{clone}{$plan$}
-                \State \Call{removeTaskFromPlan}{$neighbor, task$}
-                \State \Call{addTaskToPlan}{$neighbor, task, (p, d)$}
-                \State $neighbors \gets neighbors \cup neighbor$
-            \EndFor
-        \EndFor
-        \State \Return $neighbors$
-    \EndFunction
+For the last part and certainly not the least, three things were explored:
 
-    \Function{localChoice}{$plan, neighbors$}
-        \State $best \gets plan$
-        \ForAll{$neighbor \: \in \: neighbors$}
-            \If{\Call{isValid}{$neighbor$} $\wedge$ \Call{cost}{$best$} $\ge$ \Call{cost}{$neighbor$}}
-                \State $best \gets neighbor$
-            \EndIf
-        \EndFor
-        \State \Return $best$
-    \EndFunction
-\end{algorithmic}
-\end{comment}
+\begin{enumerate}
+    \item \textbf{Greedy local search}
+        The more straightforward algorithm which keeps the best solution. It'll
+        remain stuck in a local maxima in most cases. Good solutions may be
+        found with it but it requires many retries.
 
-\subsection*{Behaviour}
-
-Since there is no time constraints here, the algorithm tends to assign all the
-tasks to one agent. It can be very simply explained by the fact that as soon as
-one agent reaches another agent's starting point. It become as good as the
-later (assuming its maximal capacity is not reached yet).
+    \item \textbf{Stochastic local search}
+        The search keeps all the better ones and randomly picks one from them.
+        It won't converge as quickly as the greedy one and should be less
+        likely stuck into premature local maxima. The results are comparable
+        to the \textbf{greedy} one though.
 
 
-\subsection*{Optimality \& Fairness}
+    \item \textbf{Simulated annealing}
+        Because this one can escape from a local maxima it tends to find better
+        solutions most of the time. That's the one we'll use for the evaluation.
+
+        It seemed that the \textsc{initialSolution} picked had no impact on it
+        like it does for the two previous one.
+
+\end{enumerate}
+
+
+\section*{Behaviour}
+
+Since the only factor is the money spend travelling here, the algorithm tends
+to assign all the tasks to one agent. More details in the next section.
+
+
+\section*{Optimality \& Fairness}
+
+\subsection*{Optimality}
 
 Optimality means travelling a very few to deliver a maximum stuff. A way to
 look at it is the display the load over time (or travelling distance). We see
-in Figures~\ref{fig:one1} and \ref{fig:rr1} that the final plans try to be on
-high load as much as possible.
+in Figures~\ref{fig:30_1} and \ref{fig:60} that the final plans try to be on
+\textbf{high load} as often as possible.
 
 \begin{figure}[ht!]
     \begin{center}
     \subfigure[Initial state]{
-        \includegraphics[width=1\textwidth]{plan_2662_0.png}
-        \label{fig:one0}
+        \includegraphics[width=.8\textwidth]{plan_2356_0.png}
+        \label{fig:30_0}
     }
     \subfigure[Final state]{
-        \includegraphics[width=1\textwidth]{plan_2662_1.png}
-        \label{fig:one1}
+        \includegraphics[width=.8\textwidth]{plan_2356_1.png}
+        \label{fig:30_1}
     }
-    \caption{All the tasks go to one agent}{Total distance travelled: $2662$}
-    \label{fig:one}
+    \caption{
+        Round-robin distribution of $30$ tasks using \textbf{simulated annealing}
+    }{
+        Total distance travelled: $2356$ km
+    }
+    \label{fig:30}
     \end{center}
 \end{figure}
-
 
 \begin{figure}[ht!]
     \begin{center}
-    \subfigure[Initial state]{
-        \includegraphics[width=1\textwidth]{plan_2861_0.png}
-        \label{fig:rr0}
+    \includegraphics[width=.8\textwidth]{plan_3449_1.png}
+    \caption{
+        $60$ tasks to the biggest agent using \textbf{simulated annealing}
+    }{
+        Total distance travelled: $3449$ km
     }
-    \subfigure[Final state]{
-        \includegraphics[width=1\textwidth]{plan_2861_1.png}
-        \label{fig:rr1}
-    }
-    \caption{Round-robin distribution of the tasks}{Total distance travelled: $2861$}
-    \label{fig:rr}
+    \label{fig:60}
     \end{center}
 \end{figure}
 
-Regarding the fairness, if the algorithm tends to reduce the number of vehicles.
-Even with the round robin initial setup (see Figure~\ref{fig:rr}), the output solution
-kept only two vehicles and none of them managed to get fully loaded.
 
-One explanation is that for every vehicle there is a \emph{loading up} phase
-where it's collecting tasks to be delivered (maximizing the reward per km) at
-the beginning and an \emph{unloading} one at the end. Only the core of the
-vehicle's plan (where its load is high, let's say $>50\%$) tends to an optimal
-solution while both the beginning and the end cannot be.
+\subsection*{Fairness}
 
-\subsection*{Algorithm complexity}
+Regarding the fairness, it's not fair as the algorithm tends to reduce the
+number of vehicles. Even with the round robin initial setup (see
+Figure~\ref{fig:30_0}), the output solution
+kept only one vehicle and it's not load most of the time. For the $60$ task
+example though (Figure~\ref{fig:60}), the system managed to get directly to full
+load and to keep being loaded up to the end.
+
+One explanation to this is that for every vehicle there is:
+\begin{itemize}
+    \item a \emph{loading up} phase where it's collecting tasks to be delivered
+        (maximizing the reward per km) at the beginning
+
+    \item and an \emph{unloading} one at the end.
+
+\end{itemize}
+
+Only the core of the vehicle's plan (where its load is maximized) approaches an
+optimal solution while sometimes both the beginning and the end cannot be.
+
+
+\section*{Algorithm complexity}
 
 As explained before, the complexity is of $O(|T|^2)$ for each step and does not
-depend on the number of vehicles.
+depend on the number of vehicles. The \textbf{stochastic} and the \textbf{simulated annealing}
+are keeping more states in memory, are converging much more slower and thus
+creating more work but there is no changes in the general order.
 
-\textbf{to be continued\ldots}
+
+\section*{Conclusion}
+
+One again, having a way to visualize the results was of great help and lead us
+to better understand intermediate results and behaviours. The simulated
+annealing wasn't part of the homework but it seemed to be a natural fit here
+and proved to indeed be.
 
 \end{document}
