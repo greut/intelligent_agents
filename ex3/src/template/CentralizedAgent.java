@@ -44,6 +44,7 @@ public class CentralizedAgent implements CentralizedBehavior {
     @Override
     public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
         Planning planning = new Planning(vehicles);
+        Planning thebest = planning;
         planning.selectInitialSolution(tasks);
         //planning.selectInitialSolutionRoundRobin(tasks);
         int i = MAX_ROUND;
@@ -56,14 +57,19 @@ public class CentralizedAgent implements CentralizedBehavior {
         }
         while (i-- > 0) {
             List<Planning> neighbors = planning.chooseNeighbors();
+
             //Planning best = localChoiceGreedy(planning, neighbors);
-            Planning best = localChoiceStochastic(planning, neighbors);
-            if (cost > best.getCost()) {
+            //Planning best = localChoiceStochastic(planning, neighbors);
+            Planning best = localChoiceSimulatedAnnealing(planning, neighbors, i);
+
+            if (thebest.getCost() > best.getCost()) {
                 System.err.println(i + "> " + cost);
+                thebest = best;
             }
             cost = best.getCost();
             planning = best;
         }
+        planning = thebest;
         System.err.println(planning);
         try {
             serieToCsv(planning.toTimeSerie(), "plan.csv");
@@ -74,7 +80,7 @@ public class CentralizedAgent implements CentralizedBehavior {
     }
 
     /**
-     * Choose to replace the old plan with the best one from the plan.
+     * Choose to replace the old plan with one random good one from the plans.
      *
      * Greedy algorithm.
      *
@@ -101,7 +107,8 @@ public class CentralizedAgent implements CentralizedBehavior {
     }
 
     /**
-     * Choose to replace the old plan with the best one from the plan.
+     * Choose to replace the old plan with a good one (always) or a bad one
+     * sometimes (simulated annealing).
      *
      * Stochastic algorithm.
      *
@@ -112,7 +119,6 @@ public class CentralizedAgent implements CentralizedBehavior {
      */
     private Planning localChoiceStochastic(Planning old, List<Planning> plans) {
         double cost = old.getCost(), c = cost;
-        boolean valid;
         ArrayList<Planning> bests = new ArrayList<Planning>();
         for (Planning plan : plans) {
             // Constraints check
@@ -133,7 +139,42 @@ public class CentralizedAgent implements CentralizedBehavior {
         }
     }
 
-
+    /**
+     * Choose to replace the old plan with the best one from the plan.
+     *
+     * Simulated annealing.
+     *
+     * @param old   the old plan
+     * @param plans set of new plans
+     * @param round current round
+     * @return best new planning
+     */
+    private Planning localChoiceSimulatedAnnealing(Planning old, List<Planning> plans, int temperature) {
+        double cost = old.getCost(), c = cost;
+        ArrayList<Planning> valids = new ArrayList<Planning>();
+        for (Planning plan : plans) {
+            // Constraints check
+            if (!plan.isValid()) {
+                continue;
+            }
+            valids.add(plan);
+        }
+        if (valids.size() > 0) {
+            Random rand = new Random();
+            Planning best;
+            int tries = 2 * valids.size();
+            while (tries-- > 0) {
+                best = valids.get(rand.nextInt(valids.size()));
+                double badness = cost - best.getCost();
+                if (badness > 0) {
+                    return best;
+                } else if (rand.nextDouble() < (Math.exp(badness / (MAX_ROUND / (double) temperature)))) {
+                    return best;
+                }
+            }
+        }
+        return old;
+    }
 
     /**
      * Output timeseries to CSV
