@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -55,7 +56,8 @@ public class CentralizedAgent implements CentralizedBehavior {
         }
         while (i-- > 0) {
             List<Planning> neighbors = planning.chooseNeighbors();
-            Planning best = localChoiceSimulatedAnnealing(planning, neighbors, i);
+            //Planning best = localChoiceGreedy(planning, neighbors);
+            Planning best = localChoiceStochastic(planning, neighbors);
             if (cost > best.getCost()) {
                 System.err.println(i + "> " + cost);
             }
@@ -81,7 +83,7 @@ public class CentralizedAgent implements CentralizedBehavior {
      * @param round current round
      * @return best new planning
      */
-    private Planning localChoice(Planning old, List<Planning> plans, int round) {
+    private Planning localChoiceGreedy(Planning old, List<Planning> plans) {
         double cost = old.getCost(), c = cost;
         boolean valid;
         Planning best = old;
@@ -99,20 +101,19 @@ public class CentralizedAgent implements CentralizedBehavior {
     }
 
     /**
-     * Choose the new plan using a simulated annealing process.
+     * Choose to replace the old plan with the best one from the plan.
+     *
+     * Stochastic algorithm.
      *
      * @param old   the old plan
      * @param plans set of new plans
-     * @param temperature energy left
-     * @return the next planning to be used.
+     * @param round current round
+     * @return best new planning
      */
-    private Planning localChoiceSimulatedAnnealing(Planning old, List<Planning> plans, int temperature) {
+    private Planning localChoiceStochastic(Planning old, List<Planning> plans) {
         double cost = old.getCost(), c = cost;
-        Random rand = new Random(temperature); // pseudo random
-        // we accept that percentage of difference between neighbor and
-        // solution.
-        double tolerance = Math.pow(temperature / (double) MAX_ROUND, 4);
-        Planning best = old;
+        boolean valid;
+        ArrayList<Planning> bests = new ArrayList<Planning>();
         for (Planning plan : plans) {
             // Constraints check
             if (!plan.isValid()) {
@@ -120,27 +121,19 @@ public class CentralizedAgent implements CentralizedBehavior {
             }
             // Money check
             c = plan.getCost();
-            if (c < cost)  {
-                cost = c;
-                best = plan;
-            } else {
-                // Simulated annealing
-                // -------------------
-                // tolerance is the % of extra we agree to tolerate
-                // max is the maximum cost we are considering
-                // p is the where the value sits from cost to max.
-                double max = cost * (1 + tolerance);
-                if (c > max) {
-                    continue; // p = 0
-                }
-                double p = (max - c) / (max - cost);
-                if (p > rand.nextDouble()) {
-                    best = plan;
-                }
+            if (c < cost) {
+                bests.add(plan);
             }
         }
-        return best;
+        if (bests.size() > 0) {
+            Random rand = new Random();
+            return bests.get(rand.nextInt(bests.size()));
+        } else {
+            return old;
+        }
     }
+
+
 
     /**
      * Output timeseries to CSV
