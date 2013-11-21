@@ -76,7 +76,7 @@
 
 The system is composed of $N_T$ tasks that has to be picked up from a city
 and delivered to another city. There is $N_V$ vehicles that are carrying a
-plan to handle a subset of the tasks.
+schedule to handle a subset of the tasks.
 
 \subsection*{State representation}
 
@@ -85,33 +85,35 @@ Every task $t_i$ is split into two actions: $p$ (pickup) and $d$ (delivery).
 \begin{align*}
 actions = \{&t_1^p,                               & \text{task $1$ pickup} \\
             &t_1^d,                               & \text{task $1$ delivery} \\
-            &t_2^p, &_2^d,                        & \\
+            &t_2^p, \: t_2^d,                     & \text{task 2} \\
             &\dots,                               & \\
             &t_{N_T}^p, t_{N_T}^d\}               & \text{up to the end}
 \end{align*}
 
-The set of plans is formed of tuples, one per vehicle, and the corresponding
-list of action to do. This is as strong constraints that:
+The set of schedules (the plan) is formed of tuples, one per vehicle, and the
+corresponding list of actions to do.
+
+\begin{align*}
+plan = \{&\langle v_1, (t_j^p, t_j^d, \: \dots) \rangle,            & \text{vehicle $1$ and task $j$} \\
+         &\langle v_2, (t_k^p, t_l^p, \dots, t_k^d, t_l^d) \rangle, & \text{interleaved tasks} \\
+         &\dots,                                                        & \\
+         &\langle v_{N_V}, \varnothing \rangle\}                    & \text{actions can be empty too}
+\end{align*}
+
+There is strong constraints that:
 
 \begin{enumerate}
-    \item two actions from a same task must be in the same plan,
+    \item two actions belonging to a task must be in the same schedule,
 
     \item pickup and delivery must appear in that order,
 
-    \item each item appear once and only once among the plans.
-\end{enumerate}
+    \item every possible action appears once and only once in the plan,
 
-\begin{align*}
-plans = \{&(v_1, (t_j^p, t_j^d, \: \dots)),            & \text{vehicle $1$ and task $j$} \\
-          &(v_2, (t_k^p, t_l^p, \dots, t_k^d, t_l^d)), & \text{interleaved tasks} \\
-          &\dots,                                      & \\
-          &(v_{N_V}, \varnothing)\}                    & \text{actions can be empty too}
-\end{align*}
+    \item at no time the loaded tasks total weight exceeds the vehicle capacity.
+\end{enumerate}
 
 
 \subsection*{Algorithm}
-
-
 \subsubsection*{\textsc{initialSolution}}
 
 We've played with two strategies for the \textsc{initialSolution} part:
@@ -125,7 +127,7 @@ We've played with two strategies for the \textsc{initialSolution} part:
     \item \textbf{Round-robin assignement of tasks}\\
         This solution usually gives worse result than the previous all-to-one
         idea but enlighten why better solutions require less agent. Hence, we
-        didn't keep it as the default way of populating the initial plan.
+        didn't keep it as the default way of populating the initial schedules.
 
 \end{enumerate}
 
@@ -139,7 +141,7 @@ removed from the plan and the inserted at the acceptable positions (without
 taking care of the vehicle's capacity).
 
 If a schedule has $t$ tasks, there is $(2t - 1)t$ different positions. The
-overall cost is $O(|S| \cdot (\frac{|T|}{|S|})^2) \approx O(|T|^2)$ which was
+overall cost is $O(|N_V| \cdot (\frac{|N_T|}{|N_V|})^2) \approx O(|N_T|^2)$ which was
 expected.
 
 
@@ -182,7 +184,7 @@ to assign all the tasks to one agent. More details in the next section.
 
 Optimality means travelling a very few to deliver a maximum stuff. A way to
 look at it is the display the load over time (or travelling distance). We see
-in Figures~\ref{fig:30_1} and \ref{fig:60} that the final plans try to be on
+in Figures~\ref{fig:30_1} and \ref{fig:60} that the final plan try to be on
 \textbf{high load} as often as possible.
 
 \begin{figure}[ht!]
@@ -235,21 +237,22 @@ One explanation to this is that for every vehicle there is:
 
 \end{itemize}
 
-Only the core of the vehicle's plan (where its load is maximized) approaches an
-optimal solution while sometimes both the beginning and the end cannot be.
+Only the core of the vehicle's schedule where its load is maximized approaches
+an optimal solution. Adding more vehicles does not help being on maxmimal load
+ideally all the time.
 
 
 \section*{Algorithm complexity}
 
-As explained before, the complexity is of $O(|T|^2)$ for each step and does not
-depend on the number of vehicles. The \textbf{stochastic} and the \textbf{simulated annealing}
-are keeping more states in memory, are converging much more slower and thus
-creating more work but there is no changes in the general order.
+As explained before, the complexity is of $O(|N_T|^2)$ for each step and does not
+depend on the number of vehicles. The \textbf{stochastic} and the
+\textbf{simulated annealing} are converging much more slower and thus creating
+more work but there is no changes in the general order of complexity.
 
 
 \section*{Conclusion}
 
-One again, having a way to visualize the results was of great help and lead us
+Once again, having a way to visualize the results was of great help and lead us
 to better understand intermediate results and behaviours. The simulated
 annealing wasn't part of the homework but it seemed to be a natural fit here
 and proved to indeed be.
