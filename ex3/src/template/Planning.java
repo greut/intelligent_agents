@@ -62,9 +62,11 @@ public class Planning {
         int capacity = 0;
         Schedule best = schedules[0];
         for (Schedule s : schedules) {
-            if (s.vehicle.capacity() > capacity) {
+            if (s.vehicle.capacity() >= capacity) {
                 capacity = s.vehicle.capacity();
-                best = s;
+                if (s.vehicle.costPerKm() < best.vehicle.costPerKm()) {
+                    best = s;
+                }
             }
         }
         Iterator<Task> iter = tasks.iterator();
