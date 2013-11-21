@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!--
+    @author Yoan Blanc <yoan.blanc@epfl.ch>
+-->
+<project name="ex5" default="run" basedir=".">
+    <property name="src.dir" location="src"/>
+    <property name="bin.dir" location="bin"/>
+    <property name="doc.dir" location="doc"/>
+
+    <property name="lib.dir" location="../lib"/>
+
+    <property name="agent" value="random" />
+
+    <target name="clean">
+        <delete includeEmptyDirs="true" failonerror="false">
+            <fileset dir="${bin.dir}"/>
+        </delete>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${bin.dir}/class"/>
+        <javac srcdir="${src.dir}"
+               destdir="${bin.dir}/class"
+               includeantruntime="false"
+               debug="on">
+            <compilerarg value="-Xlint"/>
+            <classpath>
+                <pathelement path="${java.class.path}"/>
+                <pathelement path="${lib.dir}/logist.jar"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="run" depends="compile">
+        <java fork="true" classname="logist.LogistPlatform">
+            <arg value="config/auction.xml"/>
+            <arg value="auction-${agent}" />
+            <classpath>
+                <pathelement path="${java.class.path}"/>
+                <pathelement path="${lib.dir}/plot.jar"/>
+                <pathelement path="${lib.dir}/repast.jar"/>
+                <pathelement path="${lib.dir}/colt.jar"/>
+                <pathelement path="${lib.dir}/logist.jar"/>
+                <pathelement path="${lib.dir}/jdom.jar"/>
+            </classpath>
+        </java>
+    </target>
+
+    <target name="deliver" depends="compile">
+        <property name="zip.dir" value="${bin.dir}/blanc-signo-${ant.project.name}"/>
+        <mkdir dir="${zip.dir}"/>
+        <copy file="build.xml" todir="${zip.dir}"/>
+        <copy todir="${zip.dir}/doc">
+            <fileset dir="doc">
+                <exclude name="**/*.log"/>
+                <exclude name="**/*.aux"/>
+                <exclude name="**/*.out"/>
+            </fileset>
+        </copy>
+        <copy todir="${zip.dir}/src">
+            <fileset dir="src"/>
+        </copy>
+        <copy todir="${zip.dir}/config">
+            <fileset dir="config"/>
+        </copy>
+        <copy todir="${zip.dir}" file="history.xml"/>
+        <zip destfile="blanc-signo-${ant.project.name}.zip"
+             basedir="${bin.dir}"
+             excludes="class/**">
+        </zip>
+        <delete dir="${zip.dir}"/>
+        <echo message="blanc-signo-${ant.project.name}.zip generated. `unzip -l` to check its content."/>
+    </target>
+</project>
