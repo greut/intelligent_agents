@@ -30,6 +30,9 @@ public class AuctionTemplate implements AuctionBehavior {
     private Random random;
     private Vehicle vehicle;
     private City currentCity;
+    private double marginalCost;
+    private long bid;
+    private long reward;
 
     @Override
     public void setup(Topology topology, TaskDistribution distribution,
@@ -47,9 +50,17 @@ public class AuctionTemplate implements AuctionBehavior {
 
     @Override
     public void auctionResult(Task previous, int winner, Long[] bids) {
+        String status;
         if (winner == agent.id()) {
+            status = "win " + bid + " (" + (bid - marginalCost) + ")";
             currentCity = previous.deliveryCity;
+            reward += bid - marginalCost;
+        } else {
+            status = "lost " + bid;
+            bid = 0;
+            marginalCost = 0;
         }
+        System.err.println(agent.id() + " => " + status);
     }
 
     @Override
@@ -58,16 +69,15 @@ public class AuctionTemplate implements AuctionBehavior {
         if (vehicle.capacity() < task.weight)
             return null;
 
+        double ratio = 1.0 + (random.nextDouble() * 0.05 * task.id);
         long distanceTask = task.pickupCity.distanceUnitsTo(task.deliveryCity);
         long distanceSum = distanceTask
                 + currentCity.distanceUnitsTo(task.pickupCity);
-        double marginalCost = Measures.unitsToKM(distanceSum
-                * vehicle.costPerKm());
 
-        double ratio = 1.0 + (random.nextDouble() * 0.05 * task.id);
-        double bid = ratio * marginalCost;
+        marginalCost = Measures.unitsToKM(distanceSum * vehicle.costPerKm());
+        bid = Math.round(ratio * marginalCost);
 
-        return Math.round(bid);
+        return bid;
     }
 
     @Override
@@ -104,6 +114,8 @@ public class AuctionTemplate implements AuctionBehavior {
             // set current city
             current = task.deliveryCity;
         }
+
+        System.err.println(">>> " + agent.id() + " reward:" + reward + " size:" + tasks.size());
         return plan;
     }
 }

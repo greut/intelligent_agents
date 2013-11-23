@@ -9,4 +9,9 @@
         <set class-name="template.AuctionTemplate"/>
     </agent>
 
+    <agent name="auction-greedy">
+        <set class-path="bin/class"/>
+        <set class-name="g16.AuctionGreedy"/>
+    </agent>
+
 </agents>

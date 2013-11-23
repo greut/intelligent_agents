@@ -9,7 +9,9 @@
 
     <property name="lib.dir" location="../lib"/>
 
-    <property name="agent" value="random" />
+    <property name="agent0" value="random" />
+    <property name="agent1" value="${agent0}" />
+    <property name="agent2" value="${agent1}" />
 
     <target name="clean">
         <delete includeEmptyDirs="true" failonerror="false">
@@ -34,7 +36,9 @@
     <target name="run" depends="compile">
         <java fork="true" classname="logist.LogistPlatform">
             <arg value="config/auction.xml"/>
-            <arg value="auction-${agent}" />
+            <arg value="auction-${agent0}" />
+            <arg value="auction-${agent1}" />
+            <arg value="auction-${agent2}" />
             <classpath>
                 <pathelement path="${java.class.path}"/>
                 <pathelement path="${lib.dir}/plot.jar"/>
