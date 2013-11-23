@@ -18,13 +18,14 @@ import g16.plan.Planning;
 import g16.plan.Schedule;
 
 /**
- * Super greedy agent that will never take risk and bid its marginal cost or
- * 1 (to avoid working for free). Its goal is to pick all the tasks from its
- * peers and never let them do any work.
+ * Built upon `AuctionGreedy` but tries to:
+ *  1) block the other guys from getting tasks
+ *  2) earn as much money as it can.
  *
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
+ * @see g16.AuctionGreedy
  */
-public class AuctionGreedy implements AuctionBehavior {
+public class AuctionPicsou implements AuctionBehavior {
 
     private Topology topology;
     private TaskDistribution distribution;
@@ -51,6 +52,8 @@ public class AuctionGreedy implements AuctionBehavior {
      */
     private long reward;
 
+    private double minCostPerKm;
+
     @Override
     public void setup(Topology t, TaskDistribution td, Agent a) {
 
@@ -62,6 +65,11 @@ public class AuctionGreedy implements AuctionBehavior {
         candidate = null;
         bid = 0;
         reward = 0;
+
+        minCostPerKm = Integer.MAX_VALUE;
+        for (Vehicle v : agent.vehicles()) {
+            minCostPerKm = Math.min(minCostPerKm, v.costPerKm());
+        }
     }
 
     @Override
@@ -82,19 +90,27 @@ public class AuctionGreedy implements AuctionBehavior {
     @Override
     public Long askPrice(Task task) {
         candidate = Planning.addAndSimulate(current, task, 1000);
-        // Never work for free.
         marginalCost = candidate.getCost() - current.getCost();
-        bid = Math.max(1, Math.round(marginalCost + 1));
+
+        double minCost = task.pickupCity.distanceTo(task.deliveryCity) * minCostPerKm;
+
+        // Our best vs the others' best
+        bid = Math.round(Math.min(marginalCost, minCost - reward));
+        // To to win back what we've lost
+        bid = Math.max(bid, -reward);
+        // But never work for less than the others may, we are making an
+        // educated guess here. Nothing more.
+        bid = Math.max(bid, Math.round(minCost - 1));
+        // The tax
+        bid += 1;
         return bid;
     }
 
     @Override
     public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
-        // Will rebuild the planning using the one from the taskset.
         Planning solution = new Planning(current, vehicles, tasks);
-        //System.err.println(solution);
 
-        System.err.println("Greedy(" + agent.id() + ")> " + reward + "$ | #" + tasks.size());
+        System.err.println("Picsou(" + agent.id() + ")> " + reward + "$ | #" + tasks.size());
         return solution.toList();
     }
 }

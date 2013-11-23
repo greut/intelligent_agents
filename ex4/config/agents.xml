@@ -14,4 +14,9 @@
         <set class-name="g16.AuctionGreedy"/>
     </agent>
 
+    <agent name="auction-picsou">
+        <set class-path="bin/class"/>
+        <set class-name="g16.AuctionPicsou"/>
+    </agent>
+
 </agents>
