@@ -115,7 +115,7 @@ public class AuctionTemplate implements AuctionBehavior {
             current = task.deliveryCity;
         }
 
-        System.err.println(">>> " + agent.id() + " reward:" + reward + " size:" + tasks.size());
+        System.err.println("Naive(" + agent.id() + ")> " + reward + "$ | #" + tasks.size());
         return plan;
     }
 }

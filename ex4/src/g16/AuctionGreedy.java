@@ -81,30 +81,7 @@ public class AuctionGreedy implements AuctionBehavior {
 
     @Override
     public Long askPrice(Task task) {
-        candidate = (Planning) current.clone();
-        Planning best = candidate;
-
-        Schedule from = candidate.add(task);
-        List<Planning> neighbors = candidate.chooseNeighbors(from, task);
-        int i = 1000;
-        while (neighbors != null) {
-            Planning next = Planning.localChoiceSimulatedAnnealing(candidate, neighbors, 100 / (double) i);
-
-            if (best.getCost() > next.getCost()) {
-                best = next;
-            }
-
-            candidate = next;
-
-            // Ending criterion
-            if (i-- > 0) {
-                neighbors = candidate.chooseNeighbors();
-            } else {
-                neighbors = null;
-            }
-        }
-
-        candidate = best;
+        candidate = Planning.addAndSimulate(current, task, 1000);
         // Never work for free.
         marginalCost = candidate.getCost() - current.getCost();
         bid = Math.max(1, Math.round(marginalCost + 1));
@@ -117,7 +94,7 @@ public class AuctionGreedy implements AuctionBehavior {
         Planning solution = new Planning(current, vehicles, tasks);
         //System.err.println(solution);
 
-        System.err.println(">>> " + agent.id() + " reward:" + reward + " size:" + tasks.size());
+        System.err.println("Greedy(" + agent.id() + ")> " + reward + "$ | #" + tasks.size());
         return solution.toList();
     }
 }

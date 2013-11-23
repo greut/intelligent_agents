@@ -296,6 +296,39 @@ public class Planning {
     }
 
     /**
+     * Adds a task and run some simulations.
+     *
+     * @param current the planning to work from
+     * @param task added task
+     */
+    public static Planning addAndSimulate(Planning current, Task task, int rounds) {
+        Planning candidate = (Planning) current.clone();
+        Planning best = candidate;
+
+        Schedule from = candidate.add(task);
+        List<Planning> neighbors = candidate.chooseNeighbors(from, task);
+        int i = rounds;
+        while (neighbors != null) {
+            Planning next = Planning.localChoiceSimulatedAnnealing(candidate, neighbors, rounds / (double) i);
+
+            if (best.getCost() > next.getCost()) {
+                best = next;
+            }
+
+            candidate = next;
+
+            // Ending criterion
+            if (i-- > 0) {
+                neighbors = candidate.chooseNeighbors();
+            } else {
+                neighbors = null;
+            }
+        }
+
+        return best;
+    }
+
+    /**
      * Choose to replace the old plan with the best one from the plan.
      *
      * Simulated annealing.
@@ -305,7 +338,7 @@ public class Planning {
      * @param round current round
      * @return best new planning
      */
-    public static Planning localChoiceSimulatedAnnealing(Planning old, List<Planning> plans, double temp) {
+    private static Planning localChoiceSimulatedAnnealing(Planning old, List<Planning> plans, double temp) {
         ArrayList<Planning> valids = new ArrayList<Planning>();
         for (Planning plan : plans) {
             if (!plan.isValid()) {
