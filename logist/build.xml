@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    @author Yoan Blanc <yoan.blanc@epfl.ch
+-->
+<project name="logist" default="jar" basedir=".">
+    <property name="src.dir" location="src"/>
+    <property name="bin.dir" location="build"/>
+    <property name="lib.dir" location="../lib"/>
+
+    <target name="compile">
+        <mkdir dir="${bin.dir}/class"/>
+        <javac srcdir="${src.dir}" destdir="${bin.dir}/class" includeantruntime="false" debug="on">
+            <compilerarg value="-Xlint"/>
+            <classpath>
+                <pathelement path="${java.class.path}"/>
+                <pathelement path="${lib.dir}/jdom.jar"/>
+                <pathelement path="${lib.dir}/repast.jar"/>
+            </classpath>
+        </javac>
+    </target>
+</project>
