@@ -33,6 +33,14 @@
         </javac>
     </target>
 
+    <target name="jar" depends="compile">
+        <mkdir dir="${bin.dir}/jar"/>
+        <jar destfile="${bin.dir}/jar/blanc-signo-in.jar">
+            <fileset dir="${bin.dir}/class"/>
+            <fileset dir="${src.dir}"/>
+        </jar>
+    </target>
+
     <target name="run" depends="compile">
         <java fork="true" classname="logist.LogistPlatform">
             <arg value="config/auction.xml"/>
@@ -49,6 +57,49 @@
             </classpath>
         </java>
     </target>
+
+    <!-- This part is not working because the tournament code is so much hard
+         coded that it's hard to reuse without actually fixing it.
+    <target name="tournament" depends="jar">
+        <java fork="true" classname="logist.LogistPlatform">
+            <arg value="-new" />
+            <arg value="0" />
+            <arg value="${bin.dir}/jar" />
+            <classpath>
+                <pathelement path="${java.class.path}"/>
+                <pathelement path="${lib.dir}/plot.jar"/>
+                <pathelement path="${lib.dir}/repast.jar"/>
+                <pathelement path="${lib.dir}/colt.jar"/>
+                <pathelement path="${lib.dir}/logist.jar"/>
+                <pathelement path="${lib.dir}/jdom.jar"/>
+            </classpath>
+        </java>
+        <java fork="true" classname="logist.LogistPlatform">
+            <arg value="-run" />
+            <arg value="0" />
+            <arg value="config" />
+            <classpath>
+                <pathelement path="${java.class.path}"/>
+                <pathelement path="${lib.dir}/plot.jar"/>
+                <pathelement path="${lib.dir}/repast.jar"/>
+                <pathelement path="${lib.dir}/colt.jar"/>
+                <pathelement path="${lib.dir}/logist.jar"/>
+                <pathelement path="${lib.dir}/jdom.jar"/>
+            </classpath>
+        </java>
+        <java fork="true" classname="logist.LogistPlatform">
+            <arg value="-score" />
+            <arg value="0" />
+            <classpath>
+                <pathelement path="${java.class.path}"/>
+                <pathelement path="${lib.dir}/plot.jar"/>
+                <pathelement path="${lib.dir}/repast.jar"/>
+                <pathelement path="${lib.dir}/colt.jar"/>
+                <pathelement path="${lib.dir}/logist.jar"/>
+                <pathelement path="${lib.dir}/jdom.jar"/>
+            </classpath>
+        </java>
+    </target>-->
 
     <target name="deliver" depends="compile">
         <property name="zip.dir" value="${bin.dir}/blanc-signo-${ant.project.name}"/>
