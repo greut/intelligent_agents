@@ -1,5 +1,6 @@
 bin
 build
+tournament
 history.xml
 *.dot
 *.csv

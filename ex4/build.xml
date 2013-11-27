@@ -28,7 +28,7 @@
             <compilerarg value="-Xlint"/>
             <classpath>
                 <pathelement path="${java.class.path}"/>
-                <pathelement path="${lib.dir}/logist.jar"/>
+                <pathelement path="${lib.dir}/logist2.jar"/>
             </classpath>
         </javac>
     </target>
@@ -43,6 +43,9 @@
 
     <target name="run" depends="compile">
         <java fork="true" classname="logist.LogistPlatform">
+            <arg value="-o" />
+            <arg value="history.xml" />
+            <arg value="-a" />
             <arg value="config/auction.xml"/>
             <arg value="auction-${agent0}" />
             <arg value="auction-${agent1}" />
@@ -52,15 +55,37 @@
                 <pathelement path="${lib.dir}/plot.jar"/>
                 <pathelement path="${lib.dir}/repast.jar"/>
                 <pathelement path="${lib.dir}/colt.jar"/>
-                <pathelement path="${lib.dir}/logist.jar"/>
+                <pathelement path="${lib.dir}/logist2.jar"/>
                 <pathelement path="${lib.dir}/jdom.jar"/>
             </classpath>
         </java>
     </target>
 
+    <target name="silent" depends="compile">
+        <java fork="true" classname="logist.LogistPlatform">
+            <arg value="config/auction.xml"/>
+            <arg value="auction-${agent0}" />
+            <arg value="auction-${agent1}" />
+            <arg value="auction-${agent2}" />
+            <classpath>
+                <pathelement path="${java.class.path}"/>
+                <pathelement path="${lib.dir}/plot.jar"/>
+                <pathelement path="${lib.dir}/repast.jar"/>
+                <pathelement path="${lib.dir}/colt.jar"/>
+                <pathelement path="${lib.dir}/logist2.jar"/>
+                <pathelement path="${lib.dir}/jdom.jar"/>
+            </classpath>
+        </java>
+    </target>
+
+
     <!-- This part is not working because the tournament code is so much hard
          coded that it's hard to reuse without actually fixing it.
+    -->
     <target name="tournament" depends="jar">
+        <delete includeEmptyDirs="true" failonerror="false">
+            <fileset dir="tournament/0"/>
+        </delete>
         <java fork="true" classname="logist.LogistPlatform">
             <arg value="-new" />
             <arg value="0" />
@@ -70,20 +95,20 @@
                 <pathelement path="${lib.dir}/plot.jar"/>
                 <pathelement path="${lib.dir}/repast.jar"/>
                 <pathelement path="${lib.dir}/colt.jar"/>
-                <pathelement path="${lib.dir}/logist.jar"/>
+                <pathelement path="${lib.dir}/logist2.jar"/>
                 <pathelement path="${lib.dir}/jdom.jar"/>
             </classpath>
         </java>
         <java fork="true" classname="logist.LogistPlatform">
             <arg value="-run" />
             <arg value="0" />
-            <arg value="config" />
+            <arg value="config/auction.xml" />
             <classpath>
                 <pathelement path="${java.class.path}"/>
                 <pathelement path="${lib.dir}/plot.jar"/>
                 <pathelement path="${lib.dir}/repast.jar"/>
                 <pathelement path="${lib.dir}/colt.jar"/>
-                <pathelement path="${lib.dir}/logist.jar"/>
+                <pathelement path="${lib.dir}/logist2.jar"/>
                 <pathelement path="${lib.dir}/jdom.jar"/>
             </classpath>
         </java>
@@ -95,11 +120,11 @@
                 <pathelement path="${lib.dir}/plot.jar"/>
                 <pathelement path="${lib.dir}/repast.jar"/>
                 <pathelement path="${lib.dir}/colt.jar"/>
-                <pathelement path="${lib.dir}/logist.jar"/>
+                <pathelement path="${lib.dir}/logist2.jar"/>
                 <pathelement path="${lib.dir}/jdom.jar"/>
             </classpath>
         </java>
-    </target>-->
+    </target>
 
     <target name="deliver" depends="compile">
         <property name="zip.dir" value="${bin.dir}/blanc-signo-${ant.project.name}"/>
