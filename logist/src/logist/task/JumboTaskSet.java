@@ -8,7 +8,7 @@ import java.util.NoSuchElementException;
 /**
  * Private implementation class for TaskSet, for "jumbo" task batches (i.e.,
  * those with more than 64 elements).
- * 
+ *
  * @author Robin Steiger
  * @author (based on JumboEnumSet by) Joshua Bloch
  */
@@ -49,7 +49,7 @@ class JumboTaskSet extends TaskSet {
 	 * in which the enum constants are declared). The returned Iterator is a
 	 * "weakly consistent" iterator that will never throw
 	 * {@link ConcurrentModificationException}.
-	 * 
+	 *
 	 * @return an iterator over the elements contained in this set
 	 */
 	@Override
@@ -96,7 +96,7 @@ class JumboTaskSet extends TaskSet {
 			lastReturned = unseen & -unseen;
 			lastReturnedIndex = unseenIndex;
 			unseen -= lastReturned;
-			return (Task) universe[(lastReturnedIndex << 6)
+			return universe[(lastReturnedIndex << 6)
 					+ Long.numberOfTrailingZeros(lastReturned)];
 		}
 
@@ -112,7 +112,7 @@ class JumboTaskSet extends TaskSet {
 
 	/**
 	 * Returns the number of elements in this set.
-	 * 
+	 *
 	 * @return the number of elements in this set
 	 */
 	public int size() {
@@ -121,7 +121,7 @@ class JumboTaskSet extends TaskSet {
 
 	/**
 	 * Returns <tt>true</tt> if this set contains no elements.
-	 * 
+	 *
 	 * @return <tt>true</tt> if this set contains no elements
 	 */
 	public boolean isEmpty() {
@@ -130,7 +130,7 @@ class JumboTaskSet extends TaskSet {
 
 	/**
 	 * Returns <tt>true</tt> if this set contains the specified element.
-	 * 
+	 *
 	 * @param e
 	 *            element to be checked for containment in this collection
 	 * @return <tt>true</tt> if this set contains the specified element
@@ -151,11 +151,11 @@ class JumboTaskSet extends TaskSet {
 
 	/**
 	 * Adds the specified element to this set if it is not already present.
-	 * 
+	 *
 	 * @param e
 	 *            element to be added to this set
 	 * @return <tt>true</tt> if the set changed as a result of the call
-	 * 
+	 *
 	 * @throws NullPointerException
 	 *             if <tt>e</tt> is null
 	 */
@@ -176,7 +176,7 @@ class JumboTaskSet extends TaskSet {
 
 	/**
 	 * Removes the specified element from this set if it is present.
-	 * 
+	 *
 	 * @param e
 	 *            element to be removed from this set, if present
 	 * @return <tt>true</tt> if the set contained the specified element
@@ -205,7 +205,7 @@ class JumboTaskSet extends TaskSet {
 	/**
 	 * Returns <tt>true</tt> if this set contains all of the elements in the
 	 * specified collection.
-	 * 
+	 *
 	 * @param c
 	 *            collection to be checked for containment in this set
 	 * @return <tt>true</tt> if this set contains all of the elements in the
@@ -228,7 +228,7 @@ class JumboTaskSet extends TaskSet {
 
 	/**
 	 * Adds all of the elements in the specified collection to this set.
-	 * 
+	 *
 	 * @param c
 	 *            collection whose elements are to be added to this set
 	 * @return <tt>true</tt> if this set changed as a result of the call
@@ -250,7 +250,7 @@ class JumboTaskSet extends TaskSet {
 	/**
 	 * Removes from this set all of its elements that are contained in the
 	 * specified collection.
-	 * 
+	 *
 	 * @param c
 	 *            elements to be removed from this set
 	 * @return <tt>true</tt> if this set changed as a result of the call
@@ -273,7 +273,7 @@ class JumboTaskSet extends TaskSet {
 	/**
 	 * Retains only the elements in this set that are contained in the specified
 	 * collection.
-	 * 
+	 *
 	 * @param c
 	 *            elements to be retained in this set
 	 * @return <tt>true</tt> if this set changed as a result of the call
@@ -305,7 +305,7 @@ class JumboTaskSet extends TaskSet {
 	 * <tt>true</tt> if the given object is also a set, the two sets have 7 *
 	 * the same size, and every member of the given set is contained in this
 	 * set.
-	 * 
+	 *
 	 * @param e
 	 *            object to be compared for equality with this set
 	 * @return <tt>true</tt> if the specified object is equal to this set
@@ -321,7 +321,7 @@ class JumboTaskSet extends TaskSet {
 
 		return Arrays.equals(ts.elements, elements);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int hash = 0;
@@ -345,7 +345,7 @@ class JumboTaskSet extends TaskSet {
 	@Override
 	public TaskSet clone() {
 		JumboTaskSet result = (JumboTaskSet) super.clone();
-		result.elements = (long[]) result.elements.clone();
+		result.elements = result.elements.clone();
 		return result;
 	}
 }

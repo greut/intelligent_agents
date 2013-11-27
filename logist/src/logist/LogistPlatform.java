@@ -21,7 +21,7 @@ import logist.topology.Topology;
  * the class and the class-path of its behavior class.
  * <p>
  * An output file for the history can be specified by the <tt>-o</tt> option.
- * 
+ *
  * <pre>
  * Usage:
  *   create tournament
@@ -31,7 +31,7 @@ import logist.topology.Topology;
  *   simulate game
  *     java -jar logist.jar [-o 'history_file.xml] [-a 'agents_file.xml] 'template_file' agent1 [agent2] [...]
  * </pre>
- * 
+ *
  * @author Robin Steiger
  */
 public class LogistPlatform {
@@ -111,7 +111,7 @@ public class LogistPlatform {
 		try {
 //			System.out.println("Reading configuration " + args[ptr]);
 //			System.out.println("Local path : " + new File(".").getAbsolutePath());
-			
+
 			String[] names = Arrays.copyOfRange(args, ptr + 1, args.length);
 			Manager sim = Parsers.parseConfiguration(args[ptr], agentsFile,
 					names);
@@ -229,7 +229,7 @@ public class LogistPlatform {
 		System.out.print(RUN_LOGIST);
 		System.out.println(" -run 'tournament_name' "
 				+ "['template (directory or file)']");
-		
+
 		System.out.println("  collect tournament score");
 		System.out.print(RUN_LOGIST);
 		System.out.println(" -score 'tournament_name' "

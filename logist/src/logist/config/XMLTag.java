@@ -374,7 +374,7 @@ public class XMLTag {
 				}
 				return type.cast(new URLClassLoader(urls));
 			} else
-				throw new UnsupportedOperationException();
+				throw new UnsupportedOperationException(value + " " + attr + " " + type);
 
 		} catch (NumberFormatException nfEx) {
 			throw ParserException.badFormat(value, attr, type.getSimpleName());

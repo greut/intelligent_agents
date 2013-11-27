@@ -26,8 +26,8 @@ import logist.task.TaskSet;
  * <p>
  * The concrete behavior of an agent is defined by a {@link behavior}
  * class.
- * 
- * 
+ *
+ *
  * @author Robin Steiger
  */
 public abstract class AgentImpl implements VehicleController {
@@ -50,7 +50,7 @@ public abstract class AgentImpl implements VehicleController {
 		this.name = name;
 		this.agentInfo = new Info();
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Agent " + name;
@@ -196,7 +196,7 @@ public abstract class AgentImpl implements VehicleController {
 			long total = 0;
 			for (Vehicle vehicle : vehicles())
 				total += vehicle.getDistanceUnits() * vehicle.costPerKm();
-			return (long) Math.round(Measures.unitsToKM(total));
+			return Math.round(Measures.unitsToKM(total));
 		}
 
 		@Override

@@ -2,10 +2,16 @@
 <!--
     @author Yoan Blanc <yoan.blanc@epfl.ch
 -->
-<project name="logist" default="jar" basedir=".">
+<project name="logist2" default="jar" basedir=".">
     <property name="src.dir" location="src"/>
     <property name="bin.dir" location="build"/>
     <property name="lib.dir" location="../lib"/>
+
+    <target name="clean">
+        <delete includeEmptyDirs="true" failonerror="false">
+            <fileset dir="${bin.dir}"/>
+        </delete>
+    </target>
 
     <target name="compile">
         <mkdir dir="${bin.dir}/class"/>
@@ -17,5 +23,9 @@
                 <pathelement path="${lib.dir}/repast.jar"/>
             </classpath>
         </javac>
+    </target>
+
+    <target name="jar" depends="compile">
+        <jar destfile="${bin.dir}/${ant.project.name}.jar" basedir="${bin.dir}/class"/>
     </target>
 </project>

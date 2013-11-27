@@ -38,21 +38,30 @@ class Tournament {
 		this.tournamentDir = tournamentDir;
 		this.agentsFile = new File(tournamentDir, "agents.xml");
 
-//		String cp = System.getProperty("java.class.path");
-//		cp = cp.replace(':', ';');
-//		cp = cp.replace(',', ';');
-//		String[] paths = cp.split(";");
-//		String classpath = null;
-//		for (String path : paths) {
-//			if (path.endsWith("logist.jar"))
-//				classpath = path;
-//		}
-//		this.classpath = classpath;
-//		if (classpath == null) {
-//			LOG.severe("Could not find path to LogistPlatform.\njava.class.path = " + System.getProperty("java.class.path"));
-//		}
-		classpath = "logist/logist.jar";
-		
+		String cp = System.getProperty("java.class.path");
+		cp = cp.replace(':', ';');
+		cp = cp.replace(',', ';');
+		String[] paths = cp.split(";");
+		StringBuffer classpath = new StringBuffer();
+		for (String path : paths) {
+			if (path.endsWith("logist2.jar") ||
+                    path.endsWith("jdom.jar") ||
+                    path.endsWith("colt.jar") ||
+                    path.endsWith("plot.jar") ||
+                    path.endsWith("repast.jar")
+            ) {
+				classpath.append(path);
+				classpath.append(":");
+			}
+		}
+		classpath.append(".");
+		this.classpath = classpath.toString();
+		if (classpath == null) {
+			LOG.severe("Could not find path to LogistPlatform.\njava.class.path = " + System.getProperty("java.class.path"));
+		}
+		System.err.println(this.classpath);
+		//classpath = "logist/logist.jar";
+
 		this.agentNames = Parsers.parseAgents(agentsFile);
 		this.permutations = new Permutation(agentNames.size(), 2).permutations;
 
@@ -71,6 +80,8 @@ class Tournament {
 			System.err.println("Cannot play a tournament with only one agent.");
 			System.err.println("To play against yourself, duplicate the entry in\n"+ agentsFile+ " and rename the agent.");
 			return;
+		} else {
+			System.err.println(templateFile);
 		}
 
 		// file is missing
@@ -137,6 +148,7 @@ class Tournament {
 //					command.append('"');
 				}
 
+				System.err.println(command.toString());
 				run(command.toString(), historyFile);
 			}
 
@@ -244,21 +256,21 @@ class Tournament {
 	private static class MyFormatter extends Formatter {
 
 		DateFormat fmt = new SimpleDateFormat("hh:mm:ss.SSS");
-		
+
 		@Override
 		public String format(LogRecord record) {
-			
+
 			StringBuilder builder = new StringBuilder();
-			
+
 			builder.append(fmt.format(new Date(record.getMillis())));
 			builder.append(" ");
 			builder.append(record.getLevel());
 			builder.append(" | ");
 			builder.append(record.getMessage());
 			builder.append("\n");
-			
+
 			return builder.toString();
 		}
-		
+
 	}
 }
