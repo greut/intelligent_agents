@@ -9,11 +9,11 @@ import java.util.List;
  */
 public class Company {
 
-	public final String name;
-	public final List<VehicleImpl> vehicles;
-	
-	public Company(String name, List<VehicleImpl> vehicles) {
-		this.name = name;
-		this.vehicles = vehicles;
-	}
+    public final String name;
+    public final List<VehicleImpl> vehicles;
+    
+    public Company(String name, List<VehicleImpl> vehicles) {
+        this.name = name;
+        this.vehicles = vehicles;
+    }
 }

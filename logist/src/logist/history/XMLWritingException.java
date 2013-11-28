@@ -10,14 +10,14 @@ import logist.LogistException;
  * @author Robin Steiger
  */
 public class XMLWritingException extends LogistException {
-	private static final long serialVersionUID = 6062694012148411235L;
+    private static final long serialVersionUID = 6062694012148411235L;
 
-	XMLWritingException(String message) {
-		super(message);
-	}
+    XMLWritingException(String message) {
+        super(message);
+    }
 
-	XMLWritingException(IOException cause) {
-		super("I/O problem", cause);
-	}
+    XMLWritingException(IOException cause) {
+        super("I/O problem", cause);
+    }
 
 }

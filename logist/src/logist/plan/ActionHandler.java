@@ -12,22 +12,22 @@ import logist.topology.Topology.City;
  */
 public interface ActionHandler<T> {
 
-	/**
-	 * A move pattern
-	 * @param city The target city
-	 */
-	public abstract T moveTo(City city);
-	
-	/**
-	 * A pickup pattern
-	 * @param task The task being picked up
-	 */
-	public abstract T pickup(Task task);
+    /**
+     * A move pattern
+     * @param city The target city
+     */
+    public abstract T moveTo(City city);
+    
+    /**
+     * A pickup pattern
+     * @param task The task being picked up
+     */
+    public abstract T pickup(Task task);
 
-	/**
-	 * A delivery pattern
-	 * @param task The task being delivered
-	 */
-	public abstract T deliver(Task task);
-	
+    /**
+     * A delivery pattern
+     * @param task The task being delivered
+     */
+    public abstract T deliver(Task task);
+    
 }

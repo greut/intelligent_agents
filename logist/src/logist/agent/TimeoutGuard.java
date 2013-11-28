@@ -13,46 +13,46 @@ import logist.LogistSettings.TimeoutKey;
 
 class TimeoutGuard {
 
-	private static ExecutorService executor = Executors.newCachedThreadPool();
+    private static ExecutorService executor = Executors.newCachedThreadPool();
 
-	private TimeoutGuard() {
-	}
-	
-	static void terminate() {
-		executor.shutdownNow();
-	}
+    private TimeoutGuard() {
+    }
+    
+    static void terminate() {
+        executor.shutdownNow();
+    }
 
-	static <T> T schedule(String agentName, TimeoutKey key, Callable<T> task) {
+    static <T> T schedule(String agentName, TimeoutKey key, Callable<T> task) {
 
-		try {
-			long timeout = LogistPlatform.getSettings().get(key);
-			return executor.submit(task).get(timeout, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException cause) {
-			throw new LogistException(
-					"agent " + agentName + " was interrupted", cause);
-		} catch (ExecutionException cause) {
-			throw new LogistException(
-					"agent " + agentName + " crashed", cause);
-		} catch (TimeoutException cause) {
-			throw new LogistException(
-					"agent " + agentName + " timed out", cause);
-		}
-	}
-	
-	static void schedule(String agentName, TimeoutKey key, Runnable task) {
+        try {
+            long timeout = LogistPlatform.getSettings().get(key);
+            return executor.submit(task).get(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException cause) {
+            throw new LogistException(
+                    "agent " + agentName + " was interrupted", cause);
+        } catch (ExecutionException cause) {
+            throw new LogistException(
+                    "agent " + agentName + " crashed", cause);
+        } catch (TimeoutException cause) {
+            throw new LogistException(
+                    "agent " + agentName + " timed out", cause);
+        }
+    }
+    
+    static void schedule(String agentName, TimeoutKey key, Runnable task) {
 
-		try {
-			long timeout = LogistPlatform.getSettings().get(key);
-			executor.submit(task).get(timeout, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException cause) {
-			throw new LogistException(
-					"agent " + agentName + " was interrupted", cause);
-		} catch (ExecutionException cause) {
-			throw new LogistException(
-					"agent " + agentName + " crashed", cause);
-		} catch (TimeoutException cause) {
-			throw new LogistException(
-					"agent " + agentName + " timed out", cause);
-		}
-	}
+        try {
+            long timeout = LogistPlatform.getSettings().get(key);
+            executor.submit(task).get(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException cause) {
+            throw new LogistException(
+                    "agent " + agentName + " was interrupted", cause);
+        } catch (ExecutionException cause) {
+            throw new LogistException(
+                    "agent " + agentName + " crashed", cause);
+        } catch (TimeoutException cause) {
+            throw new LogistException(
+                    "agent " + agentName + " timed out", cause);
+        }
+    }
 }

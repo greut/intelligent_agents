@@ -10,36 +10,36 @@ import logist.topology.Topology.City;
  */
 public interface TaskDistribution {
 
-	/**
-	 * Returns the probability that a task to <tt>to</tt> is available in city
-	 * <tt>from</tt>. If <tt>to</tt> is <tt>null</tt> then the probability that
-	 * there is no task available in city <tt>from</tt> is returned.
-	 * 
-	 * @param from
-	 *            the source of the task
-	 * @param to
-	 *            the destination of the task, or <tt>null</tt>
-	 */
-	double probability(City from, City to);
+    /**
+     * Returns the probability that a task to <tt>to</tt> is available in city
+     * <tt>from</tt>. If <tt>to</tt> is <tt>null</tt> then the probability that
+     * there is no task available in city <tt>from</tt> is returned.
+     * 
+     * @param from
+     *            the source of the task
+     * @param to
+     *            the destination of the task, or <tt>null</tt>
+     */
+    double probability(City from, City to);
 
-	/**
-	 * Returns the (expected) reward for a task between two cities.
-	 * 
-	 * @param from
-	 *            the source of the task
-	 * @param to
-	 *            the destination of the task
-	 */
-	int reward(City from, City to);
+    /**
+     * Returns the (expected) reward for a task between two cities.
+     * 
+     * @param from
+     *            the source of the task
+     * @param to
+     *            the destination of the task
+     */
+    int reward(City from, City to);
 
-	/**
-	 * Returns the (expected) weight for a task between two cities.
-	 * 
-	 * @param from
-	 *            the source of the task
-	 * @param to
-	 *            the destination of the task
-	 */
-	int weight(City from, City to);
+    /**
+     * Returns the (expected) weight for a task between two cities.
+     * 
+     * @param from
+     *            the source of the task
+     * @param to
+     *            the destination of the task
+     */
+    int weight(City from, City to);
 
 }

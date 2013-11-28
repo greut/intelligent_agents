@@ -19,86 +19,86 @@ import logist.topology.Topology;
  */
 public class Parsers {
 
-	/* configuration parser */
+    /* configuration parser */
 
-	public static Manager parseConfiguration(String configFile, String agentsFile, String[] names)
-			throws ParserException {
-		return parseConfiguration(XMLTag.loadXMLFromFile(configFile), agentsFile, names);
-	}
+    public static Manager parseConfiguration(String configFile, String agentsFile, String[] names)
+            throws ParserException {
+        return parseConfiguration(XMLTag.loadXMLFromFile(configFile), agentsFile, names);
+    }
 
-	static Manager parseConfiguration(XMLTag configTag, String agentsFile, String[] names)
-			throws ParserException {
-		return new ConfigParser().parse(configTag, agentsFile, names);
-	}
+    static Manager parseConfiguration(XMLTag configTag, String agentsFile, String[] names)
+            throws ParserException {
+        return new ConfigParser().parse(configTag, agentsFile, names);
+    }
 
-	/* topology parser */
+    /* topology parser */
 
-	public static Topology parseTopology(String topologyFile)
-			throws ParserException {
-		return parseTopology(XMLTag.loadXMLFromFile(topologyFile));
-	}
+    public static Topology parseTopology(String topologyFile)
+            throws ParserException {
+        return parseTopology(XMLTag.loadXMLFromFile(topologyFile));
+    }
 
-	static Topology parseTopology(XMLTag topologyTag)
-			throws ParserException {
-		return new TopologyParser().parseTopology(topologyTag);
-	}
+    static Topology parseTopology(XMLTag topologyTag)
+            throws ParserException {
+        return new TopologyParser().parseTopology(topologyTag);
+    }
 
-	/* agent parser */
+    /* agent parser */
 
-	public static List<AgentImpl> parseAgents(String configFile, String[] names)
-			throws ParserException {
-		return parseAgents(XMLTag.loadXMLFromFile(configFile), names);
-	}
+    public static List<AgentImpl> parseAgents(String configFile, String[] names)
+            throws ParserException {
+        return parseAgents(XMLTag.loadXMLFromFile(configFile), names);
+    }
 
-	static List<AgentImpl> parseAgents(XMLTag configTag, String[] names)
-			throws ParserException {
-		return new AgentParser().parseAgents(configTag, names);
-	}
+    static List<AgentImpl> parseAgents(XMLTag configTag, String[] names)
+            throws ParserException {
+        return new AgentParser().parseAgents(configTag, names);
+    }
 
-	/* agent names parser */
-	
-	public static List<String> parseAgents(File agentsFile)
-			throws ParserException {
-		return parseAgents(XMLTag.loadXMLFromFile(agentsFile));
-	}
+    /* agent names parser */
+    
+    public static List<String> parseAgents(File agentsFile)
+            throws ParserException {
+        return parseAgents(XMLTag.loadXMLFromFile(agentsFile));
+    }
 
-	static List<String> parseAgents(XMLTag configTag)
-			throws ParserException {
-		return new AgentParser().parseNames(configTag);
-	}
+    static List<String> parseAgents(XMLTag configTag)
+            throws ParserException {
+        return new AgentParser().parseNames(configTag);
+    }
 
-	/* settings parser */
+    /* settings parser */
 
-	public static LogistSettings parseSettings(String configFile)
-			throws ParserException {
-		return parseSettings(XMLTag.loadXMLFromFile(configFile));
-	}
+    public static LogistSettings parseSettings(String configFile)
+            throws ParserException {
+        return parseSettings(XMLTag.loadXMLFromFile(configFile));
+    }
 
-	static LogistSettings parseSettings(XMLTag configTag)
-			throws ParserException {
-		return new SettingsParser().parse(configTag);
-	}
+    static LogistSettings parseSettings(XMLTag configTag)
+            throws ParserException {
+        return new SettingsParser().parse(configTag);
+    }
 
-	/* history parser */
+    /* history parser */
 
-	public static List<AgentStatistics> parseHistory(File file)
-			throws ParserException {
-		return parseHistory(XMLTag.loadXMLFromFile(file));
-	}
+    public static List<AgentStatistics> parseHistory(File file)
+            throws ParserException {
+        return parseHistory(XMLTag.loadXMLFromFile(file));
+    }
 
-	static List<AgentStatistics> parseHistory(XMLTag historyTag)
-			throws ParserException {
-		return new HistoryParser().parse(historyTag);
-	}
+    static List<AgentStatistics> parseHistory(XMLTag historyTag)
+            throws ParserException {
+        return new HistoryParser().parse(historyTag);
+    }
 
-	/* helper */
+    /* helper */
 
-	static Map<String, String> parseMap(XMLTag settings) throws ParserException {
+    static Map<String, String> parseMap(XMLTag settings) throws ParserException {
 
-		Map<String, String> map = new HashMap<String, String>();
-		for (XMLTag set : settings.getAllChildren("set"))
-			set.getAttributes(map);
+        Map<String, String> map = new HashMap<String, String>();
+        for (XMLTag set : settings.getAllChildren("set"))
+            set.getAttributes(map);
 
-		return map;
-	}
+        return map;
+    }
 }

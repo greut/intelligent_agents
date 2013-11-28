@@ -6,10 +6,10 @@ package logist.topology;
  * @author Robin Steiger
  */
 public class TopologyException extends RuntimeException {
-	private static final long serialVersionUID = 85291480456085519L;
+    private static final long serialVersionUID = 85291480456085519L;
 
-	public TopologyException(String message) {
-		super(message);
-	}
-	
+    public TopologyException(String message) {
+        super(message);
+    }
+    
 }

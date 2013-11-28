@@ -9,11 +9,11 @@ import logist.task.Task;
  */
 public interface VehicleController {
 
-	Action nextAction(int vid);
+    Action nextAction(int vid);
 
-	void stuckAction(int vid, Action action);
-	
-	void notifyPickup(Task task);
-	void notifyDelivery(Task task);
+    void stuckAction(int vid, Action action);
+    
+    void notifyPickup(Task task);
+    void notifyDelivery(Task task);
 
 }

@@ -12,14 +12,14 @@ import logist.topology.Topology;
  */
 public interface Context {
 
-	Topology getTopology();
-	TaskDistribution getTaskDistribution();
-	LogistSettings getSettings();
+    Topology getTopology();
+    TaskDistribution getTaskDistribution();
+    LogistSettings getSettings();
 
-	void notifyPickup(Task task);
-	void notifyDelivery(Task task);
-	int[] countPickup();
-	int[] countDelivery();
+    void notifyPickup(Task task);
+    void notifyDelivery(Task task);
+    int[] countPickup();
+    int[] countDelivery();
 
-	void close();
+    void close();
 }
