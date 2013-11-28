@@ -36,7 +36,7 @@ public class XMLTag {
 
     static XMLTag loadXMLFromFile(File filename) throws ParserException {
         try {
-            System.out.println("Reading " + filename);
+            //System.out.println("Reading " + filename);
 
             // loads the stream from a file
             FileInputStream stream = new FileInputStream(filename);

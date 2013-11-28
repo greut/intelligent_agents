@@ -5,8 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Logger;
 
 import logist.LogistSettings.FileKey;
+import logist.agent.AgentStatistics;
 import logist.config.ParserException;
 import logist.config.Parsers;
 import logist.simulation.Manager;
@@ -38,6 +41,7 @@ public class LogistPlatform {
 
     private static LogistSettings settings;
     private static Topology topology;
+    private static Logger LOG = Logger.getLogger(LogistPlatform.class.getName());
 
     /**
      * @param args
@@ -122,11 +126,16 @@ public class LogistPlatform {
 
             if (historyFile != null)
                 settings.set(FileKey.HISTORY, new File(historyFile));
+            else
+                historyFile = settings.get(FileKey.HISTORY).getName();
 
             sim.run();
             // TimeoutGuard.terminate();
+            List<AgentStatistics> stats = Parsers.parseHistory(new File(historyFile));
+            for (AgentStatistics stat : stats) {
+                LOG.info(stat.name() + " + " + stat.getTotalTasks() + ": € " + stat.getTotalProfit());
+            }
             System.exit(0);
-
         } catch (ParserException pEx) {
             pEx.printStackTrace();
             System.exit(-2);

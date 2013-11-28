@@ -23,7 +23,7 @@ import logist.topology.Topology;
 /**
  * Does every part of the simulation except the simulation of actions. Assigns
  * agents to companies, generates tasks and does the auctioning.
- * 
+ *
  * @author Robin Steiger
  */
 public class Manager implements Context {
@@ -102,11 +102,11 @@ public class Manager implements Context {
         int numTasks = settings.get(SizeKey.NUMBER_OF_TASKS);
         Task[] taskArray = new Task[numTasks];
         TaskSet tasks = taskDistribution.createTaskSet(taskArray);
-        
+
         this.toBeDelivered = TaskSet.copyOf(tasks);
         this.toBePickedUp = TaskSet.copyOf(tasks);
-        
-        
+
+
         TaskSet sharedTasks = TaskSet.copyOf(tasks);
         for (AgentImpl agent : agents) {
             switch (agent.type()) {
@@ -116,7 +116,7 @@ public class Manager implements Context {
                 break;
             case DELIBERATIVE:
                 agent.beginRound(sharedTasks);
-                break;				
+                break;
             case CENTRALIZED:
                 agent.beginRound(TaskSet.copyOf(tasks));
                 break;

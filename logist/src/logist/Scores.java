@@ -28,7 +28,6 @@ class Scores {
 
     Scores(File tournamentDir) throws ParserException, IOException {
         this.tournamentDir = tournamentDir;
-
         this.boards = new HashMap<String, ScoreBoard<Long>>();
     }
 
@@ -37,8 +36,10 @@ class Scores {
         for (File file : tournamentDir.listFiles()) {
             String[] names = file.getName().split("" + Tournament.SEP);
 
-            if (names.length != 3)
+            if (names.length != 3) {
+                LOG.warning("Skipping " + file.getName());
                 continue;
+            }
 
             if (!names[2].endsWith(".xml")) {
                 LOG.warning("Skipping " + file.getName());
@@ -63,37 +64,21 @@ class Scores {
 
                 Result result;
                 String reason;
-                if (agent1.equals("Javier-Tugdual")) {
-                    result = Result.LOSE;
-                    reason = "crash";
-                } else if (agent2.equals("Javier-Tugdual")) {
-                    result = Result.WIN;
-                    reason = "crash";
-                } else if (agent1.equals("Laurent-Alexandre")) {
-                    result = Result.LOSE;
-                    reason = "timeout";
-                } else if (agent2.equals("Laurent-Alexandre")) {
-                    result = Result.WIN;
-                    reason = "timeout";
-                } else {
-                    // *
-                    while (true) {
-                        try {
-                            System.out.println("Game " + agent1 + " vs "
-                                    + agent2);
-                            System.out.print("  result: ");
-                            result = Result.valueOf(scanner.next());
-                            System.out.print("  result: ");
-                            reason = scanner.nextLine();
+                while (true) {
+                    try {
+                        System.out.println("Game " + agent1 + " vs "
+                                + agent2);
+                        System.out.print("  result: ");
+                        result = Result.valueOf(scanner.next());
+                        System.out.print("  result: ");
+                        reason = scanner.nextLine();
 
-                            if (!reason.isEmpty()) {
-                                break;
-                            }
-                        } catch (IllegalArgumentException iaEx) {
-                            System.out.println("<bad result>");
+                        if (!reason.isEmpty()) {
+                            break;
                         }
+                    } catch (IllegalArgumentException iaEx) {
+                        System.out.println("<bad result>");
                     }
-                    // */
                 }
                 board.addFailedGame(agent1, agent2, result, reason);
             }
@@ -125,7 +110,21 @@ class Scores {
         }
     }
 
-    void write(String filename) throws IOException {
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+
+        List<String> configs = new ArrayList<String>(boards.keySet());
+        Collections.sort(configs);
+
+        for (String config : configs) {
+            ScoreBoard<Long> board = boards.get(config);
+            sb.append(board.toLongString());
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
+    public void write(String filename) throws IOException {
         File outFile = new File(tournamentDir, filename);
         PrintStream out = new PrintStream(new BufferedOutputStream(
                 new FileOutputStream(outFile)));
