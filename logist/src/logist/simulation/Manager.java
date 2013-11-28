@@ -72,7 +72,7 @@ public class Manager implements Context {
             history.addStat(rank + 1, ranking.get(rank));
 
         history.close();
-        System.out.println("Wrote " + settings.get(FileKey.HISTORY));
+        //System.out.println("Wrote " + settings.get(FileKey.HISTORY));
     }
 
     private void setup() {
