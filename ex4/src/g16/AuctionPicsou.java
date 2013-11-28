@@ -2,6 +2,7 @@ package g16;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import logist.Measures;
 import logist.behavior.AuctionBehavior;
@@ -54,8 +55,11 @@ public class AuctionPicsou implements AuctionBehavior {
 
     private double minCostPerKm;
 
+    private Logger log;
+
     @Override
     public void setup(Topology t, TaskDistribution td, Agent a) {
+        log = Logger.getLogger(AuctionPicsou.class.getName());
 
         topology = t;
         distribution = td;
@@ -82,7 +86,7 @@ public class AuctionPicsou implements AuctionBehavior {
         } else {
             status = "lost";
         }
-        System.err.println(agent.id() + " => " + status + "\t" + bid + " (" + Math.round(bid - marginalCost) + ")");
+        log.info("[" + agent.id() + "] " + status + "\t" + bid + " (" + Math.round(bid - marginalCost) + ")");
         bid = 0;
         candidate = null;
     }
@@ -109,8 +113,7 @@ public class AuctionPicsou implements AuctionBehavior {
     @Override
     public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
         Planning solution = new Planning(current, vehicles, tasks);
-
-        System.err.println("Picsou(" + agent.id() + ")> " + reward + "$ | #" + tasks.size());
+        log.info("["+ agent.id() + "] €" + reward);
         return solution.toList();
     }
 }

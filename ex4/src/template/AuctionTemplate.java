@@ -4,6 +4,7 @@ package template;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import logist.Measures;
 import logist.behavior.AuctionBehavior;
@@ -32,11 +33,13 @@ public class AuctionTemplate implements AuctionBehavior {
     private City currentCity;
     private double marginalCost;
     private long bid;
-    private long reward;
+    private Logger log;
 
     @Override
     public void setup(Topology topology, TaskDistribution distribution,
             Agent agent) {
+
+        this.log = Logger.getLogger(AuctionTemplate.class.getName());
 
         this.topology = topology;
         this.distribution = distribution;
@@ -54,13 +57,12 @@ public class AuctionTemplate implements AuctionBehavior {
         if (winner == agent.id()) {
             status = "win " + bid + " (" + (bid - marginalCost) + ")";
             currentCity = previous.deliveryCity;
-            reward += bid - marginalCost;
         } else {
             status = "lost " + bid;
             bid = 0;
             marginalCost = 0;
         }
-        System.err.println(agent.id() + " => " + status);
+        log.info("[" + agent.id() + "] " + status);
     }
 
     @Override
@@ -82,8 +84,6 @@ public class AuctionTemplate implements AuctionBehavior {
 
     @Override
     public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
-//        System.out.println("Agent " + agent.id() + " has tasks " + tasks);
-
         Plan planVehicle1 = naivePlan(vehicle, tasks);
 
         List<Plan> plans = new ArrayList<Plan>();
@@ -115,7 +115,6 @@ public class AuctionTemplate implements AuctionBehavior {
             current = task.deliveryCity;
         }
 
-        System.err.println("Naive(" + agent.id() + ")> " + reward + "$ | #" + tasks.size());
         return plan;
     }
 }

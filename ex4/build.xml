@@ -11,7 +11,7 @@
 
     <property name="agent0" value="random" />
     <property name="agent1" value="${agent0}" />
-    <property name="agent2" value="${agent1}" />
+    <!--<property name="agent2" value="${agent1}" />-->
 
     <target name="clean">
         <delete includeEmptyDirs="true" failonerror="false">
@@ -43,13 +43,11 @@
 
     <target name="run" depends="compile">
         <java fork="true" classname="logist.LogistPlatform">
-            <arg value="-o" />
-            <arg value="history.xml" />
-            <arg value="-a" />
+            <jvmarg value="-Djava.util.logging.config.file=logging.properties" />
             <arg value="config/auction.xml"/>
             <arg value="auction-${agent0}" />
             <arg value="auction-${agent1}" />
-            <arg value="auction-${agent2}" />
+            <!--<arg value="auction-${agent2}" />-->
             <classpath>
                 <pathelement path="${java.class.path}"/>
                 <pathelement path="${lib.dir}/plot.jar"/>
@@ -60,24 +58,6 @@
             </classpath>
         </java>
     </target>
-
-    <target name="silent" depends="compile">
-        <java fork="true" classname="logist.LogistPlatform">
-            <arg value="config/auction.xml"/>
-            <arg value="auction-${agent0}" />
-            <arg value="auction-${agent1}" />
-            <arg value="auction-${agent2}" />
-            <classpath>
-                <pathelement path="${java.class.path}"/>
-                <pathelement path="${lib.dir}/plot.jar"/>
-                <pathelement path="${lib.dir}/repast.jar"/>
-                <pathelement path="${lib.dir}/colt.jar"/>
-                <pathelement path="${lib.dir}/logist2.jar"/>
-                <pathelement path="${lib.dir}/jdom.jar"/>
-            </classpath>
-        </java>
-    </target>
-
 
     <!-- This part is not working because the tournament code is so much hard
          coded that it's hard to reuse without actually fixing it.

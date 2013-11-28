@@ -2,6 +2,7 @@ package g16;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import logist.Measures;
 import logist.behavior.AuctionBehavior;
@@ -29,6 +30,7 @@ public class AuctionGreedy implements AuctionBehavior {
     private Topology topology;
     private TaskDistribution distribution;
     private Agent agent;
+    private Logger log;
 
     /**
      * Current best plan.
@@ -53,6 +55,7 @@ public class AuctionGreedy implements AuctionBehavior {
 
     @Override
     public void setup(Topology t, TaskDistribution td, Agent a) {
+        log = Logger.getLogger(AuctionGreedy.class.getName());
 
         topology = t;
         distribution = td;
@@ -74,7 +77,7 @@ public class AuctionGreedy implements AuctionBehavior {
         } else {
             status = "lost";
         }
-        System.err.println(agent.id() + " => " + status + "\t" + bid + " (" + Math.round(bid - marginalCost) + ")");
+        log.info("[" +agent.id() + "] " + status + "\t" + bid + " (" + Math.round(bid - marginalCost) + ")");
         bid = 0;
         candidate = null;
     }
@@ -90,11 +93,8 @@ public class AuctionGreedy implements AuctionBehavior {
 
     @Override
     public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
-        // Will rebuild the planning using the one from the taskset.
         Planning solution = new Planning(current, vehicles, tasks);
-        //System.err.println(solution);
-
-        System.err.println("Greedy(" + agent.id() + ")> " + reward + "$ | #" + tasks.size());
+        log.info("["+ agent.id() + "] €" + reward);
         return solution.toList();
     }
 }
