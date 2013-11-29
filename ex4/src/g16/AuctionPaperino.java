@@ -19,12 +19,12 @@ import g16.plan.Planning;
 import g16.plan.Schedule;
 
 /**
- * Built upon `AuctionPicsou` but tries to:
- *  1) block the other guys from getting tasks
- *  2) earn as much money as it can.
+ * Simple price prediction that aims at predicting the future price.
+ *
+ * rounds is the number of expected tasks... it a bit magic for now.
  *
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
- * @see g16.AuctionPicsou
+ * @see g16.AuctionGreedy
  */
 public class AuctionPaperino implements AuctionBehavior {
 
@@ -53,9 +53,16 @@ public class AuctionPaperino implements AuctionBehavior {
      */
     private long reward;
 
-    private double minCostPerKm;
+    private double costPerKm;
+    private double capacity;
 
     private Logger log;
+
+    // Magic number
+    private int rounds = 1<<3;
+    private City[] cities;
+    private double[][] segments;
+    private double[][] expectations;
 
     @Override
     public void setup(Topology t, TaskDistribution td, Agent a) {
@@ -70,10 +77,91 @@ public class AuctionPaperino implements AuctionBehavior {
         bid = 0;
         reward = 0;
 
-        minCostPerKm = Integer.MAX_VALUE;
+        Vehicle big = agent.vehicles().get(0);
         for (Vehicle v : agent.vehicles()) {
-            minCostPerKm = Math.min(minCostPerKm, v.costPerKm());
+            if (big.capacity() < v.capacity()) {
+                big = v;
+            }
         }
+        capacity = big.capacity();
+        costPerKm = big.costPerKm();
+
+        init();
+    }
+
+    private void init() {
+        cities = new City[topology.size()];
+        segments = new double[topology.size()][topology.size()];
+        expectations = new double[topology.size()][topology.size()];
+        double total = 0;
+
+        for (City from : topology.cities()) {
+            cities[from.id] = from;
+            for (City to : topology.cities()) {
+                if (from.equals(to)) {
+                    continue;
+                }
+                double p = distribution.probability(from, to);
+                City f = from;
+                for (City t : from.pathTo(to)) {
+                    segments[f.id][t.id] += p;
+                    f = t;
+                    total += p;
+                }
+            }
+        }
+
+        // Normalizing to 1 and computing expectation
+        int n = rounds;
+        for (int i=0; i < segments.length; i++) {
+            for (int j=0; j < segments[i].length; j++) {
+                segments[i][j] /= total;
+                // Expectation
+                double exp = 0;
+                double p = segments[i][j];
+                for (int k=1; p > 0 && k <= n; k++) {
+                    double x = fact(n) / (fact(k) * fact(n - k));
+                    x *= Math.pow(p, k) * Math.pow(1 - p, n - k);
+                    exp += k * p;
+                }
+                expectations[i][j] = exp;
+            }
+        }
+    }
+
+    /**
+     * Give a price prediction for the given task based on the expected
+     * occurence of the path.
+     *
+     * @param task task to estimate
+     * @return a fair price
+     */
+    private double getEstimateCost(Task task) {
+        double price = 0;
+        City from = task.pickupCity;
+        for(City to : from.pathTo(task.deliveryCity)) {
+            double distance = from.distanceTo(to);
+            double e = expectations[from.id][to.id];
+            double cost = Math.ceil((e * task.weight) / capacity) / e;
+            cost *= distance;
+            price += cost * costPerKm;
+            from = to;
+        }
+        return price;
+    }
+
+    /**
+     * x! = x(x-1)(x-2)(x-3)...1
+     *
+     * @param x
+     * @return x!
+     */
+    static private long fact(int x) {
+        long fact = 1;
+        for (long i = 1; i <= x; i++) {
+            fact *= i;
+        }
+        return fact;
     }
 
     @Override
@@ -96,17 +184,11 @@ public class AuctionPaperino implements AuctionBehavior {
         candidate = Planning.addAndSimulate(current, task, 1000);
         marginalCost = candidate.getCost() - current.getCost();
 
-        double minCost = task.pickupCity.distanceTo(task.deliveryCity) * minCostPerKm;
+        double cost = getEstimateCost(task);
+        // The tax for good measure
+        double tax = 1;
 
-        // Our best vs the others' best
-        bid = Math.round(Math.min(marginalCost, minCost - reward));
-        // To to win back what we've lost
-        bid = Math.max(bid, -reward);
-        // But never work for less than the others may, we are making an
-        // educated guess here. Nothing more.
-        bid = Math.max(bid, Math.round(minCost - 1));
-        // The tax
-        bid += 1;
+        bid = Math.round(cost + tax);
         return bid;
     }
 
