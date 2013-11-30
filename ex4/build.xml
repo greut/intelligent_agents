@@ -13,6 +13,8 @@
     <property name="agent1" value="${agent0}" />
     <!--<property name="agent2" value="${agent1}" />-->
 
+    <property name="tournament" value="0" />
+
     <path id="logist.path">
         <fileset dir="${lib.dir}">
             <include name="*.jar"/>
@@ -124,25 +126,16 @@
     </target>
 
     <target name="tournament" depends="jars">
-        <property name="t" value="0" />
-        <antcall target="-tournament-clean">
-            <param name="tournament" value="${t}" />
-        </antcall>
-        <antcall target="-tournament-new">
-            <param name="tournament" value="${t}" />
-        </antcall>
+        <antcall target="-tournament-clean" />
+        <antcall target="-tournament-new" />
         <antcall target="-tournament-run">
-            <param name="tournament" value="${t}" />
             <param name="template" value="config/auction.xml" />
         </antcall>
         <antcall target="-tournament-run">
-            <param name="tournament" value="${t}" />
             <param name="template" value="config/auction2.xml" />
         </antcall>
-        <antcall target="-tournament-score">
-            <param name="tournament" value="${t}" />
-        </antcall>
-        <loadfile property="result" srcfile="tournament/${t}/results.txt" />
+        <antcall target="-tournament-score" />
+        <loadfile property="result" srcfile="tournament/${tournament}/results.txt" />
         <echo message="${result}" />
     </target>
 
