@@ -106,7 +106,8 @@ class Scores {
             board.addGame(agent1, agent2, loserScore, winnerScore);
 
         } else {
-            throw new LogistException("Agents names don't match");
+            throw new LogistException("Agents names don't match: " +
+                    agent1 + ", " + agent2 + " vs " + winner + ", " + loser);
         }
     }
 
@@ -140,7 +141,7 @@ class Scores {
                 out.println();
 
             ScoreBoard<Long> board = boards.get(config);
-            out.println("### " + config + ".xml ###");
+            out.println("### " + config + ".xml ###\n");
             out.println(board.toLongString());
         }
 

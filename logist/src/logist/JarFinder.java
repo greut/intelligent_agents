@@ -67,7 +67,7 @@ class JarFinder {
     private interface ClassCallback {
         void handleClass(String className);
     }
-    
+
     private void findClassesInPath(final String classPath) {
         File cp = new File(classPath);
         URLClassLoader loader_ = null;
@@ -79,13 +79,13 @@ class JarFinder {
             System.out.println("Skipping classpath : " + classPath);
             return;
         }
-        
+
         final URLClassLoader loader = loader_;
         findClasses(cp, "", new ClassCallback() {
             @Override
             public void handleClass(String className) {
                 // TODO Auto-generated method stub
-                
+
                 try {
                     Class<?> clazz = loader.loadClass(className);
                     if (AuctionBehavior.class.isAssignableFrom(clazz)) {
@@ -114,20 +114,20 @@ class JarFinder {
                     System.err.println("- class not found: "
                             + cnfEx.getMessage());
                 }
-                
+
             }
         });
     }
-    
+
     private void findClasses(File file, String className, ClassCallback cb) {
 //		System.out.println("file="+file+", cname="+className);
-        
+
         if (file.isDirectory()) {
             if (!className.isEmpty()) className = className + ".";
             for (String name : file.list())
                 findClasses(new File(file, name), className + name, cb);
         } else if (className.endsWith(".class")) {
-            
+
             // Replace directories with package names
             //className = className.replaceAll("/", ".");
             // Remove the trailing .class
@@ -137,15 +137,15 @@ class JarFinder {
             // if (className.startsWith("bin"))
             // className = className.substring(4);
 
-            
-            
+
+
         }
-        
+
     }
-    
+
     /**
      * Finds all jar files which might contain behaviors
-     * 
+     *
      * @throws IOException
      * @throws FileNotFoundException
      * @throws ClassNotFoundException

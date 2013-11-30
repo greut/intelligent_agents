@@ -13,8 +13,8 @@ import static logist.ScoreBoard.Result.*;
  * <p>
  * The score board is a matrix of games sorted by the rank of the agents. NOTE:
  * Ranks are 1-based !!
- * 
- * 
+ *
+ *
  * @param <T>
  *            the type of the score values. typically a Double (old platform) or
  *            a Long (new platform).
@@ -148,7 +148,7 @@ class ScoreBoard<T extends Comparable<T>> {
             }
         }
     }
-    
+
     /** the number of agent on the board */
     public int size() {
         return nextID;
@@ -159,7 +159,7 @@ class ScoreBoard<T extends Comparable<T>> {
         sort();
         return rankToAgent.get(rank - 1).name;
     }
-    
+
     /** get the agent at a given rank */
     public String getAgentStats(int rank) {
         sort();
@@ -192,12 +192,11 @@ class ScoreBoard<T extends Comparable<T>> {
             int diff = score1.compareTo(score2);
             this.result = (diff > 0) ? WIN : (diff < 0) ? LOSE : DRAW;
         }
-        
+
         private Game(Result result) {
             this.result = result;
             this.score1 = this.score2 = null;
         }
-        
 
         /**
          * whether this game was a win for the first player (and hence a loss
@@ -219,16 +218,16 @@ class ScoreBoard<T extends Comparable<T>> {
         public boolean isDraw() {
             return result == DRAW;
         }
-        
+
         @Override
         public String toString() {
             return result + " (" + score1 + " : " + score2 + ")";
         }
     }
-    
+
     private static class FailedGame<T extends Comparable<T>> extends Game<T> {
         final String reason;
-        
+
         private FailedGame(Result result, String reason) {
             super(result);
             this.reason = reason;
@@ -279,7 +278,7 @@ class ScoreBoard<T extends Comparable<T>> {
             return diff;
         }
     }
-    
+
     private int numGames() {
         int count = 0;
         for (List<Game<T>> row : games)
@@ -288,59 +287,59 @@ class ScoreBoard<T extends Comparable<T>> {
                     count++;
         return count;
     }
-    
+
     public String toString() {
         return "[ScoreBoard, " + idToAgent.size() + " agents, " + numGames() + "games]";
     }
-    
+
     public String toLongString() {
         int N = size();
         String[][] table = new String[N+1][N+2];
 
         table[0][0] = "Agents";
         table[0][1] = "Win - Draw - Lose";
-        
+
         int maxWidth = table[0][1].length();
         for (int rank = 1; rank <= N; rank++) {
-            
+
             table[0][1+rank] = table[rank][0] = getAgent(rank);
             table[rank][1] = getAgentStats(rank);
-            
+
             if (maxWidth < table[rank][0].length())
                 maxWidth = table[rank][0].length();
             if (maxWidth < table[rank][1].length())
                 maxWidth = table[rank][1].length();
-            
+
             for (int opponentRank = 1; opponentRank <= N; opponentRank++) {
 
                 Game<T> game = getGame(rank, opponentRank);
                 String cell = (game == null) ? "-" : game.toString();
                 table[rank][1+opponentRank] = cell;
-                
+
                 if (maxWidth < cell.length())
                     maxWidth = cell.length();
             }
-            
+
         }
-        
+
         StringBuilder builder = new StringBuilder();
         for (int r = 0; r <= N; r++) {
             for (int c = 0; c <= N+1; c++) {
 
                 if (c > 0)
                     builder.append(" | ");
-                
+
                 int half2 = maxWidth - table[r][c].length();
                 int half1 = half2 / 2;
                 half2 -= half1;
-                
+
                 while (half1-- > 0)
                     builder.append(' ');
                 builder.append(table[r][c]);
                 while (half2-- > 0)
                     builder.append(' ');
             }
-            
+
             builder.append('\n');
         }
         builder.append("\nFirst company results");
@@ -350,11 +349,11 @@ class ScoreBoard<T extends Comparable<T>> {
         builder.append(firstPlayerStats(DRAW));
         builder.append("\n  # losses : ");
         builder.append(firstPlayerStats(LOSE));
-        builder.append('\n');		
-        
+        builder.append('\n');
+
         return builder.toString();
     }
-    
+
     private int firstPlayerStats(Result result) {
         int count = 0;
         for (List<Game<T>> row : games)
