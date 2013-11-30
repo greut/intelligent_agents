@@ -37,12 +37,12 @@ class Scores {
             String[] names = file.getName().split("" + Tournament.SEP);
 
             if (names.length != 3) {
-                LOG.warning("Skipping " + file.getName());
+                LOG.warning("Skipping (" + names.length + ") " + file.getName());
                 continue;
             }
 
             if (!names[2].endsWith(".xml")) {
-                LOG.warning("Skipping " + file.getName());
+                LOG.warning("Skipping (no .xml) " + file.getName());
                 continue;
             }
 
