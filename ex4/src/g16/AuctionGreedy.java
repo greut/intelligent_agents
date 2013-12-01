@@ -84,7 +84,7 @@ public class AuctionGreedy implements AuctionBehavior {
 
     @Override
     public Long askPrice(Task task) {
-        candidate = Planning.addAndSimulate(current, task, 1000);
+        candidate = Planning.addAndSimulate(current, task);
         // Never work for free.
         marginalCost = candidate.getCost() - current.getCost();
         bid = Math.max(1, Math.round(marginalCost + 1));

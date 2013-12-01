@@ -93,7 +93,7 @@ public class AuctionPicsou implements AuctionBehavior {
 
     @Override
     public Long askPrice(Task task) {
-        candidate = Planning.addAndSimulate(current, task, 1000);
+        candidate = Planning.addAndSimulate(current, task);
         marginalCost = candidate.getCost() - current.getCost();
 
         double minCost = task.pickupCity.distanceTo(task.deliveryCity) * minCostPerKm;

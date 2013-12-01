@@ -10,6 +10,8 @@ import logist.plan.Plan;
 import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.task.TaskSet;
+import logist.LogistSettings;
+import logist.LogistSettings.TimeoutKey;
 
 
 /**
@@ -301,14 +303,17 @@ public class Planning {
      * @param current the planning to work from
      * @param task added task
      */
-    public static Planning addAndSimulate(Planning current, Task task, int rounds) {
+    public static Planning addAndSimulate(Planning current, Task task) {
         Planning candidate = (Planning) current.clone();
         Planning best = candidate;
 
         Schedule from = candidate.add(task);
         List<Planning> neighbors = candidate.chooseNeighbors(from, task);
-        int i = rounds;
-        while (neighbors != null) {
+        long time = new LogistSettings().get(TimeoutKey.BID);
+        long end = System.currentTimeMillis() + (time / 30);
+        long i = end - System.currentTimeMillis();
+        long rounds = i;
+        while (i > 0) {
             Planning next = Planning.localChoiceSimulatedAnnealing(candidate, neighbors, rounds / (double) i);
 
             if (best.getCost() > next.getCost()) {
@@ -317,12 +322,8 @@ public class Planning {
 
             candidate = next;
 
-            // Ending criterion
-            if (i-- > 0) {
-                neighbors = candidate.chooseNeighbors();
-            } else {
-                neighbors = null;
-            }
+            neighbors = candidate.chooseNeighbors();
+            i = end - System.currentTimeMillis();
         }
 
         return best;

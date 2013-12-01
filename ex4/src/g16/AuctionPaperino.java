@@ -59,7 +59,7 @@ public class AuctionPaperino implements AuctionBehavior {
     private Logger log;
 
     // Magic number
-    private int rounds = 1<<3;
+    private int rounds = 8;
     private City[] cities;
     private double[][] segments;
     private double[][] expectations;
@@ -176,12 +176,13 @@ public class AuctionPaperino implements AuctionBehavior {
         }
         log.info("[" + agent.id() + "] " + status + "\t" + bid + " (" + Math.round(bid - marginalCost) + ")");
         bid = 0;
+        marginalCost = 0;
         candidate = null;
     }
 
     @Override
     public Long askPrice(Task task) {
-        candidate = Planning.addAndSimulate(current, task, 1000);
+        candidate = Planning.addAndSimulate(current, task);
         marginalCost = candidate.getCost() - current.getCost();
 
         double cost = getEstimateCost(task);
