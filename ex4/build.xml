@@ -3,6 +3,9 @@
     @author Yoan Blanc <yoan.blanc@epfl.ch>
 -->
 <project name="ex5" default="run" basedir=".">
+    <!-- required by `for` -->
+    <taskdef resource="net/sf/antcontrib/antlib.xml"/>
+
     <property name="src.dir" location="src"/>
     <property name="bin.dir" location="bin"/>
     <property name="doc.dir" location="doc"/>
@@ -13,7 +16,10 @@
     <property name="agent1" value="${agent0}" />
     <!--<property name="agent2" value="${agent1}" />-->
 
+    <property name="template" value="auction.xml" />
     <property name="tournament" value="0" />
+    <property name="agents" value="Greedy,Picsou,Paperino,Huey" />
+    <property name="templates" value="auction.xml,action2.xml" />
 
     <path id="logist.path">
         <fileset dir="${lib.dir}">
@@ -45,24 +51,16 @@
 
     <target name="jars" depends="clean, compile">
         <mkdir dir="${bin.dir}/jar"/>
-        <jar destfile="${bin.dir}/jar/Greedy.jar">
-            <fileset dir="${bin.dir}/class">
-                <include name="g16/plan/*"/>
-                <include name="g16/*Greedy*"/>
-            </fileset>
-        </jar>
-        <jar destfile="${bin.dir}/jar/Picsou.jar">
-            <fileset dir="${bin.dir}/class">
-                <include name="g16/plan/*"/>
-                <include name="g16/*Picsou*"/>
-            </fileset>
-        </jar>
-        <jar destfile="${bin.dir}/jar/Paperino.jar">
-            <fileset dir="${bin.dir}/class">
-                <include name="g16/plan/*"/>
-                <include name="g16/*Paperino*"/>
-            </fileset>
-        </jar>
+        <for list="${agents}" param="jar">
+            <sequential>
+                <jar destfile="${bin.dir}/jar/@{jar}.jar">
+                    <fileset dir="${bin.dir}/class">
+                        <include name="g16/plan/*"/>
+                        <include name="g16/*@{jar}*"/>
+                    </fileset>
+                </jar>
+            </sequential>
+        </for>
         <jar destfile="${bin.dir}/jar/Template.jar">
             <fileset dir="${bin.dir}/class">
                 <include name="template/*Template*"/>
@@ -73,7 +71,7 @@
     <target name="run" depends="compile">
         <java fork="true" classname="logist.LogistPlatform">
             <jvmarg value="-Djava.util.logging.config.file=logging.properties" />
-            <arg value="config/auction.xml"/>
+            <arg value="config/${template}"/>
             <arg value="auction-${agent0}" />
             <arg value="auction-${agent1}" />
             <!--<arg value="auction-${agent2}" />-->
@@ -128,12 +126,13 @@
     <target name="tournament" depends="jars">
         <antcall target="-tournament-clean" />
         <antcall target="-tournament-new" />
-        <antcall target="-tournament-run">
-            <param name="template" value="config/auction.xml" />
-        </antcall>
-        <antcall target="-tournament-run">
-            <param name="template" value="config/auction2.xml" />
-        </antcall>
+        <for list="${templates}" param="tpl">
+            <sequential>
+                <antcall target="-tournament-run">
+                    <param name="template" value="config/@{tpl}" />
+                </antcall>
+            </sequential>
+        </for>
         <antcall target="-tournament-score" />
         <loadfile property="result" srcfile="tournament/${tournament}/results.txt" />
         <echo message="${result}" />

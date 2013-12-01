@@ -20,4 +20,9 @@
         <set class-path="bin/class"/>
         <set class-name="g16.AuctionPaperino"/>
     </agent>
+
+    <agent name="auction-huey">
+        <set class-path="bin/class"/>
+        <set class-name="g16.AuctionHuey"/>
+    </agent>
 </agents>
