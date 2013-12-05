@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -196,7 +197,8 @@ class JarFinder {
 
                 try {
                     Class<?> clazz = loader.loadClass(className);
-                    if (AuctionBehavior.class.isAssignableFrom(clazz)) {
+                    int modifiers = clazz.getModifiers();
+                    if (AuctionBehavior.class.isAssignableFrom(clazz) && !Modifier.isAbstract(modifiers)) {
                         // interface with legacy API
                         // || Behavior.class.isAssignableFrom(clazz)) {
 
