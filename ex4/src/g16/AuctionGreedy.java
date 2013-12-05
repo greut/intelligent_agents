@@ -25,76 +25,12 @@ import g16.plan.Schedule;
  *
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
  */
-public class AuctionGreedy implements AuctionBehavior {
-
-    private Topology topology;
-    private TaskDistribution distribution;
-    private Agent agent;
-    private Logger log;
-
-    /**
-     * Current best plan.
-     */
-    private Planning current;
-    /**
-     * Candidate plan for the bid in progress.
-     */
-    private Planning candidate;
-    /**
-     * Current marginal cost.
-     */
-    double marginalCost;
-    /**
-     * Current bid made.
-     */
-    private long bid;
-    /**
-     * Current reward.
-     */
-    private long reward;
-
-    @Override
-    public void setup(Topology t, TaskDistribution td, Agent a) {
-        log = Logger.getLogger(AuctionGreedy.class.getName());
-
-        topology = t;
-        distribution = td;
-        agent = a;
-
-        current = new Planning(agent.vehicles());
-        candidate = null;
-        bid = 0;
-        reward = 0;
-    }
-
-    @Override
-    public void auctionResult(Task previous, int winner, Long[] bids) {
-        String status;
-        if (winner == agent.id()) {
-            reward += bid - marginalCost;
-            current = candidate;
-            status = "win";
-        } else {
-            status = "lost";
-        }
-        log.info("[" +agent.id() + "] " + status + "\t" + bid + " (" + Math.round(bid - marginalCost) + ")");
-        bid = 0;
-        candidate = null;
-    }
-
+public class AuctionGreedy extends AuctionBentina {
     @Override
     public Long askPrice(Task task) {
-        candidate = Planning.addAndSimulate(current, task);
+        super.askPrice(task);
         // Never work for free.
-        marginalCost = candidate.getCost() - current.getCost();
         bid = Math.max(1, Math.round(marginalCost + 1));
         return bid;
-    }
-
-    @Override
-    public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
-        Planning solution = new Planning(current, vehicles, tasks);
-        log.info("["+ agent.id() + "] €" + reward);
-        return solution.toList();
     }
 }

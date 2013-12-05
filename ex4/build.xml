@@ -61,6 +61,7 @@
                 <jar destfile="${bin.dir}/jar/@{jar}.jar">
                     <fileset dir="${bin.dir}/class">
                         <include name="g16/plan/*"/>
+                        <include name="g16/AuctionBentina*"/>
                         <include name="g16/*@{jar}*"/>
                     </fileset>
                 </jar>
