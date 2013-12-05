@@ -4,7 +4,12 @@
 -->
 <project name="ex5" default="run" basedir=".">
     <!-- required by `for` -->
-    <taskdef resource="net/sf/antcontrib/antlib.xml"/>
+    <taskdef resource="net/sf/antcontrib/antlib.xml">
+        <classpath>
+            <pathelement location="../lib/ant-contrib.jar"/>
+        </classpath>
+    </taskdef>
+
 
     <property name="src.dir" location="src"/>
     <property name="bin.dir" location="bin"/>
