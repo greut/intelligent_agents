@@ -1,0 +1,99 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[left=80pt,top=60pt,bottom=110pt,right=60pt]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{fixltx2e}
+\usepackage{cmap}
+\usepackage{enumerate}
+\usepackage{ifthen}
+\usepackage{listings}
+\usepackage{url}
+\usepackage[T1]{fontenc}
+%\usepackage{fontspec}
+%\usepackage{xunicode}
+%\usepackage{xltxtra}
+%\setmainfont[Mapping=tex-text,Ligatures={Common,Rare,Discretionary}]{Linux Libertine O}
+\usepackage{pdflscape}
+\usepackage{alltt}
+\usepackage{algpseudocode}
+\usepackage{subfigure}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+\ifthenelse{\isundefined{\hypersetup}}{
+    \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+    \urlstyle{same}
+}{}
+
+\hypersetup{
+    pdftitle={Intelligent Agents - EX4 - Yoan Blanc, Tiziano Signo}
+}
+\title{\phantomsection%
+    An Auctioning Agent for the Pickup and Delivery Problem
+}
+\author{
+    \textbf{Group 16}\\
+    Yoan Blanc \texttt{<yoan.blanc@epfl.ch>}, 213552\\
+    Tiziano Signo \texttt{<tiziano.signo@epfl.ch>}, 226511
+}
+\date{\today}
+
+
+\begin{document}
+\maketitle
+
+\noindent
+\begin{quote}{\it
+
+    You will define an auction strategy for your agent and compete against other agents.
+    When designing your strategy, please keep in mind the following facts:
+
+    \begin{itemize}
+        \item The minimum price you are willing to accept for delivering the
+            task $T_1$ is equal to the marginal cost of delivering $T_1$. In other
+            words, you have to:
+
+            \begin{enumerate}
+                \item find the cost of the plan for delivering the tasks you've
+                    already won,
+
+                \item estimate the cost of the plan for delivering the same
+                    tasks plus $T_1$,
+
+                \item and compute the marginal cost of delivering $T_1$ as the
+                    difference between the two.
+
+            \end{enumerate}
+        \item Any price paid by the auction house which is superior to the
+            marginal cost of a task will result in a profit for you to deliver
+            that task. Therefore, you should usually bid above your own
+            marginal cost. You may occasionally bid below your marginal cost if
+            you believe this will reduce the cost of future tasks, but be
+            careful not to end up with a deficit!
+
+        \item You do not know what other tasks will be auctioned by the auction
+            house. In fact, you do not even know \textbf{how many} more tasks will be
+            auctioned after the current one. When you compute your current bid,
+            you might want to speculate on the effect of taking the present
+            task on the future auctions.
+
+        \item You do know the probability distribution of tasks. The tasks that
+            will be auctioned will follow this distribution, so you might want
+            to use these probabilities in order to speculate about future tasks
+            that will be auctioned.
+
+        \item The winner and all bids are published immediately after each
+            auction. This gives you the possibility to refine your strategy
+            depending on your opponent(s).
+
+    \end{itemize}
+}\end{quote}
+
+\newpage
+
+\textbf{TODO}
+\end{document}
