@@ -24,7 +24,7 @@
     <property name="template" value="auction.xml" />
     <property name="tournament" value="0" />
     <property name="agents" value="Greedy,Picsou,Paperino,Huey,Louie" />
-    <property name="templates" value="auction.xml,auction2.xml" />
+    <property name="templates" value="auction.xml,auction2.xml,auction3.xml" />
 
     <path id="logist.path">
         <fileset dir="${lib.dir}">
