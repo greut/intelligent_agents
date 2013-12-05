@@ -25,10 +25,10 @@ import g16.plan.Schedule;
  */
 public abstract class AuctionBentina implements AuctionBehavior {
 
-    private Topology topology;
-    private TaskDistribution distribution;
-    private Agent agent;
-    private Logger log;
+    protected Topology topology;
+    protected TaskDistribution distribution;
+    protected Agent agent;
+    protected Logger log;
 
     /**
      * Current best plan.
@@ -75,7 +75,7 @@ public abstract class AuctionBentina implements AuctionBehavior {
         } else {
             status = "lost";
         }
-        
+
         log.info("[" +agent.id() + "] " + status + "\t" + bid + " (" + Math.round(bid - marginalCost) + ")");
     }
 
@@ -91,5 +91,19 @@ public abstract class AuctionBentina implements AuctionBehavior {
         Planning solution = new Planning(current, vehicles, tasks);
         log.info("["+ agent.id() + "] €" + reward);
         return solution.toList();
+    }
+
+    /**
+     * x! = x(x-1)(x-2)(x-3)...1
+     *
+     * @param x
+     * @return x!
+     */
+    static protected long fact(int x) {
+        long fact = 1;
+        for (long i = 1; i <= x; i++) {
+            fact *= i;
+        }
+        return fact;
     }
 }

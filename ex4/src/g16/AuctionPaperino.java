@@ -26,37 +26,10 @@ import g16.plan.Schedule;
  * @author Yoan Blanc <yoan.blanc@epfl.ch>
  * @see g16.AuctionGreedy
  */
-public class AuctionPaperino implements AuctionBehavior {
-
-    private Topology topology;
-    private TaskDistribution distribution;
-    private Agent agent;
-
-    /**
-     * Current best plan.
-     */
-    private Planning current;
-    /**
-     * Candidate plan for the bid in progress.
-     */
-    private Planning candidate;
-    /**
-     * Current marginal cost.
-     */
-    double marginalCost;
-    /**
-     * Current bid made.
-     */
-    private long bid;
-    /**
-     * Current reward.
-     */
-    private long reward;
+public class AuctionPaperino extends AuctionBentina {
 
     private double costPerKm;
     private double capacity;
-
-    private Logger log;
 
     // Magic number
     private int rounds = 8;
@@ -66,19 +39,10 @@ public class AuctionPaperino implements AuctionBehavior {
 
     @Override
     public void setup(Topology t, TaskDistribution td, Agent a) {
-        log = Logger.getLogger(AuctionPaperino.class.getName());
+        super.setup(t, td, a);
 
-        topology = t;
-        distribution = td;
-        agent = a;
-
-        current = new Planning(agent.vehicles());
-        candidate = null;
-        bid = 0;
-        reward = 0;
-
-        Vehicle big = agent.vehicles().get(0);
-        for (Vehicle v : agent.vehicles()) {
+        Vehicle big = a.vehicles().get(0);
+        for (Vehicle v : a.vehicles()) {
             if (big.capacity() < v.capacity()) {
                 big = v;
             }
@@ -150,40 +114,9 @@ public class AuctionPaperino implements AuctionBehavior {
         return price;
     }
 
-    /**
-     * x! = x(x-1)(x-2)(x-3)...1
-     *
-     * @param x
-     * @return x!
-     */
-    static private long fact(int x) {
-        long fact = 1;
-        for (long i = 1; i <= x; i++) {
-            fact *= i;
-        }
-        return fact;
-    }
-
-    @Override
-    public void auctionResult(Task previous, int winner, Long[] bids) {
-        String status;
-        if (winner == agent.id()) {
-            reward += bid - marginalCost;
-            current = candidate;
-            status = "win";
-        } else {
-            status = "lost";
-        }
-        log.info("[" + agent.id() + "] " + status + "\t" + bid + " (" + Math.round(bid - marginalCost) + ")");
-        bid = 0;
-        marginalCost = 0;
-        candidate = null;
-    }
-
     @Override
     public Long askPrice(Task task) {
-        candidate = Planning.addAndSimulate(current, task);
-        marginalCost = candidate.getCost() - current.getCost();
+        super.askPrice(task);
 
         double cost = getEstimateCost(task);
         // The tax for good measure
@@ -191,12 +124,5 @@ public class AuctionPaperino implements AuctionBehavior {
 
         bid = Math.round(cost + tax);
         return bid;
-    }
-
-    @Override
-    public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
-        Planning solution = new Planning(current, vehicles, tasks);
-        log.info("["+ agent.id() + "] €" + reward);
-        return solution.toList();
     }
 }
