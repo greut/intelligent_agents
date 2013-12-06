@@ -342,6 +342,7 @@ class ScoreBoard<T extends Comparable<T>> {
 
             builder.append('\n');
         }
+        /* This thingy is wrong.
         builder.append("\nFirst company results");
         builder.append("\n  # wins   : ");
         builder.append(firstPlayerStats(WIN));
@@ -350,10 +351,10 @@ class ScoreBoard<T extends Comparable<T>> {
         builder.append("\n  # losses : ");
         builder.append(firstPlayerStats(LOSE));
         builder.append('\n');
-
+        */
         return builder.toString();
     }
-
+    /* Wrong: http://moodle.epfl.ch/mod/forum/discuss.php?d=186400
     private int firstPlayerStats(Result result) {
         int count = 0;
         for (List<Game<T>> row : games)
@@ -361,5 +362,5 @@ class ScoreBoard<T extends Comparable<T>> {
                 if (game != null && game.result == result)
                     count++;
         return count;
-    }
+    }*/
 }
