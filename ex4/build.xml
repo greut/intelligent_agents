@@ -22,8 +22,15 @@
     <!--<property name="agent2" value="${agent1}" />-->
 
     <property name="template" value="auction.xml" />
-    <property name="tournament" value="0" />
-    <property name="agents" value="Greedy,Picsou,Paperino,Huey,Louie" />
+
+    <tstamp>
+        <format property="now" pattern="yyyyMMddHHmmss"/>
+    </tstamp>
+    <property name="tournament" value="${now}" />
+
+    <!--  All agents
+    <property name="agents" value="Greedy,Picsou,Paperino,Huey,Dewey,Louie" /> -->
+    <property name="agents" value="Picsou,Paperino,Dewey" />
     <property name="templates" value="auction.xml,auction2.xml,auction3.xml" />
 
     <path id="logist.path">
@@ -67,11 +74,12 @@
                 </jar>
             </sequential>
         </for>
+        <!-- This one is just dumb.
         <jar destfile="${bin.dir}/jar/Template.jar">
             <fileset dir="${bin.dir}/class">
                 <include name="template/*Template*"/>
             </fileset>
-        </jar>
+        </jar>-->
     </target>
 
     <target name="run" depends="compile">
