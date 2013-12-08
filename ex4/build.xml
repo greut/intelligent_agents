@@ -30,7 +30,7 @@
 
     <!--  All agents
     <property name="agents" value="Greedy,Picsou,Paperino,Huey,Dewey,Louie" /> -->
-    <property name="agents" value="Picsou,Paperino,Dewey" />
+    <property name="agents" value="Picsou,Paperino,Huey,Dewey,Louie" />
     <property name="templates" value="auction.xml,auction2.xml,auction3.xml" />
 
     <path id="logist.path">
