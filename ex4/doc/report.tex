@@ -2,7 +2,7 @@
 %!TEX encoding = UTF-8 Unicode
 \documentclass[11pt,a4paper]{article}
 
-\usepackage[left=80pt,top=60pt,bottom=110pt,right=60pt]{geometry}
+%\usepackage[left=80pt,top=60pt,bottom=110pt,right=60pt]{geometry}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -33,21 +33,21 @@
     pdftitle={Intelligent Agents - EX4 - Yoan Blanc, Tiziano Signo}
 }
 \title{\phantomsection%
-    An Auctioning Agent for the Pickup and Delivery Problem
+    \Large{An Auctioning Agent for the Pickup \& Delivery Problem}
 }
 \author{
-    \textbf{Group 16}\\
-    Yoan Blanc \texttt{<yoan.blanc@epfl.ch>}, 213552\\
-    Tiziano Signo \texttt{<tiziano.signo@epfl.ch>}, 226511
+\textbf{    \small{Group 16}}\\
+    \small{Yoan Blanc \texttt{<yoan.blanc@epfl.ch>}, 213552}\\
+    \small{Tiziano Signo \texttt{<tiziano.signo@epfl.ch>}, 226511}
 }
-\date{\today}
+\date{\small{\today}}
 
 
 \begin{document}
 \maketitle
 
 \noindent
-\begin{quote}{\it
+{\it
 
     You will define an auction strategy for your agent and compete against other agents.
     When designing your strategy, please keep in mind the following facts:
@@ -91,9 +91,116 @@
             depending on your opponent(s).
 
     \end{itemize}
-}\end{quote}
+}
 
 \newpage
 
-\textbf{TODO}
+\section*{Implementation}
+
+We observed that the tasks are in general good to get because of their high
+\emph{complementarity}. The general strategy was to grab as many tasks as
+possible by trying to predict the total cost of having to deliver more than
+$15$ tasks. I won't work for few tasks, sadly. Then, we explored a learning
+approach by observing the others' bid, which is surprisingly efficient with
+regards to its simplicity.
+
+The planning has been done using the centralized agent work with very few
+modifications to deal with a time constraint as well as optimizing on the
+newly added tasks directly. before continuing with the \emph{simulated
+annealing} hill climbing algorithm.
+
+
+\subsection*{Agent}
+
+Remark, all our agents are named after Duck Tales characters in English,
+French or Italian. Funny codenames to hide their strategies. And they all add
+a tax of $1$ to their bid, for fun (and profit). Because you should still be
+able to win by asking $1$ more than your calculation.
+
+\subsection*{Dumb agents}
+
+The not so dumb agents, there is no needs to explain the very dumb ones.
+
+\subsubsection*{Picsou}
+
+After doing a pure \emph{greedy} one bidding $1$ about its marginal cost, this
+one aims to gain a bit more money by doing the focusing on evicting the other
+to take any tasks. It will bid $-1$ below the cost from pickup to delivery
+using it's most lightweight vehicle.
+
+It'll win versus very basic agents, relying on the marginal cost only because
+it forces you to go below zero if you want to take any task from it.
+
+It relies on overlapping tasks to make profit.
+
+\subsubsection*{Paperino}
+
+This one has a pure price prediction strategy. It computes for each segment of
+the map the expected number of times it will appear for a reasonable amount
+of rounds ($7$ or $8$ showed to work well). Then it pre-computes based on the
+vehicles what cost of one usage based on the total amount it expects to obtain.
+
+It's a pretty agressive strategy that can do well on some setup. It also aims
+to grab everything and will fail if the other players takes only the good ones
+and leaves it the costly paths. Because it has no knowledge of the other player,
+it won't be able to react to its situation either good or bad.
+
+\subsubsection*{Huey}
+
+Based on \emph{Paperino}, it weights some segments differently. If a segment
+leads to a city with $[1,2]$ neighbors, then it sees it has more distant. It's
+the assumption that whenever you go there, you'll have to come back to continue
+your deliveries. So this task's price has to take into account the burden its
+causing to the vehicle.
+
+This one is quite good at predicting price but it does not consider the other
+player because its goal is to take the good tasks, and disregards the less good
+ones.
+
+\subsubsection*{Louie}
+
+This the first historical agent that bids by learning. It takes the bid of the
+other agents and computes an average cost per kilometer for each segment.
+
+It's a surprisingly efficient one against the previous agents which have a
+cost per segment strategy.
+
+\subsection*{Candidate}
+\subsubsection*{Dewey}
+
+This is a mix of \emph{Huey} and \emph{Dewey}, which is using two plannings
+to guess the other's marginal cost and overall rewards. It's taking the same
+vehicles as itself assuming that it doesn't matter much after a while.
+
+Currently, it takes the average of \emph{Huey} and \emph{Louie} as a price
+prediction to balance between our agressive solution and the other's behaviour.
+
+\textbf{TODO} complete this once we are done and happy with Dewey.
+
+\subsection*{Efficiency}
+
+It's very hard to have an always good agent when the tasks can be very
+complementary with each other. And learning from the environment is limited by
+the assumption that the other agent is doing good. Try to combine too many
+variables from the environment makes the bid computation a guestimation rather
+then something arguable.
+
+
+\section*{Results}
+
+\textbf{TODO} put here a nice table of one tournament of ours.
+
+
+\section*{Conclusion}
+
+We cannot be confident that any of our agents can bet all the other's one
+because they are no clear winners in our experiments either.
+
+I'd be interesting to be able to make agent evolving using genetic algorithm
+and running them against each with a parametric function using and combining
+inputs. E.g.,
+
+$$bid = a * marginalCost + b * otherMarginalCost + c * reward + d * otherReward$$
+
+
 \end{document}
