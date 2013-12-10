@@ -29,7 +29,6 @@ import g16.plan.Schedule;
  */
 public class AuctionDewey extends AuctionBentina {
 
-    private double costPerKm;
     private double minCostPerKm;
     private double capacity;
 
@@ -42,11 +41,16 @@ public class AuctionDewey extends AuctionBentina {
     // the prediction difference
     private double diff;
 
-    // Magic number
-    private int rounds = 9;
+    // The learning phase size
+    private int rounds = 8;
     private City[] cities;
     private double[][] segments;
     private double[][] expectations;
+
+    // Learning structures
+    private double costPerKm;
+    private int counters[][];
+    private double costs[][];
 
     // Current round
     private int round = 0;
@@ -73,13 +77,16 @@ public class AuctionDewey extends AuctionBentina {
         otherReward = 0;
         diff = 0;
 
+        cities = new City[topology.size()];
+        segments = new double[topology.size()][topology.size()];
+        expectations = new double[topology.size()][topology.size()];
+        counters = new int[topology.size()][topology.size()];
+        costs = new double[topology.size()][topology.size()];
+
         init();
     }
 
     private void init() {
-        cities = new City[topology.size()];
-        segments = new double[topology.size()][topology.size()];
-        expectations = new double[topology.size()][topology.size()];
         double total = 0;
 
         for (City from : topology.cities()) {
@@ -137,6 +144,41 @@ public class AuctionDewey extends AuctionBentina {
         return price;
     }
 
+    private void learn(Task task, long bid) {
+        double distance = task.pickupCity.distanceTo(task.deliveryCity);
+        double value = bid / distance;
+        City from = task.pickupCity;
+        for (City to : from.pathTo(task.deliveryCity)) {
+            double cost = costs[from.id][to.id];
+            int r = counters[from.id][to.id];
+            cost = (cost * r) + value;
+            cost /= (r + 1);
+            costs[from.id][to.id] = cost;
+            counters[from.id][to.id] += 1;
+
+            from = to;
+        }
+        costPerKm = (costPerKm * round) + value;
+        costPerKm /= round + 1;
+    }
+
+    private double getEstimateOtherCost(Task task) {
+        City from = task.pickupCity;
+        double price = 0;
+        for (City to : from.pathTo(task.deliveryCity)) {
+            double distance = from.distanceTo(to);
+            double cpk = counters[from.id][to.id] == 0 ?
+                    costPerKm :
+                    costs[from.id][to.id];
+            double p = cpk * distance;
+            price += p;
+            from = to;
+        }
+        return price;
+    }
+
+
+
     @Override
     public Long askPrice(Task task) {
         super.askPrice(task);
@@ -147,42 +189,42 @@ public class AuctionDewey extends AuctionBentina {
         otherCandidate = Planning.addAndSimulate(otherCurrent, task);
         otherMarginalCost = otherCandidate.getCost() - otherCurrent.getCost();
 
-        // The other starts winning money as long as he bids above:
-        //  otherMarginalCost - otherReward.
-        //
-        // We are starting winning money when we bid is above:
-        //  marginalCost - reward
-        //
-        // but our agressive "Paperino" strategy is to go with our estimated
-        // cost if possible. Especially at the beginning when the state of the
-        // game is relatively unknown.
-        //
-        //  min(cost, marginalCost - reward)
-        //
-        // Let the magic happen.
-
-
-        // The other's most agressive (yet sane) move.
-        otherMinCost = Math.min(otherMinCost, otherMarginalCost - otherReward);
-        // Our agressive move
         double cost = getEstimateCost(task);
+        double otherCost = getEstimateOtherCost(task);
 
-        // Let's do business
-        if (otherMinCost > cost) {
-            if (reward > 0) {
-                // We iare on the good side, let's take risks
-                cost += diff / 10;
-            } else {
-                // the tax
-                cost -= diff / 10;
+        // Those estimation are not usually bad.
+        /*
+        System.err.println(task);
+        System.err.println("Bid: " + Math.round(cost));
+        System.err.println("Marginal cost: " + Math.round(marginalCost));
+        System.err.println("Reward: " + reward);
+        System.err.println("Other bid: " + Math.round(otherCost));
+        System.err.println("Other marginal cost: " + Math.round(otherMarginalCost));
+        System.err.println("Other reward: " + otherReward);
+        System.err.println("");
+        */
+
+        // 3 cases:
+        //   we are winning by a fair margin, try to improve our profit
+        //   we are losing by a big bit, try to mimic our opponent
+        //   else, keep our current strategy
+        if (reward > (otherReward * 1.1)) {
+            double diff = Math.max(Math.max(otherCost, cost) - cost;
+            // The other guy is acting rationally
+            if (diff > 0) {
+                // Let's bid between our value and his.
+                cost += diff / 2.;
             }
-        } else {
-            // Go to the other's bid
-            // No idea!
+            // The tax
+            cost += 1;
+        } else if (reward < (otherReward * .9)) {
+            // Steal the others' strategy if we are loosing too much.
+            cost = otherCost - 1;
         }
+        // else: stay agressive
 
+        // The tax
         bid = Math.round(cost);
-        System.err.println(task + " " + bid + " " + otherMarginalCost);
         return bid;
     }
 
@@ -194,8 +236,10 @@ public class AuctionDewey extends AuctionBentina {
         // The other
         for (long b : bids) {
             if (b != bid) {
+                learn(previous, b);
+
                 d = b - otherMarginalCost;
-                if (winner == agent.id()) {
+                if (winner != agent.id()) {
                     otherReward += (b - otherMarginalCost);
                     otherCurrent = otherCandidate;
                     otherCandidate = null;

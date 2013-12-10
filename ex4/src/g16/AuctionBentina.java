@@ -76,7 +76,7 @@ public abstract class AuctionBentina implements AuctionBehavior {
             status = "lost";
         }
 
-        log.info("[" +agent.id() + "] " + status + "\t" + bid + " (" + Math.round(bid - marginalCost) + ")");
+        log.info("[" +agent.id() + "] " + status + "\t" + bid + " profit: " + Math.round(bid - marginalCost));
     }
 
     @Override
