@@ -310,7 +310,7 @@ public class Planning {
         Schedule from = candidate.add(task);
         List<Planning> neighbors = candidate.chooseNeighbors(from, task);
         long time = new LogistSettings().get(TimeoutKey.BID);
-        long end = System.currentTimeMillis() + (time / 60);
+        long end = System.currentTimeMillis() + (time / 3);
         long i = end - System.currentTimeMillis();
         long rounds = i;
         while (i > 0) {

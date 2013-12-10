@@ -29,26 +29,26 @@ import g16.plan.Schedule;
  */
 public class AuctionDewey extends AuctionBentina {
 
-    private double minCostPerKm;
-    private double capacity;
-
+    private double minCost;
     private Planning otherCandidate;
     private Planning otherCurrent;
     private int otherReward;
-    private double otherMinCost;
     private double otherMarginalCost;
 
     // the prediction difference
     private double diff;
 
     // The learning phase size
-    private int rounds = 8;
+    private int rounds = 9;
     private City[] cities;
     private double[][] segments;
+    private double[][] distances;
     private double[][] expectations;
 
     // Learning structures
+    private double capacity;
     private double costPerKm;
+    private double minCostPerKm;
     private int counters[][];
     private double costs[][];
 
@@ -79,6 +79,7 @@ public class AuctionDewey extends AuctionBentina {
 
         cities = new City[topology.size()];
         segments = new double[topology.size()][topology.size()];
+        distances = new double[topology.size()][topology.size()];
         expectations = new double[topology.size()][topology.size()];
         counters = new int[topology.size()][topology.size()];
         costs = new double[topology.size()][topology.size()];
@@ -95,6 +96,7 @@ public class AuctionDewey extends AuctionBentina {
                 if (from.equals(to)) {
                     continue;
                 }
+
                 double p = distribution.probability(from, to);
                 City f = from;
                 for (City t : from.pathTo(to)) {
@@ -102,6 +104,25 @@ public class AuctionDewey extends AuctionBentina {
                     f = t;
                     total += p;
                 }
+
+                // Deform the reality about the map, so the less accessible
+                // parts of the graph are reflected in our estimation. The
+                // rational behind this is that it's very likely that we will
+                // have to travel back from such locations.
+                //
+                // /!\ 3 and 1.5 are magic numbers.
+                double distance = from.distanceTo(to);
+                switch (to.neighbors().size()) {
+                    case 1:
+                        distance *= 3;
+                        break;
+                    case 2:
+                        distance *= 1.5;
+                        break;
+                    default:
+                        break;
+                }
+                distances[from.id][to.id] = distance;
             }
         }
 
@@ -134,7 +155,7 @@ public class AuctionDewey extends AuctionBentina {
         double price = 0;
         City from = task.pickupCity;
         for(City to : from.pathTo(task.deliveryCity)) {
-            double distance = from.distanceTo(to);
+            double distance = distances[from.id][to.id];
             double e = expectations[from.id][to.id];
             double cost = Math.ceil((e * task.weight) / capacity) / e;
             cost *= distance;
@@ -177,17 +198,15 @@ public class AuctionDewey extends AuctionBentina {
         return price;
     }
 
-
-
     @Override
     public Long askPrice(Task task) {
         super.askPrice(task);
 
-        // Other player, predicting the future bits ;-)
-        otherMinCost = task.pickupCity.distanceTo(task.deliveryCity) * minCostPerKm;
+        // the assuming no movements
+        minCost = task.pickupCity.distanceTo(task.deliveryCity) * minCostPerKm;
 
-        otherCandidate = Planning.addAndSimulate(otherCurrent, task);
-        otherMarginalCost = otherCandidate.getCost() - otherCurrent.getCost();
+        //otherCandidate = Planning.addAndSimulate(otherCurrent, task);
+        //otherMarginalCost = otherCandidate.getCost() - otherCurrent.getCost();
 
         double cost = getEstimateCost(task);
         double otherCost = getEstimateOtherCost(task);
@@ -204,12 +223,19 @@ public class AuctionDewey extends AuctionBentina {
         System.err.println("");
         */
 
+        // Huey
+        cost = Math.round(Math.min(cost, Math.max(marginalCost, minCost)));
+        // Louie
+        cost = (otherCost + cost) / 2.;
+
         // 3 cases:
         //   we are winning by a fair margin, try to improve our profit
         //   we are losing by a big bit, try to mimic our opponent
         //   else, keep our current strategy
-        if (reward > (otherReward * 1.1)) {
-            double diff = Math.max(Math.max(otherCost, cost) - cost;
+        /*
+        double diff;
+        if (reward > (otherReward * 1.2)) {
+            diff = Math.max(otherCost, cost) - cost;
             // The other guy is acting rationally
             if (diff > 0) {
                 // Let's bid between our value and his.
@@ -217,28 +243,30 @@ public class AuctionDewey extends AuctionBentina {
             }
             // The tax
             cost += 1;
-        } else if (reward < (otherReward * .9)) {
+        } else if (reward < (otherReward * .8)) {
             // Steal the others' strategy if we are loosing too much.
-            cost = otherCost - 1;
+            diff = Math.min(otherCost, cost) - otherCost;
+            cost -= diff / 2.;
         }
         // else: stay agressive
-
+        */
         // The tax
-        bid = Math.round(cost);
+        bid = Math.round(cost + 1);
         return bid;
     }
 
     @Override
     public void auctionResult(Task previous, int winner, Long[] bids) {
         super.auctionResult(previous, winner, bids);
-        double d = 0;
 
         // The other
         for (long b : bids) {
             if (b != bid) {
                 learn(previous, b);
+                round += 1;
 
-                d = b - otherMarginalCost;
+                /*
+                double d = b - otherMarginalCost;
                 if (winner != agent.id()) {
                     otherReward += (b - otherMarginalCost);
                     otherCurrent = otherCandidate;
@@ -246,8 +274,8 @@ public class AuctionDewey extends AuctionBentina {
                 }
                 // AVG difference of guess
                 diff = ((round * diff) + d) / (double) (round + 1);
-                round += 1;
                 log.info("guess made: " + d + " " + diff);
+                */
             }
         }
     }

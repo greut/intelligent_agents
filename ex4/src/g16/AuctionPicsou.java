@@ -48,7 +48,7 @@ public class AuctionPicsou extends AuctionBentina {
 
         // Our best vs the others' best
         bid = Math.round(Math.min(marginalCost, minCost - reward));
-        // To to win back what we've lost
+        // Try to win back what we've lost
         bid = Math.max(bid, -reward);
         // But never work for less than the others may, we are making an
         // educated guess here. Nothing more.
