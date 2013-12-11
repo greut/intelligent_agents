@@ -89,6 +89,15 @@ public abstract class AuctionBentina implements AuctionBehavior {
     @Override
     public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
         Planning solution = new Planning(current, vehicles, tasks);
+        for (Task t: tasks) {
+            Planning p = (Planning) solution.clone();
+            if (p.remove(t)) {
+                double extra = solution.getCost() - p.getCost();
+                if (extra > 0) {
+                    log.info(t + " ++ " + extra);
+                }
+            }
+        }
         log.info("["+ agent.id() + "] €" + reward);
         return solution.toList();
     }

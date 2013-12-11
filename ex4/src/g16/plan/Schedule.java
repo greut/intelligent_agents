@@ -107,13 +107,14 @@ public class Schedule {
      *
      * complexity: O(|steps|)
      * @param t the task to be removed
+     * @return true if the task has been removed.
      */
     public boolean remove(Task t) {
         Step p = null, d = null;
         ListIterator<Step> iter = steps.listIterator(0);
         while (iter.hasNext() && d == null) {
             Step s = iter.next();
-            if (s.task == t) {
+            if (s.task.id == t.id) {
                 switch (s.type) {
                     case PICKUP:
                         p = s;

@@ -118,6 +118,26 @@ public class Planning {
     }
 
     /**
+     * Remove the given task
+     *
+     * @param task the task to remove
+     * @return true if successfully removed
+     */
+    public boolean remove(Task task) {
+        for (int i=0; i < schedules.length; i++) {
+            Schedule s = schedules[i];
+            Schedule c = (Schedule) s.clone();
+            if (c.remove(task)) {
+                cost -= s.getCost();
+                cost += c.getCost();
+                schedules[i] = c;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Give all the possible plans for the given task.
      *
      * @param from its parent schedule
