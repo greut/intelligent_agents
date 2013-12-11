@@ -2,7 +2,7 @@
 %!TEX encoding = UTF-8 Unicode
 \documentclass[11pt,a4paper]{article}
 
-%\usepackage[left=80pt,top=60pt,bottom=110pt,right=60pt]{geometry}
+\usepackage[left=120pt,top=80pt,bottom=110pt,right=80pt]{geometry}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -172,10 +172,11 @@ This is a mix of \emph{Huey} and \emph{Dewey}, which is using two plannings
 to guess the other's marginal cost and overall rewards. It's taking the same
 vehicles as itself assuming that it doesn't matter much after a while.
 
-Currently, it takes the average of \emph{Huey} and \emph{Louie} as a price
-prediction to balance between our agressive solution and the other's behaviour.
-
-\textbf{TODO} complete this once we are done and happy with Dewey.
+It goes with \emph{Huey} way of working for the first couple of rounds and then
+depending on its state it acts differently. If it suspects the other player to
+win, then it will switch to \emph{Louie}'s strategy to mimic its opponent. In
+case, it thinks he wins, then he will increase its bids with a ratio of the
+difference between its estimation and the other's.
 
 \subsection*{Efficiency}
 
@@ -186,21 +187,20 @@ variables from the environment makes the bid computation a guestimation rather
 then something arguable.
 
 
-\section*{Results}
-
-\textbf{TODO} put here a nice table of one tournament of ours.
-
-
 \section*{Conclusion}
+
+We created a third template to get another environment but when running some
+tournaments, none of our agents won them all. Knowing how to be properly
+aggressive with the starting prices, how to more accurately predict the final
+price or when to start acting with respect to your opponents actions are very
+hard.
 
 We cannot be confident that any of our agents can bet all the other's one
 because they are no clear winners in our experiments either.
 
-I'd be interesting to be able to make agent evolving using genetic algorithm
-and running them against each with a parametric function using and combining
-inputs. E.g.,
-
-$$bid = a * marginalCost + b * otherMarginalCost + c * reward + d * otherReward$$
-
+One major weakness of our agents is that they are going negative and can stay
+there, loosing to a no tasks agent. This agressive behaviour seems weak in some
+situations. Not being able to know what's coming next makes the bidding task
+hard.
 
 \end{document}
