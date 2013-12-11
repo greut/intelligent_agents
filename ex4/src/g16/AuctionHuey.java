@@ -84,7 +84,6 @@ public class AuctionHuey extends AuctionBentina {
                     distance *= 1.5;
                 }
                 distances[from.id][to.id] = distance;
-                distances[to.id][from.id] = distance;
 
                 double p = distribution.probability(from, to);
                 City f = from;

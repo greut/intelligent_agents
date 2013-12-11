@@ -39,7 +39,7 @@ public class AuctionDewey extends AuctionBentina {
     private double diff;
 
     // The learning phase size
-    private int rounds = 9;
+    private int rounds = 8;
     private City[] cities;
     private double[][] segments;
     private double[][] distances;
@@ -101,28 +101,27 @@ public class AuctionDewey extends AuctionBentina {
                 City f = from;
                 for (City t : from.pathTo(to)) {
                     segments[f.id][t.id] += p;
-                    f = t;
                     total += p;
-                }
 
-                // Deform the reality about the map, so the less accessible
-                // parts of the graph are reflected in our estimation. The
-                // rational behind this is that it's very likely that we will
-                // have to travel back from such locations.
-                //
-                // /!\ 3 and 1.5 are magic numbers.
-                double distance = from.distanceTo(to);
-                switch (to.neighbors().size()) {
-                    case 1:
-                        distance *= 3;
-                        break;
-                    case 2:
-                        distance *= 1.5;
-                        break;
-                    default:
-                        break;
+                    // Deform the reality about the map, so the less accessible
+                    // parts of the graph are reflected in our estimation. The
+                    // rational behind this is that it's very likely that we will
+                    // have to travel back from such locations.
+                    double distance = f.distanceTo(t);
+                    switch (Math.min(f.neighbors().size(), t.neighbors().size())) {
+                        case 1:
+                            distance *= 1.5;
+                            break;
+                        case 2:
+                            distance *= 1.2;
+                            break;
+                        default:
+                            break;
+                    }
+                    distances[f.id][t.id] = distance;
+
+                    f = t;
                 }
-                distances[from.id][to.id] = distance;
             }
         }
 
@@ -205,51 +204,31 @@ public class AuctionDewey extends AuctionBentina {
         // the assuming no movements
         minCost = task.pickupCity.distanceTo(task.deliveryCity) * minCostPerKm;
 
-        //otherCandidate = Planning.addAndSimulate(otherCurrent, task);
-        //otherMarginalCost = otherCandidate.getCost() - otherCurrent.getCost();
+        otherCandidate = Planning.addAndSimulate(otherCurrent, task);
+        otherMarginalCost = otherCandidate.getCost() - otherCurrent.getCost();
 
         double cost = getEstimateCost(task);
         double otherCost = getEstimateOtherCost(task);
 
-        // Those estimation are not usually bad.
-        /*
-        System.err.println(task);
-        System.err.println("Bid: " + Math.round(cost));
-        System.err.println("Marginal cost: " + Math.round(marginalCost));
-        System.err.println("Reward: " + reward);
-        System.err.println("Other bid: " + Math.round(otherCost));
-        System.err.println("Other marginal cost: " + Math.round(otherMarginalCost));
-        System.err.println("Other reward: " + otherReward);
-        System.err.println("");
-        */
-
         // Huey
-        cost = Math.round(Math.min(cost, Math.max(marginalCost, minCost)));
-        // Louie
-        cost = (otherCost + cost) / 2.;
-
-        // 3 cases:
-        //   we are winning by a fair margin, try to improve our profit
-        //   we are losing by a big bit, try to mimic our opponent
-        //   else, keep our current strategy
-        /*
-        double diff;
-        if (reward > (otherReward * 1.2)) {
-            diff = Math.max(otherCost, cost) - cost;
-            // The other guy is acting rationally
-            if (diff > 0) {
-                // Let's bid between our value and his.
-                cost += diff / 2.;
+        cost = Math.min(cost, minCost - 1);
+        if (round > rounds) {
+            // If losing
+            double diff = reward - otherReward;
+            boolean significant = .3 < (
+                    Math.abs(diff) / (Math.abs(otherReward) + Math.abs(reward)));
+            // Losing by 30% is bad.
+            if (significant) {
+                System.err.println("Derp: " + reward + "/" + otherReward);
+                if (diff < 0) {
+                    cost = otherCost;
+                } else {
+                    cost = Math.max(cost, (cost + otherCost) / 2);
+                }
+                // We could use the marginal cost, or otherMargin cost as well
             }
-            // The tax
-            cost += 1;
-        } else if (reward < (otherReward * .8)) {
-            // Steal the others' strategy if we are loosing too much.
-            diff = Math.min(otherCost, cost) - otherCost;
-            cost -= diff / 2.;
         }
-        // else: stay agressive
-        */
+
         // The tax
         bid = Math.round(cost + 1);
         return bid;
@@ -265,7 +244,6 @@ public class AuctionDewey extends AuctionBentina {
                 learn(previous, b);
                 round += 1;
 
-                /*
                 double d = b - otherMarginalCost;
                 if (winner != agent.id()) {
                     otherReward += (b - otherMarginalCost);
@@ -274,8 +252,6 @@ public class AuctionDewey extends AuctionBentina {
                 }
                 // AVG difference of guess
                 diff = ((round * diff) + d) / (double) (round + 1);
-                log.info("guess made: " + d + " " + diff);
-                */
             }
         }
     }
